@@ -47,6 +47,10 @@ export default class PreloadScene extends Phaser.Scene {
         // Dragon - red beast
         this.drawEnemy(g, 'dragon', 0xcc2222, 0x881111, 0xff8800);
 
+        this.drawBoss(g, 'boss');
+        this.drawGate(g, 'gate_closed', 0x553311, false);
+        this.drawGate(g, 'gate_open',   0xffcc44, true);
+
         // NPC - golden villager
         this.drawNPC(g, 'npc', 0xdd9922);
 
@@ -93,6 +97,40 @@ export default class PreloadScene extends Phaser.Scene {
         g.fillStyle(0x111111);
         g.fillRect(2, 22, 3, 4); g.fillRect(5, 22, 3, 4);
         g.fillRect(24, 22, 3, 4); g.fillRect(27, 22, 3, 4);
+        g.generateTexture(key, 32, 32);
+    }
+
+    drawGate(g, key, color, open) {
+        g.clear();
+        g.fillStyle(0x442200); g.fillRect(0, 0, 32, 32);
+        g.fillStyle(color);
+        if (open) {
+            g.fillRect(2, 2, 10, 28); g.fillRect(20, 2, 10, 28);
+            g.fillRect(2, 2, 28, 6);
+        } else {
+            g.fillRect(2, 2, 28, 28);
+            g.fillStyle(0x221100);
+            for (let i = 0; i < 4; i++) g.fillRect(5 + i * 7, 5, 4, 22);
+            g.fillStyle(0xffcc00); g.fillCircle(16, 16, 3);
+        }
+        g.generateTexture(key, 32, 32);
+    }
+
+    drawBoss(g, key) {
+        g.clear();
+        // Massive stone body
+        g.fillStyle(0x556677); g.fillRect(4, 8, 24, 22);
+        // Head
+        g.fillStyle(0x445566); g.fillRect(6, 2, 20, 10);
+        // Glowing eyes
+        g.fillStyle(0xff6600); g.fillRect(9, 5, 5, 5); g.fillRect(18, 5, 5, 5);
+        g.fillStyle(0xffaa00); g.fillRect(10, 6, 3, 3); g.fillRect(19, 6, 3, 3);
+        // Cracks
+        g.fillStyle(0x223344); g.fillRect(13, 10, 2, 8); g.fillRect(18, 14, 2, 6);
+        // Arms
+        g.fillStyle(0x445566); g.fillRect(0, 10, 5, 14); g.fillRect(27, 10, 5, 14);
+        // Fists
+        g.fillStyle(0x334455); g.fillRect(0, 22, 6, 6); g.fillRect(26, 22, 6, 6);
         g.generateTexture(key, 32, 32);
     }
 
