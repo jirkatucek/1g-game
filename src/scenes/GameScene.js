@@ -1,6 +1,6 @@
 import { LEVELS } from '../maps/levels.js';
 
-const TILE = 32;
+const TILE = 64;
 const KILLS_NEEDED = 5;
 
 export default class GameScene extends Phaser.Scene {
@@ -34,8 +34,9 @@ export default class GameScene extends Phaser.Scene {
         this.buildWalls();
 
         const { x, y } = this.levelData.playerStart;
-        this.player = this.physics.add.sprite(x * TILE + 16, y * TILE + 16, 'player');
+        this.player = this.physics.add.sprite(x * TILE + TILE/2, y * TILE + TILE/2, 'player');
         this.player.setCollideWorldBounds(true);
+        this.player.setScale(2);
         this.player.setBodySize(20, 20);
         this.player.hp    = this.playerHP;
         this.player.maxHp = this.playerMaxHP;
@@ -75,7 +76,7 @@ export default class GameScene extends Phaser.Scene {
         const keys = ['grass', 'tree', 'path', 'water'];
         for (let r = 0; r < this.rows; r++)
             for (let c = 0; c < this.cols; c++)
-                this.add.image(c * TILE + 16, r * TILE + 16, keys[this.mapData[r][c]]);
+                this.add.image(c * TILE + TILE/2, r * TILE + TILE/2, keys[this.mapData[r][c]]).setScale(2);
     }
 
     buildWalls() {
@@ -84,15 +85,16 @@ export default class GameScene extends Phaser.Scene {
             for (let c = 0; c < this.cols; c++) {
                 const t = this.mapData[r][c];
                 if (t === 1 || t === 3)
-                    this.walls.create(c * TILE + 16, r * TILE + 16, t === 1 ? 'tree' : 'water')
-                        .setImmovable(true).refreshBody();
+                    this.walls.create(c * TILE + TILE/2, r * TILE + TILE/2, t === 1 ? 'tree' : 'water')
+                        .setImmovable(true).setScale(2).refreshBody();
             }
         }
     }
 
     spawnEnemies() {
         this.levelData.enemies.forEach((ed, i) => {
-            const e = this.enemies.create(ed.x * TILE + 16, ed.y * TILE + 16, ed.type === 'boss' ? 'boss' : ed.type);
+            const e = this.enemies.create(ed.x * TILE + TILE/2, ed.y * TILE + TILE/2, ed.type === 'boss' ? 'boss' : ed.type);
+            e.setScale(2);
             e.enemyData  = ed;
             e.enemyIndex = i;
             e.setDepth(10);
@@ -111,10 +113,11 @@ export default class GameScene extends Phaser.Scene {
 
     spawnNPCs() {
         this.levelData.npcs.forEach(nd => {
-            const npc = this.npcs.create(nd.x * TILE + 16, nd.y * TILE + 16, 'npc');
+            const npc = this.npcs.create(nd.x * TILE + TILE/2, nd.y * TILE + TILE/2, 'npc');
             npc.npcData = nd;
+            npc.setScale(2).refreshBody();
             npc.setDepth(10);
-            this.add.text(nd.x * TILE + 16, nd.y * TILE - 10, '!', {
+            this.add.text(nd.x * TILE + TILE/2, nd.y * TILE - 10, '!', {
                 fontSize: '18px', fill: '#ffff00', fontFamily: 'Arial Black',
             }).setOrigin(0.5).setDepth(11);
         });
@@ -123,7 +126,8 @@ export default class GameScene extends Phaser.Scene {
     spawnGate() {
         if (!this.levelData.gate) return;
         const { x, y } = this.levelData.gate;
-        this.gate = this.physics.add.staticSprite(x * TILE + 16, y * TILE + 16, 'gate_closed');
+        this.gate = this.physics.add.staticSprite(x * TILE + TILE/2, y * TILE + TILE/2, 'gate_closed');
+        this.gate.setScale(2).refreshBody();
         this.gate.setDepth(9);
         this.physics.add.collider(this.player, this.gate);
         this.gateOverlap = this.physics.add.overlap(this.player, this.gate, this.enterGate, null, this);

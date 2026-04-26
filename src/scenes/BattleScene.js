@@ -34,7 +34,7 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     create() {
-        const W = 800, H = 600;
+        const W = this.scale.width, H = this.scale.height;
         const sprKey = this.isBoss ? 'boss' : this.enemyData.type;
 
         const cx = W / 2, cy = H / 2;
@@ -207,7 +207,7 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     win() {
-        this.add.text(400, 300, 'VYHRÁNO! 🎉', {
+        this.add.text(this.scale.width / 2, this.scale.height / 2, 'VYHRÁNO! 🎉', {
             fontSize: '48px', fill: '#ffff00', fontFamily: 'Arial Black',
             stroke: '#886600', strokeThickness: 6,
         }).setOrigin(0.5);
@@ -218,7 +218,7 @@ export default class BattleScene extends Phaser.Scene {
     lose() {
         this.canAnswer = false;
         this.input.keyboard.off('keydown', this.onKey, this);
-        this.add.text(400, 300, 'PROHRÁL JSI...', {
+        this.add.text(this.scale.width / 2, this.scale.height / 2, 'PROHRÁL JSI...', {
             fontSize: '40px', fill: '#ff2222', fontFamily: 'Arial Black',
             stroke: '#660000', strokeThickness: 6,
         }).setOrigin(0.5);

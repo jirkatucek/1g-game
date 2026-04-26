@@ -14,6 +14,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: 1920,
         height: 1080,
+        parent: document.body,
     },
     physics: {
         default: 'arcade',
