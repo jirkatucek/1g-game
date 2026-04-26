@@ -37,56 +37,64 @@ export default class BattleScene extends Phaser.Scene {
         const W = 800, H = 600;
         const sprKey = this.isBoss ? 'boss' : this.enemyData.type;
 
-        this.add.rectangle(W/2, H/2, W, H, 0x000000, 0.88);
-        this.add.rectangle(W/2, H/2, 720, 530, 0x0e0e2a).setStrokeStyle(3, this.isBoss ? 0xcc4400 : 0x3366cc);
+        const cx = W / 2, cy = H / 2;
+        const bw = W * 0.32; // HP bar width
 
-        this.add.text(W/2, 70, this.isBoss ? '🔥 BOSS SOUBOJ! 🔥' : '⚔  SOUBOJ!  ⚔', {
-            fontSize: '30px', fill: this.isBoss ? '#ff8800' : '#ff4444',
-            fontFamily: 'Arial Black', stroke: '#330000', strokeThickness: 6,
+        this.add.rectangle(cx, cy, W, H, 0x000000, 0.88);
+        this.add.rectangle(cx, cy, W * 0.75, H * 0.82, 0x0e0e2a).setStrokeStyle(4, this.isBoss ? 0xcc4400 : 0x3366cc);
+
+        this.add.text(cx, H * 0.1, this.isBoss ? '🔥 BOSS SOUBOJ! 🔥' : '⚔  SOUBOJ!  ⚔', {
+            fontSize: '52px', fill: this.isBoss ? '#ff8800' : '#ff4444',
+            fontFamily: 'Arial Black', stroke: '#330000', strokeThickness: 8,
         }).setOrigin(0.5);
 
-        this.add.text(W/2, 108, this.enemyName, {
-            fontSize: '20px', fill: '#ffaa44', fontFamily: 'Arial Black',
+        this.add.text(cx, H * 0.18, this.enemyName, {
+            fontSize: '36px', fill: '#ffaa44', fontFamily: 'Arial Black',
         }).setOrigin(0.5);
 
         if (this.isBoss) {
-            this.streakText = this.add.text(W/2, 135, `Správně v řadě: 0 / ${this.bossNeeded}`, {
-                fontSize: '14px', fill: '#ffff88', fontFamily: 'Arial',
+            this.streakText = this.add.text(cx, H * 0.24, `Správně v řadě: 0 / ${this.bossNeeded}`, {
+                fontSize: '26px', fill: '#ffff88', fontFamily: 'Arial',
             }).setOrigin(0.5);
         }
 
-        this.add.image(180, 220, sprKey).setScale(this.isBoss ? 6 : 5);
+        const ex = W * 0.22, ey = H * 0.4;
+        this.add.image(ex, ey, sprKey).setScale(this.isBoss ? 10 : 8);
 
-        this.add.text(70, 268, 'HP příšery:', { fontSize: '12px', fill: '#ccc', fontFamily: 'Arial' });
-        this.add.rectangle(70, 284, 244, 16, 0x331111).setOrigin(0);
-        this.eHPBar = this.add.rectangle(70, 284, 244, 16, 0xdd2222).setOrigin(0);
-        this.eHPTxt = this.add.text(192, 284, '', { fontSize: '11px', fill: '#fff', fontFamily: 'Arial' }).setOrigin(0.5, 0);
+        const eBarX = W * 0.08, barY = H * 0.56;
+        this.add.text(eBarX, H * 0.52, 'HP příšery:', { fontSize: '22px', fill: '#ccc', fontFamily: 'Arial' });
+        this.add.rectangle(eBarX, barY, bw, 28, 0x331111).setOrigin(0);
+        this.eHPBar = this.add.rectangle(eBarX, barY, bw, 28, 0xdd2222).setOrigin(0);
+        this.eHPTxt = this.add.text(eBarX + bw / 2, barY, '', { fontSize: '20px', fill: '#fff', fontFamily: 'Arial' }).setOrigin(0.5, 0);
         this.refreshEnemyHP();
 
-        this.add.image(620, 220, 'player').setScale(5);
-        this.add.text(490, 268, 'Tvůj HP:', { fontSize: '12px', fill: '#ccc', fontFamily: 'Arial' });
-        this.add.rectangle(490, 284, 244, 16, 0x113311).setOrigin(0);
-        this.pHPBar = this.add.rectangle(490, 284, 244, 16, 0x22cc44).setOrigin(0);
-        this.pHPTxt = this.add.text(612, 284, '', { fontSize: '11px', fill: '#fff', fontFamily: 'Arial' }).setOrigin(0.5, 0);
+        const px = W * 0.78, py = H * 0.4;
+        this.add.image(px, py, 'player').setScale(8);
+
+        const pBarX = W * 0.6;
+        this.add.text(pBarX, H * 0.52, 'Tvůj HP:', { fontSize: '22px', fill: '#ccc', fontFamily: 'Arial' });
+        this.add.rectangle(pBarX, barY, bw, 28, 0x113311).setOrigin(0);
+        this.pHPBar = this.add.rectangle(pBarX, barY, bw, 28, 0x22cc44).setOrigin(0);
+        this.pHPTxt = this.add.text(pBarX + bw / 2, barY, '', { fontSize: '20px', fill: '#fff', fontFamily: 'Arial' }).setOrigin(0.5, 0);
         this.refreshPlayerHP();
 
-        this.add.rectangle(W/2, 365, 680, 90, 0x08082a).setStrokeStyle(2, 0x2255aa);
-        this.qText = this.add.text(W/2, 365, '', {
-            fontSize: '22px', fill: '#fff', fontFamily: 'Arial', align: 'center',
+        this.add.rectangle(cx, H * 0.68, W * 0.6, H * 0.12, 0x08082a).setStrokeStyle(3, 0x2255aa);
+        this.qText = this.add.text(cx, H * 0.68, '', {
+            fontSize: '38px', fill: '#fff', fontFamily: 'Arial', align: 'center',
         }).setOrigin(0.5);
 
-        this.add.text(W/2, 428, 'Tvoje odpověď (formát: 3/4):', { fontSize: '13px', fill: '#888', fontFamily: 'Arial' }).setOrigin(0.5);
-        this.add.rectangle(W/2, 457, 210, 38, 0x101030).setStrokeStyle(2, 0x44aaff);
-        this.aTxt = this.add.text(W/2, 457, '_', {
-            fontSize: '26px', fill: '#44ddff', fontFamily: 'Courier New',
+        this.add.text(cx, H * 0.79, 'Tvoje odpověď (formát: 3/4):', { fontSize: '22px', fill: '#888', fontFamily: 'Arial' }).setOrigin(0.5);
+        this.add.rectangle(cx, H * 0.855, W * 0.18, 60, 0x101030).setStrokeStyle(3, 0x44aaff);
+        this.aTxt = this.add.text(cx, H * 0.855, '_', {
+            fontSize: '44px', fill: '#44ddff', fontFamily: 'Courier New',
         }).setOrigin(0.5);
 
-        this.fbTxt = this.add.text(W/2, 497, '', {
-            fontSize: '15px', fill: '#fff', fontFamily: 'Arial', align: 'center',
+        this.fbTxt = this.add.text(cx, H * 0.92, '', {
+            fontSize: '26px', fill: '#fff', fontFamily: 'Arial', align: 'center',
         }).setOrigin(0.5);
 
-        this.add.text(W/2, 538, 'ENTER = potvrdit   •   ESC = utéct (−20 HP)', {
-            fontSize: '11px', fill: '#444466', fontFamily: 'Arial',
+        this.add.text(cx, H * 0.97, 'ENTER = potvrdit   •   ESC = utéct (−20 HP)', {
+            fontSize: '20px', fill: '#444466', fontFamily: 'Arial',
         }).setOrigin(0.5);
 
         this.input.keyboard.on('keydown', this.onKey, this);
@@ -164,19 +172,21 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     refreshEnemyHP() {
+        const bw = this.scale.width * 0.32;
         if (this.isBoss) {
-            this.eHPBar.setDisplaySize(244, 16);
+            this.eHPBar.setDisplaySize(bw, 28);
             this.eHPTxt.setText(`${this.bossStreak}/${this.bossNeeded} správně v řadě`);
             return;
         }
         const r = this.enemyHP / this.enemyMaxHP;
-        this.eHPBar.setDisplaySize(244 * r, 16);
+        this.eHPBar.setDisplaySize(bw * r, 28);
         this.eHPTxt.setText(`${this.enemyHP} / ${this.enemyMaxHP}`);
     }
 
     refreshPlayerHP() {
+        const bw = this.scale.width * 0.32;
         const r = this.playerHP / this.playerMaxHP;
-        this.pHPBar.setDisplaySize(244 * r, 16);
+        this.pHPBar.setDisplaySize(bw * r, 28);
         this.pHPBar.setFillStyle(r > 0.5 ? 0x22cc44 : r > 0.25 ? 0xffaa00 : 0xff2222);
         this.pHPTxt.setText(`${this.playerHP} / ${this.playerMaxHP}`);
     }
