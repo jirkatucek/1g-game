@@ -38,13 +38,14 @@ export default class GameScene extends Phaser.Scene {
         this.renderTiles();
         this.buildWalls();
 
+
         const ps = this.levelData.playerStart;
         const safeStart = this.findSafeTile(ps.x, ps.y);
         this.player = this.physics.add.sprite(safeStart.col * TILE + TILE/2, safeStart.row * TILE + TILE/2, 'warrior_idle');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.9);
         // Circular body slides around tree corners instead of catching on them
-        this.player.setCircle(22, 74, 120);
+        this.player.setCircle(24, 74, 120);
         this.player.hp    = this.playerHP;
         this.player.maxHp = this.playerMaxHP;
         this.player.setDepth(10);
@@ -99,7 +100,7 @@ export default class GameScene extends Phaser.Scene {
                 const groundKey = t === 2 ? 'ts_path'
                                 : t === 3 ? 'ts_water'
                                 : 'ts_grass';
-                this.add.image(x, y, groundKey).setDisplaySize(TILE + 2, TILE + 2).setDepth(0);
+                    this.add.image(x, y, groundKey).setDisplaySize(TILE + 4, TILE + 4).setDepth(0);
 
                 if (t === 1) {
                     // Tree: anchor at tile bottom so trunk sits on ground, canopy rises above
@@ -134,7 +135,7 @@ export default class GameScene extends Phaser.Scene {
                     // Trees shrunk by 10px so player can navigate flush against them
                     // without hitting an invisible wall inside the visually overhanging canopy.
                     // Water stays full-tile (no visual overhang issue).
-                    const size = t === 1 ? TILE - 10 : TILE;
+                      const size = t === 1 ? TILE - 14 : TILE; // Adjusted size for tree collider
                     this.walls.create(c * TILE + TILE/2, r * TILE + TILE/2, 'ts_grass')
                         .setImmovable(true)
                         .setDisplaySize(size, size)
