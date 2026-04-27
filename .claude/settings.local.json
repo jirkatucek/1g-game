@@ -7,7 +7,17 @@
       "Bash(gh --version)",
       "Bash(python3 -c ' *)",
       "Bash(mkdir -p \"c:/Users/jirka/Desktop/1.G Math game/assets/warrior\")",
-      "Bash(cp \"c:/Users/jirka/Downloads/Tiny Swords \\(Free Pack\\)/Tiny Swords \\(Free Pack\\)/Units/Blue Units/Warrior/\"*.png \"c:/Users/jirka/Desktop/1.G Math game/assets/warrior/\")"
+      "Bash(cp \"c:/Users/jirka/Downloads/Tiny Swords \\(Free Pack\\)/Tiny Swords \\(Free Pack\\)/Units/Blue Units/Warrior/\"*.png \"c:/Users/jirka/Desktop/1.G Math game/assets/warrior/\")",
+      "Bash(ls \"c:/Users/jirka/Downloads/Hra do souteze s AI_files/UI Galerie.html\")",
+      "Bash(ls *.zip)",
+      "Bash(mkdir -p /tmp/hrasoutez)",
+      "Bash(unzip -o \"Hra do souteze s AI.zip\" -d /tmp/hrasoutez)",
+      "Read(//tmp/**)",
+      "Bash(powershell -Command \"Expand-Archive -Path 'C:\\\\\\\\Users\\\\\\\\jirka\\\\\\\\Downloads\\\\\\\\Hra do souteze s AI.zip' -DestinationPath 'C:\\\\\\\\Users\\\\\\\\jirka\\\\\\\\Downloads\\\\\\\\hrasoutez' -Force; Get-ChildItem 'C:\\\\\\\\Users\\\\\\\\jirka\\\\\\\\Downloads\\\\\\\\hrasoutez' -Recurse -Filter '*.png' | Select-Object FullName\")",
+      "Bash(powershell -Command ' *)",
+      "Bash(python -c ' *)",
+      "Bash(identify \"c:/Users/jirka/Desktop/1.G Math game/assets/buttons/btn_blue.png\")",
+      "Bash(python -c \"from PIL import Image; img = Image.open\\('c:/Users/jirka/Desktop/1.G Math game/assets/buttons/btn_blue_pressed.png'\\); print\\(img.size\\)\")"
     ]
   }
 }

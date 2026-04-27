@@ -6,50 +6,238 @@ export default class MenuScene extends Phaser.Scene {
     create() {
         const W = this.scale.width, H = this.scale.height;
 
-        this.add.rectangle(W/2, H/2, W, H, 0x0a0a1a);
-        for (let i = 0; i < 100; i++) {
-            const size = Math.random() * 1.5 + 0.5;
-            this.add.circle(Math.random() * W, Math.random() * H, size, 0xffffff, Math.random() * 0.7 + 0.3);
+        this.buildBackground(W, H);
+        this.buildLeft(W, H);
+        this.buildRight(W, H);
+    }
+
+    buildBackground(W, H) {
+        const g = this.add.graphics();
+
+        // Sky gradient layers
+        g.fillStyle(0x061428); g.fillRect(0, 0, W, H);
+        g.fillStyle(0x0a1e3a); g.fillRect(0, H * 0.3, W, H * 0.4);
+
+        // Stars
+        for (let i = 0; i < 140; i++) {
+            const x = Math.random() * W, y = Math.random() * H * 0.85;
+            const s = Math.random() * 1.6 + 0.4;
+            const a = Math.random() * 0.6 + 0.3;
+            g.fillStyle(0xffffff, a); g.fillCircle(x, y, s);
+        }
+        // A few bright dots
+        for (let i = 0; i < 8; i++) {
+            g.fillStyle(0xffee88, 0.9);
+            g.fillCircle(Math.random() * W, Math.random() * H * 0.8, 2.5);
         }
 
-        this.add.text(W/2, 80, 'MATH QUEST', {
-            fontSize: '62px', fill: '#ffcc00', fontFamily: 'Arial Black',
-            stroke: '#885500', strokeThickness: 8,
-        }).setOrigin(0.5);
+        // Bottom platform row
+        const platH = H * 0.12, platY = H - platH / 2;
+        g.fillStyle(0x0b1c2e); g.fillRect(0, H - platH, W, platH);
+        const platW = W / 14;
+        for (let i = 0; i < 14; i++) {
+            g.fillStyle(0x0d2236); g.fillRect(i * platW + 2, H - platH + 4, platW - 4, platH - 8);
+            // Tiny green dots on each platform
+            for (let j = 0; j < 3; j++) {
+                g.fillStyle(0x22ff44, 0.5);
+                g.fillCircle(i * platW + 20 + j * 18, H - 18, 2);
+            }
+        }
 
-        this.add.text(W/2, 150, 'Dobrodružství s matematikou', {
-            fontSize: '18px', fill: '#aaaaee', fontFamily: 'Arial',
-        }).setOrigin(0.5);
+        // Outer gold border
+        const brd = 16;
+        g.lineStyle(brd, 0xffcc00, 1);
+        g.strokeRect(brd / 2, brd / 2, W - brd, H - brd);
 
-        const knight = this.add.image(W/2, 250, 'player').setScale(6);
-        this.tweens.add({ targets: knight, y: 262, duration: 1100, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        // Inner blue border
+        g.lineStyle(4, 0x2255cc, 1);
+        g.strokeRect(brd + 6, brd + 6, W - (brd + 6) * 2, H - (brd + 6) * 2);
 
-        // Start button
-        const btn = this.add.rectangle(W/2, 340, 230, 48, 0x1a44aa).setInteractive({ useHandCursor: true });
-        btn.setStrokeStyle(3, 0x55aaff);
-        this.add.text(W/2, 340, '▶  HRÁT OD ZAČÁTKU', { fontSize: '20px', fill: '#fff', fontFamily: 'Arial Black' }).setOrigin(0.5);
-        btn.on('pointerover', () => btn.setFillStyle(0x2255cc));
-        btn.on('pointerout',  () => btn.setFillStyle(0x1a44aa));
-        btn.on('pointerdown', () => this.startLevel(0));
-
-        // Level select
-        this.add.text(W/2, 395, '— Výběr levelu —', { fontSize: '13px', fill: '#666688', fontFamily: 'Arial' }).setOrigin(0.5);
-
-        LEVELS.forEach((lvl, i) => {
-            const x = 120 + i * 140;
-            const y = 440;
-            const b = this.add.rectangle(x, y, 128, 48, 0x112233).setInteractive({ useHandCursor: true });
-            b.setStrokeStyle(2, 0x3355aa);
-            this.add.text(x, y - 8, `Level ${i + 1}`, { fontSize: '14px', fill: '#ffcc44', fontFamily: 'Arial Black' }).setOrigin(0.5);
-            this.add.text(x, y + 10, lvl.name, { fontSize: '9px', fill: '#8888aa', fontFamily: 'Arial', wordWrap: { width: 120 } }).setOrigin(0.5, 0);
-            b.on('pointerover', () => b.setFillStyle(0x1a3355));
-            b.on('pointerout',  () => b.setFillStyle(0x112233));
-            b.on('pointerdown', () => this.startLevel(i));
+        // Corner plus decorations
+        const plusColor = 0x44aacc, plusAlpha = 0.9;
+        const corners = [[55, 58], [W - 55, 58], [55, H - 58], [W - 55, H - 58]];
+        corners.forEach(([cx, cy]) => {
+            g.fillStyle(plusColor, plusAlpha);
+            g.fillRect(cx - 14, cy - 4, 28, 8);
+            g.fillRect(cx - 4, cy - 14, 8, 28);
         });
 
-        this.add.text(W/2, 510, 'Pohyb: WASD nebo šipky  •  Souboj: odpovídej na matematické příklady  •  ESC: útěk', {
-            fontSize: '11px', fill: '#444466', fontFamily: 'Arial', align: 'center',
+        // Central dotted vertical divider
+        const divX = W / 2;
+        for (let y = brd + 20; y < H - platH - 10; y += 22) {
+            g.fillStyle(0xffcc00, 0.55); g.fillRect(divX - 2, y, 4, 12);
+        }
+
+    }
+
+    buildLeft(W, H) {
+        const cx = W * 0.28;
+
+        this.add.text(cx, H * 0.16, 'MATH', {
+            fontSize: '130px', fill: '#ffcc00', fontFamily: 'Arial Black',
+            stroke: '#885500', strokeThickness: 10,
         }).setOrigin(0.5);
+
+        this.add.text(cx, H * 0.30, 'QUEST', {
+            fontSize: '130px', fill: '#ff8800', fontFamily: 'Arial Black',
+            stroke: '#551100', strokeThickness: 10,
+        }).setOrigin(0.5);
+
+        this.add.text(cx, H * 0.41, 'Dobrodružství s matematikou', {
+            fontSize: '28px', fill: '#aaaaee', fontFamily: 'Arial',
+        }).setOrigin(0.5);
+
+        const knight = this.add.sprite(cx, H * 0.64, 'warrior_idle').setScale(3.5);
+        knight.play('warrior_idle');
+        this.tweens.add({ targets: knight, y: H * 0.64 + 12, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+        this.add.text(cx, H * 0.885, 'Pohyb: WASD / šipky   •   Souboj: odpovídej na příklady   •   ESC: útěk', {
+            fontSize: '17px', fill: '#44496a', fontFamily: 'Arial', align: 'center', wordWrap: { width: 520 },
+        }).setOrigin(0.5);
+    }
+
+    buildRight(W, H) {
+        const cx = W * 0.74;
+        const startY = H * 0.2;
+        const gap = H * 0.185;
+
+        const btns = [
+            { label: '▶  HRÁT',      fill: 0x7a5200, stroke: 0xffcc00, action: () => this.startLevel(0) },
+            { label: '☰  LEVELY',    fill: 0x0e2d88, stroke: 0x44aaff, action: () => this.toggleLevelSelect() },
+            { label: '⚙  NASTAVENÍ', fill: 0x1a3344, stroke: 0x6688aa, action: () => {} },
+            { label: '✕  ODEJÍT',    fill: 0x881111, stroke: 0xff4444, action: () => {} },
+        ];
+
+        btns.forEach((def, i) => {
+            this.makeButton(cx, startY + i * gap, def.label, def.fill, def.stroke, def.action);
+        });
+
+        const { overlay, panel } = this.buildLevelPanel(W, H);
+        this.levelOverlay = overlay;
+        this.levelPanel   = panel;
+        this.levelOverlay.setVisible(false);
+        this.levelPanel.setVisible(false);
+    }
+
+    makeButton(x, y, label, fillColor, strokeColor, callback) {
+        const bw = 480, bh = 90;
+
+        const glow = this.add.rectangle(x, y, bw + 10, bh + 10, strokeColor, 0.18);
+
+        const btn = this.add.rectangle(x, y, bw, bh, fillColor)
+            .setStrokeStyle(3, strokeColor)
+            .setInteractive({ useHandCursor: true });
+
+        // Top sheen
+        this.add.rectangle(x, y - bh / 2 + 11, bw - 8, 16, 0xffffff, 0.1);
+
+        const txt = this.add.text(x, y + 2, label, {
+            fontSize: '40px', fill: '#ffffff', fontFamily: 'Arial Black',
+            stroke: '#000000', strokeThickness: 5,
+        }).setOrigin(0.5);
+
+        btn.on('pointerover', () => {
+            btn.setFillStyle(this.lighten(fillColor));
+            glow.setAlpha(0.45);
+            txt.setScale(1.05);
+        });
+        btn.on('pointerout', () => {
+            btn.setFillStyle(fillColor);
+            glow.setAlpha(0.18);
+            txt.setScale(1.0);
+        });
+        btn.on('pointerdown', () => {
+            btn.setY(y + 4); txt.setY(y + 6);
+        });
+        btn.on('pointerup', () => {
+            btn.setY(y); txt.setY(y + 2);
+            callback();
+        });
+    }
+
+    lighten(hex) {
+        const r = Math.min(255, ((hex >> 16) & 0xff) + 50);
+        const g = Math.min(255, ((hex >> 8)  & 0xff) + 50);
+        const b = Math.min(255, (hex         & 0xff) + 50);
+        return (r << 16) | (g << 8) | b;
+    }
+
+    buildLevelPanel(W, H) {
+        // Full-screen blocker — zachytí všechny kliknutí pod panelem
+        const overlay = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.55)
+            .setInteractive()
+            .setDepth(80);
+
+        const container = this.add.container(0, 0).setDepth(90);
+
+        // Panel background — plně neprůhledný, také interaktivní aby blokoval kliknutí
+        const pW = W * 0.58, pH = H * 0.68;
+        const bg = this.add.rectangle(W / 2, H / 2, pW, pH, 0x0d0d2a)
+            .setStrokeStyle(3, 0x3355aa)
+            .setInteractive();
+        container.add(bg);
+
+        const title = this.add.text(W / 2 - 40, H * 0.22, 'Výběr levelu', {
+            fontSize: '38px', fill: '#ffcc44', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        container.add(title);
+
+        // Křížek — větší, uvnitř panelu vpravo nahoře
+        const closeX = W / 2 + pW / 2 - 44;
+        const closeY = H / 2 - pH / 2 + 40;
+        const closeBg = this.add.rectangle(closeX, closeY, 52, 52, 0x881111)
+            .setStrokeStyle(2, 0xff4444)
+            .setInteractive({ useHandCursor: true });
+        const closeTxt = this.add.text(closeX, closeY + 2, '✕', {
+            fontSize: '34px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        closeBg.on('pointerover',  () => closeBg.setFillStyle(0xcc2222));
+        closeBg.on('pointerout',   () => closeBg.setFillStyle(0x881111));
+        closeBg.on('pointerdown',  () => closeBg.setFillStyle(0xff2222));
+        closeBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            closeBg.setFillStyle(0x881111);
+            this.toggleLevelSelect();
+        });
+        container.add([closeBg, closeTxt]);
+
+        // Mřížka levelů
+        const cols = 5;
+        const gridW = pW * 0.88;
+        const cellW = gridW / cols;
+        const cellH = 120;
+        const gridStartX = W / 2 - gridW / 2 + cellW / 2;
+        const gridStartY = H * 0.4;
+
+        LEVELS.forEach((lvl, i) => {
+            const col = i % cols, row = Math.floor(i / cols);
+            const bx = gridStartX + col * cellW;
+            const by = gridStartY + row * (cellH + 16);
+
+            const b = this.add.rectangle(bx, by, cellW - 12, cellH, 0x112233)
+                .setStrokeStyle(2, 0x3355aa)
+                .setInteractive({ useHandCursor: true });
+            const lbl  = this.add.text(bx, by - 18, `Level ${i + 1}`, { fontSize: '16px', fill: '#ffcc44', fontFamily: 'Arial Black' }).setOrigin(0.5);
+            const name = this.add.text(bx, by + 6,  lvl.name, { fontSize: '12px', fill: '#8888aa', fontFamily: 'Arial', wordWrap: { width: cellW - 20 }, align: 'center' }).setOrigin(0.5);
+
+            b.on('pointerover', () => b.setFillStyle(0x1a3355));
+            b.on('pointerout',  () => b.setFillStyle(0x112233));
+            b.on('pointerup', (pointer, lx, ly, event) => {
+                event.stopPropagation();
+                this.toggleLevelSelect();
+                this.startLevel(i);
+            });
+
+            container.add([b, lbl, name]);
+        });
+
+        return { overlay, panel: container };
+    }
+
+    toggleLevelSelect() {
+        const show = !this.levelPanel.visible;
+        this.levelOverlay.setVisible(show);
+        this.levelPanel.setVisible(show);
     }
 
     startLevel(index) {

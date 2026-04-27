@@ -10,10 +10,8 @@ const config = {
     backgroundColor: '#0a0a1a',
     pixelArt: true,
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 1920,
-        height: 1080,
         parent: document.body,
     },
     physics: {

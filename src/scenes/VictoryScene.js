@@ -5,20 +5,19 @@ export default class VictoryScene extends Phaser.Scene {
         const W = this.scale.width, H = this.scale.height;
         this.add.rectangle(W/2, H/2, W, H, 0x080800);
 
-        this.add.text(W/2, 130, '🏆 VÍTĚZ! 🏆', {
+        this.add.text(W/2, H * 0.18, '🏆 VÍTĚZ! 🏆', {
             fontSize: '80px', fill: '#ffdd00', fontFamily: 'Arial Black',
             stroke: '#886600', strokeThickness: 8,
         }).setOrigin(0.5);
 
-        this.add.text(W/2, 230, 'Zdolal jsi všechny oblasti!', {
+        this.add.text(W/2, H * 0.32, 'Zdolal jsi všechny oblasti!', {
             fontSize: '26px', fill: '#ffffaa', fontFamily: 'Arial',
         }).setOrigin(0.5);
 
-        this.add.text(W/2, 270, 'Království je zachráněno díky tvé matematice!', {
+        this.add.text(W/2, H * 0.4, 'Království je zachráněno díky tvé matematice!', {
             fontSize: '17px', fill: '#cccc88', fontFamily: 'Arial',
         }).setOrigin(0.5);
 
-        // Fireworks
         this.time.addEvent({
             delay: 250, repeat: 30,
             callback: () => {
@@ -33,9 +32,9 @@ export default class VictoryScene extends Phaser.Scene {
             }
         });
 
-        const btn = this.add.rectangle(W/2, 430, 260, 54, 0x114411).setInteractive({ useHandCursor: true });
+        const btn = this.add.rectangle(W/2, H * 0.6, 260, 54, 0x114411).setInteractive({ useHandCursor: true });
         btn.setStrokeStyle(3, 0x44ff44);
-        this.add.text(W/2, 430, 'HRÁT ZNOVU', {
+        this.add.text(W/2, H * 0.6, 'HRÁT ZNOVU', {
             fontSize: '24px', fill: '#ffffff', fontFamily: 'Arial Black',
         }).setOrigin(0.5);
 

@@ -63,7 +63,9 @@ export default class GameScene extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd    = this.input.keyboard.addKeys('W,A,S,D');
-        this.escKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        this.escKey   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         this.createHUD();
 
@@ -163,14 +165,14 @@ export default class GameScene extends Phaser.Scene {
     createHUD() {
         const hud = this.add.container(0, 0).setScrollFactor(0).setDepth(50);
 
-        const bg       = this.add.rectangle(6, 6, 220, 90, 0x000000, 0.75).setOrigin(0);
-        const hpBarBg  = this.add.rectangle(10, 10, 204, 16, 0x333333).setOrigin(0);
-        this.hpBar     = this.add.rectangle(10, 10, 204, 16, 0x22cc44).setOrigin(0);
-        this.hpLabel   = this.add.text(14, 11, '', { fontSize: '10px', fill: '#fff', fontFamily: 'Arial' });
-        this.areaText  = this.add.text(10, 32, '', { fontSize: '10px', fill: '#aaaaff', fontFamily: 'Arial' });
-        this.killText  = this.add.text(10, 48, '', { fontSize: '10px', fill: '#ffaa44', fontFamily: 'Arial' });
-        this.npcText   = this.add.text(10, 64, '', { fontSize: '10px', fill: '#aaffaa', fontFamily: 'Arial' });
-        this.goldText  = this.add.text(120, 64, '', { fontSize: '10px', fill: '#ffee44', fontFamily: 'Arial' });
+        const bg       = this.add.rectangle(6, 6, 260, 108, 0x000000, 0.75).setOrigin(0);
+        const hpBarBg  = this.add.rectangle(10, 12, 240, 20, 0x333333).setOrigin(0);
+        this.hpBar     = this.add.rectangle(10, 12, 240, 20, 0x22cc44).setOrigin(0);
+        this.hpLabel   = this.add.text(16, 14, '', { fontSize: '13px', fill: '#fff', fontFamily: 'Arial' });
+        this.areaText  = this.add.text(10, 38, '', { fontSize: '13px', fill: '#aaaaff', fontFamily: 'Arial' });
+        this.killText  = this.add.text(10, 58, '', { fontSize: '13px', fill: '#ffaa44', fontFamily: 'Arial' });
+        this.npcText   = this.add.text(10, 78, '', { fontSize: '13px', fill: '#aaffaa', fontFamily: 'Arial' });
+        this.goldText  = this.add.text(140, 78, '', { fontSize: '13px', fill: '#ffee44', fontFamily: 'Arial' });
 
         hud.add([bg, hpBarBg, this.hpBar, this.hpLabel, this.areaText, this.killText, this.npcText, this.goldText]);
         this.updateHUD();
@@ -286,12 +288,92 @@ export default class GameScene extends Phaser.Scene {
 
     showDialog(msg) {
         if (this.dialogBox) { this.dialogBox.destroy(); this.dialogBox = null; }
+
+        const W = this.scale.width, H = this.scale.height;
         const cam = this.cameras.main;
-        const bg  = this.add.rectangle(0, 0, 702, 110, 0x000011, 0.9).setOrigin(0).setDepth(100);
-        bg.setStrokeStyle(2, 0xffee44);
-        const txt  = this.add.text(10, 8, msg, { fontSize: '14px', fill: '#fff', fontFamily: 'Arial', wordWrap: { width: 680 } }).setDepth(100);
-        const hint = this.add.text(10, 92, 'Stiskni ESC pro zavření', { fontSize: '11px', fill: '#888', fontFamily: 'Arial' }).setDepth(100);
-        this.dialogBox = this.add.container(cam.scrollX + 50, cam.scrollY + 440, [bg, txt, hint]).setDepth(100);
+
+        const pW = Math.min(900, W * 0.88);
+        const pH = Math.min(600, H * 0.82);
+        const px = (W - pW) / 2, py = (H - pH) / 2;
+
+        const bg = this.add.image(0, 0, 'parchment')
+            .setOrigin(0, 0)
+            .setDisplaySize(pW, pH)
+            .setDepth(100);
+
+        // pečeť K
+        const seal = this.add.rectangle(90, 70, 56, 56, 0x8c2828).setDepth(101);
+        const sealBorder = this.add.rectangle(90, 70, 56, 56, 0x1a1c2c).setDepth(101);
+        sealBorder.setStrokeStyle(3, 0x1a1c2c).setFillStyle();
+        const sealTxt = this.add.text(90, 70, 'K', {
+            fontSize: '22px', fill: '#F4B41B', fontFamily: '"Press Start 2P", monospace',
+        }).setOrigin(0.5).setDepth(102);
+
+        const questLabel = this.add.text(130, 58, 'QUEST', {
+            fontSize: '11px', fill: '#3A2A12', fontFamily: '"Press Start 2P", monospace',
+        }).setDepth(101);
+
+        // název levelu
+        const title = this.add.text(130, 82, this.levelData.name, {
+            fontSize: '18px', fill: '#3A2A12', fontFamily: '"Press Start 2P", monospace',
+        }).setDepth(101);
+
+        // oddělovač
+        const line1 = this.add.graphics().setDepth(101);
+        line1.lineStyle(2, 0x8C6B36, 1);
+        line1.beginPath(); line1.moveTo(60, 130); line1.lineTo(pW - 60, 130); line1.strokePath();
+
+        // zpráva NPC
+        const body = this.add.text(60, 148, msg, {
+            fontSize: '30px', fill: '#2E1F0A', fontFamily: '"VT323", monospace',
+            wordWrap: { width: pW - 120 }, lineSpacing: 6,
+        }).setDepth(101);
+
+        // cíle questu
+        const objY = 290;
+        const kills = Math.min(this.killCount, KILLS_NEEDED);
+        const objectives = [
+            { done: this.npcTalked,              text: 'Promluv s NPC' },
+            { done: kills >= KILLS_NEEDED,        text: `Poraž ${KILLS_NEEDED} příšer (${kills}/${KILLS_NEEDED})` },
+        ];
+
+        const objItems = [];
+        objectives.forEach((o, idx) => {
+            const yy = objY + idx * 38;
+            const icon = this.add.text(60, yy, o.done ? '✓' : '□', {
+                fontSize: '16px', fill: o.done ? '#1F7A3F' : '#3A2A12',
+                fontFamily: '"Press Start 2P", monospace',
+            }).setDepth(101);
+            const label = this.add.text(95, yy, o.text, {
+                fontSize: '24px', fill: o.done ? 'rgba(58,42,18,0.5)' : '#2E1F0A',
+                fontFamily: '"VT323", monospace',
+            }).setDepth(101);
+            objItems.push(icon, label);
+        });
+
+        // oddělovač dole
+        const rewardY = objY + objectives.length * 38 + 20;
+        const line2 = this.add.graphics().setDepth(101);
+        line2.lineStyle(2, 0x8C6B36, 1);
+        line2.beginPath(); line2.moveTo(60, rewardY); line2.lineTo(pW - 60, rewardY); line2.strokePath();
+
+        // odměna
+        const rewardLabel = this.add.text(60, rewardY + 20, 'Odměna:', {
+            fontSize: '26px', fill: '#3A2A12', fontFamily: '"VT323", monospace',
+        }).setDepth(101);
+        const rewardVal = this.add.text(210, rewardY + 20, `★ ${this.levelData.reward ?? 50} zlaťáků`, {
+            fontSize: '26px', fill: '#B8870D', fontFamily: '"VT323", monospace',
+        }).setDepth(101);
+
+        // ESC hint
+        const hint = this.add.text(pW / 2, pH - 28, 'ESC — zavřít', {
+            fontSize: '13px', fill: '#8C6B36', fontFamily: '"Press Start 2P", monospace',
+        }).setOrigin(0.5).setDepth(101);
+
+        this.dialogBox = this.add.container(cam.scrollX + px, cam.scrollY + py,
+            [bg, seal, sealBorder, sealTxt, questLabel, title, line1, body,
+             ...objItems, line2, rewardLabel, rewardVal, hint]
+        ).setDepth(100);
     }
 
     nextLevel() {
@@ -306,7 +388,9 @@ export default class GameScene extends Phaser.Scene {
         if (this.inBattle) return;
 
         if (this.inDialog) {
-            if (Phaser.Input.Keyboard.JustDown(this.escKey)) {
+            if (Phaser.Input.Keyboard.JustDown(this.escKey) ||
+                Phaser.Input.Keyboard.JustDown(this.enterKey) ||
+                Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
                 if (this.dialogBox) { this.dialogBox.destroy(); this.dialogBox = null; }
                 this.inDialog = false;
                 this.dialogCooldown = true;

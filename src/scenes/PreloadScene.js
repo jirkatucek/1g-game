@@ -5,6 +5,11 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.spritesheet('warrior_idle',   'assets/warrior/Warrior_Idle.png',    { frameWidth: 192, frameHeight: 192 });
         this.load.spritesheet('warrior_run',    'assets/warrior/Warrior_Run.png',     { frameWidth: 192, frameHeight: 192 });
         this.load.spritesheet('warrior_attack', 'assets/warrior/Warrior_Attack1.png', { frameWidth: 192, frameHeight: 192 });
+        this.load.image('parchment', 'assets/quest-parchment.png');
+        this.load.image('btn_blue',         'assets/buttons/btn_blue.png');
+        this.load.image('btn_blue_pressed', 'assets/buttons/btn_blue_pressed.png');
+        this.load.image('btn_red',          'assets/buttons/btn_red.png');
+        this.load.image('btn_red_pressed',  'assets/buttons/btn_red_pressed.png');
     }
 
     create() {
