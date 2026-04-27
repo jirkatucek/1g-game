@@ -3,6 +3,21 @@ import { LEVELS } from '../maps/levels.js';
 const TILE = 64;
 const KILLS_NEEDED = 5;
 
+const ENEMY_UNIT_POOLS = {
+    goblin: ['pawn', 'archer'],
+    orc:    ['warrior', 'monk'],
+    dragon: ['warrior', 'lancer', 'monk'],
+    boss:   ['lancer', 'warrior'],
+};
+
+const ENEMY_UNIT_CONFIG = {
+    pawn:    { idleKey: 'enemy_pawn_idle',    idleAnim: 'enemy_pawn_idle_anim',    runAnim: 'enemy_pawn_run_anim',    scale: 0.72, battleScale: 2.0 },
+    warrior: { idleKey: 'enemy_warrior_idle', idleAnim: 'enemy_warrior_idle_anim', runAnim: 'enemy_warrior_run_anim', scale: 0.76, battleScale: 2.2 },
+    archer:  { idleKey: 'enemy_archer_idle',  idleAnim: 'enemy_archer_idle_anim',  runAnim: 'enemy_archer_run_anim',  scale: 0.76, battleScale: 2.1 },
+    lancer:  { idleKey: 'enemy_lancer_idle',  idleAnim: 'enemy_lancer_idle_anim',  runAnim: 'enemy_lancer_run_anim',  scale: 0.48, battleScale: 1.25 },
+    monk:    { idleKey: 'enemy_monk_idle',    idleAnim: 'enemy_monk_idle_anim',    runAnim: 'enemy_monk_run_anim',    scale: 0.78, battleScale: 2.1 },
+};
+
 export default class GameScene extends Phaser.Scene {
     constructor() { super({ key: 'GameScene' }); }
 
@@ -169,13 +184,24 @@ export default class GameScene extends Phaser.Scene {
     spawnEnemies() {
         this.levelData.enemies.forEach((ed, i) => {
             const safe = this.findSafeTile(ed.x, ed.y);
-            const e = this.physics.add.sprite(safe.col * TILE + TILE/2, safe.row * TILE + TILE/2, ed.type === 'boss' ? 'boss' : ed.type);
-            e.setScale(2);
+            const unitPool = ENEMY_UNIT_POOLS[ed.type] || ENEMY_UNIT_POOLS.goblin;
+            const unit = unitPool[(this.currentLevel + i) % unitPool.length];
+            const unitCfg = ENEMY_UNIT_CONFIG[unit] || ENEMY_UNIT_CONFIG.pawn;
+
+            const e = this.physics.add.sprite(safe.col * TILE + TILE/2, safe.row * TILE + TILE/2, unitCfg.idleKey, 0);
+            e.setScale(unitCfg.scale);
             e.setCollideWorldBounds(true);
             this.enemies.add(e);
             e.enemyData  = ed;
             e.enemyIndex = i;
+            e.enemyUnit = unit;
+            e.idleSheetKey = unitCfg.idleKey;
+            e.idleAnimKey = unitCfg.idleAnim;
+            e.walkAnimKey = unitCfg.runAnim;
+            e.battleScale = unitCfg.battleScale;
             e.setDepth(10);
+            if (e.idleAnimKey) e.play(e.idleAnimKey);
+
             this.time.addEvent({
                 delay: 1800 + Math.random() * 1200, loop: true,
                 callback: () => {
@@ -257,6 +283,8 @@ export default class GameScene extends Phaser.Scene {
         this.scene.launch('BattleScene', {
             enemyData:   enemy.enemyData,
             enemyIndex:  enemy.enemyIndex,
+            enemyUnit:   enemy.enemyUnit,
+            enemyScale:  enemy.battleScale,
             playerHP:    player.hp,
             playerMaxHP: player.maxHp,
         });
@@ -504,6 +532,24 @@ export default class GameScene extends Phaser.Scene {
             this.player.play('warrior_idle', true);
             this.player.anims.timeScale = 1;
         }
+
+        this.enemies.getChildren().forEach(e => {
+            if (!e.active || !e.body) return;
+            const movingEnemy = Math.abs(e.body.velocity.x) > 1 || Math.abs(e.body.velocity.y) > 1;
+            if (movingEnemy) {
+                if (e.walkAnimKey && e.anims.currentAnim?.key !== e.walkAnimKey) {
+                    e.play(e.walkAnimKey, true);
+                }
+                if (e.body.velocity.x < 0) e.setFlipX(true);
+                else if (e.body.velocity.x > 0) e.setFlipX(false);
+            } else {
+                if (e.idleAnimKey && e.anims.currentAnim?.key !== e.idleAnimKey) {
+                    e.play(e.idleAnimKey, true);
+                } else if (!e.idleAnimKey && e.idleSheetKey) {
+                    e.setTexture(e.idleSheetKey, 0);
+                }
+            }
+        });
 
         this.updateHUD();
     }

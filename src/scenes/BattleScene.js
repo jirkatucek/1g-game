@@ -13,6 +13,8 @@ export default class BattleScene extends Phaser.Scene {
     init(data) {
         this.enemyData   = data.enemyData;
         this.enemyIndex  = data.enemyIndex;
+        this.enemyUnit   = data.enemyUnit;
+        this.enemyScale  = data.enemyScale;
         this.playerHP    = data.playerHP;
         this.playerMaxHP = data.playerMaxHP;
 
@@ -35,7 +37,16 @@ export default class BattleScene extends Phaser.Scene {
 
     create() {
         const W = this.scale.width, H = this.scale.height;
-        const sprKey = this.isBoss ? 'boss' : this.enemyData.type;
+        const unitByType = {
+            goblin: 'pawn',
+            orc: 'warrior',
+            dragon: 'lancer',
+            boss: 'lancer',
+        };
+        const unit = this.enemyUnit || unitByType[this.enemyData.type] || 'pawn';
+        const idleKey = `enemy_${unit}_idle`;
+        const idleAnimKey = `enemy_${unit}_idle_anim`;
+        const enemyScale = this.enemyScale ?? (this.isBoss ? 1.4 : 2.1);
 
         const cx = W / 2, cy = H / 2;
         const bw = W * 0.32; // HP bar width
@@ -59,7 +70,8 @@ export default class BattleScene extends Phaser.Scene {
         }
 
         const ex = W * 0.22, ey = H * 0.4;
-        this.add.image(ex, ey, sprKey).setScale(this.isBoss ? 10 : 8);
+        const enemySprite = this.add.sprite(ex, ey, idleKey, 0).setScale(enemyScale);
+        if (this.anims.exists(idleAnimKey)) enemySprite.play(idleAnimKey);
 
         const eBarX = W * 0.08, barY = H * 0.56;
         this.add.text(eBarX, H * 0.52, 'HP příšery:', { fontSize: '22px', fill: '#ccc', fontFamily: 'Arial' });

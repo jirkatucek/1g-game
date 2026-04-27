@@ -1,3 +1,11 @@
+const RED_ENEMY_UNITS = {
+    pawn:    { idle: 'enemy_pawn_idle',    run: 'enemy_pawn_run',    idleFrames: 8, runFrames: 6 },
+    warrior: { idle: 'enemy_warrior_idle', run: 'enemy_warrior_run', idleFrames: 8, runFrames: 6 },
+    archer:  { idle: 'enemy_archer_idle',  run: 'enemy_archer_run',  idleFrames: 6, runFrames: 4 },
+    lancer:  { idle: 'enemy_lancer_idle',  run: 'enemy_lancer_run',  idleFrames: 12, runFrames: 6 },
+    monk:    { idle: 'enemy_monk_idle',    run: 'enemy_monk_run',    idleFrames: 6, runFrames: 4 },
+};
+
 export default class PreloadScene extends Phaser.Scene {
     constructor() { super({ key: 'PreloadScene' }); }
 
@@ -28,12 +36,47 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('ts_rock2',  'assets/tiles/ts_rock2.png');
         this.load.image('ts_rock3',  'assets/tiles/ts_rock3.png');
         this.load.image('ts_rock4',  'assets/tiles/ts_rock4.png');
+
+        // Red units used as enemy variants in overworld and battle
+        this.load.spritesheet('enemy_pawn_idle',    'assets/enemy_units/Pawn_Idle.png',    { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('enemy_pawn_run',     'assets/enemy_units/Pawn_Run.png',     { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('enemy_warrior_idle', 'assets/enemy_units/Warrior_Idle.png', { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('enemy_warrior_run',  'assets/enemy_units/Warrior_Run.png',  { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('enemy_archer_idle',  'assets/enemy_units/Archer_Idle.png',  { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('enemy_archer_run',   'assets/enemy_units/Archer_Run.png',   { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('enemy_lancer_idle',  'assets/enemy_units/Lancer_Idle.png',  { frameWidth: 320, frameHeight: 320 });
+        this.load.spritesheet('enemy_lancer_run',   'assets/enemy_units/Lancer_Run.png',   { frameWidth: 320, frameHeight: 320 });
+        this.load.spritesheet('enemy_monk_idle',    'assets/enemy_units/Monk_Idle.png',    { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('enemy_monk_run',     'assets/enemy_units/Monk_Run.png',     { frameWidth: 192, frameHeight: 192 });
     }
 
     create() {
         this.anims.create({ key: 'warrior_idle',   frames: this.anims.generateFrameNumbers('warrior_idle',   { start: 0, end: 7 }), frameRate: 6,  repeat: -1 });
         this.anims.create({ key: 'warrior_run',    frames: this.anims.generateFrameNumbers('warrior_run',    { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'warrior_attack', frames: this.anims.generateFrameNumbers('warrior_attack', { start: 0, end: 3 }), frameRate: 8,  repeat: 0  });
+
+        Object.entries(RED_ENEMY_UNITS).forEach(([unit, cfg]) => {
+            const idleAnim = `enemy_${unit}_idle_anim`;
+            const runAnim = `enemy_${unit}_run_anim`;
+
+            if (!this.anims.exists(idleAnim)) {
+                this.anims.create({
+                    key: idleAnim,
+                    frames: this.anims.generateFrameNumbers(cfg.idle, { start: 0, end: cfg.idleFrames - 1 }),
+                    frameRate: 6,
+                    repeat: -1,
+                });
+            }
+
+            if (!this.anims.exists(runAnim)) {
+                this.anims.create({
+                    key: runAnim,
+                    frames: this.anims.generateFrameNumbers(cfg.run, { start: 0, end: cfg.runFrames - 1 }),
+                    frameRate: 10,
+                    repeat: -1,
+                });
+            }
+        });
 
         this.createTiles();
         this.createCharacters();
