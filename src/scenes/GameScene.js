@@ -11,11 +11,16 @@ export default class GameScene extends Phaser.Scene {
         this.playerHP       = data.playerHP ?? 100;
         this.playerMaxHP    = 100;
         this.gold           = data.gold ?? 0;
-        this.inBattle       = false;
-        this.inDialog       = false;
-        this.dialogCooldown = false;
-        this.killCount      = 0;
-        this.npcTalked      = false;
+        this.inBattle        = false;
+        this.inDialog        = false;
+        this.dialogCooldown  = false;
+        this.battleCooldown  = false;
+        this.killCount       = 0;
+        this.npcTalked       = false;
+        this.stamina         = 100;
+        this.maxStamina      = 100;
+        this.isSprinting     = false;
+        this.exhausted       = false;
         this.gateOpen       = false;
     }
 
@@ -61,11 +66,12 @@ export default class GameScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, worldW, worldH);
         this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.wasd    = this.input.keyboard.addKeys('W,A,S,D');
-        this.escKey   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.cursors   = this.input.keyboard.createCursorKeys();
+        this.wasd      = this.input.keyboard.addKeys('W,A,S,D');
+        this.escKey    = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        this.enterKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+        this.spaceKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.shiftKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
 
         this.createHUD();
 
@@ -165,24 +171,35 @@ export default class GameScene extends Phaser.Scene {
     createHUD() {
         const hud = this.add.container(0, 0).setScrollFactor(0).setDepth(50);
 
-        const bg       = this.add.rectangle(6, 6, 260, 108, 0x000000, 0.75).setOrigin(0);
-        const hpBarBg  = this.add.rectangle(10, 12, 240, 20, 0x333333).setOrigin(0);
-        this.hpBar     = this.add.rectangle(10, 12, 240, 20, 0x22cc44).setOrigin(0);
-        this.hpLabel   = this.add.text(16, 14, '', { fontSize: '13px', fill: '#fff', fontFamily: 'Arial' });
-        this.areaText  = this.add.text(10, 38, '', { fontSize: '13px', fill: '#aaaaff', fontFamily: 'Arial' });
-        this.killText  = this.add.text(10, 58, '', { fontSize: '13px', fill: '#ffaa44', fontFamily: 'Arial' });
-        this.npcText   = this.add.text(10, 78, '', { fontSize: '13px', fill: '#aaffaa', fontFamily: 'Arial' });
-        this.goldText  = this.add.text(140, 78, '', { fontSize: '13px', fill: '#ffee44', fontFamily: 'Arial' });
+        const bg          = this.add.rectangle(6, 6, 260, 128, 0x000000, 0.75).setOrigin(0);
+        const hpBarBg     = this.add.rectangle(10, 12, 240, 20, 0x333333).setOrigin(0);
+        this.hpBar        = this.add.rectangle(10, 12, 240, 20, 0x22cc44).setOrigin(0);
+        this.hpLabel      = this.add.text(16, 14, '', { fontSize: '13px', fill: '#fff', fontFamily: 'Arial' });
 
-        hud.add([bg, hpBarBg, this.hpBar, this.hpLabel, this.areaText, this.killText, this.npcText, this.goldText]);
+        const stBarBg     = this.add.rectangle(10, 38, 240, 12, 0x333333).setOrigin(0);
+        this.stBar        = this.add.rectangle(10, 38, 240, 12, 0xffcc00).setOrigin(0);
+        this.stLabel      = this.add.text(16, 38, 'SPRINT', { fontSize: '9px', fill: '#000', fontFamily: 'Arial Black' });
+
+        this.areaText     = this.add.text(10, 58, '', { fontSize: '13px', fill: '#aaaaff', fontFamily: 'Arial' });
+        this.killText     = this.add.text(10, 76, '', { fontSize: '13px', fill: '#ffaa44', fontFamily: 'Arial' });
+        this.npcText      = this.add.text(10, 94, '', { fontSize: '13px', fill: '#aaffaa', fontFamily: 'Arial' });
+        this.goldText     = this.add.text(140, 94, '', { fontSize: '13px', fill: '#ffee44', fontFamily: 'Arial' });
+
+        hud.add([bg, hpBarBg, this.hpBar, this.hpLabel, stBarBg, this.stBar, this.stLabel,
+                 this.areaText, this.killText, this.npcText, this.goldText]);
         this.updateHUD();
     }
 
     updateHUD() {
         const ratio = this.player.hp / this.player.maxHp;
-        this.hpBar.setDisplaySize(204 * ratio, 16);
+        this.hpBar.setDisplaySize(240 * ratio, 20);
         this.hpBar.setFillStyle(ratio > 0.5 ? 0x22cc44 : ratio > 0.25 ? 0xffaa00 : 0xff2222);
         this.hpLabel.setText(`HP: ${this.player.hp} / ${this.player.maxHp}`);
+
+        const sr = this.stamina / this.maxStamina;
+        this.stBar.setDisplaySize(240 * sr, 12);
+        this.stBar.setFillStyle(this.isSprinting ? 0xff8800 : sr < 0.3 ? 0xff4444 : 0xffcc00);
+
         this.areaText.setText(`${this.levelData.name}`);
         this.killText.setText(`Zabito: ${Math.min(this.killCount, KILLS_NEEDED)} / ${KILLS_NEEDED}`);
         this.npcText.setText(`NPC: ${this.npcTalked ? '✓' : '✗'}`);
@@ -190,7 +207,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     triggerBattle(player, enemy) {
-        if (this.inBattle || this.inDialog) return;
+        if (this.inBattle || this.inDialog || this.battleCooldown) return;
         this.inBattle = true;
         enemy.setVelocity(0, 0);
         this.scene.launch('BattleScene', {
@@ -203,7 +220,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     handleBattleResult(data) {
-        this.inBattle  = false;
+        this.inBattle       = false;
+        this.battleCooldown = true;
+        const cooldown = data.result === 'flee' ? 1500 : 300;
+        this.time.delayedCall(cooldown, () => { this.battleCooldown = false; });
         this.player.hp = data.playerHP;
 
         if (data.result === 'win') {
@@ -403,7 +423,26 @@ export default class GameScene extends Phaser.Scene {
             return;
         }
 
-        const speed = 160;
+        const delta = this.game.loop.delta / 1000; // seconds since last frame
+        const moving = this.cursors.left.isDown || this.cursors.right.isDown ||
+                       this.cursors.up.isDown   || this.cursors.down.isDown  ||
+                       this.wasd.A.isDown || this.wasd.D.isDown ||
+                       this.wasd.W.isDown || this.wasd.S.isDown;
+
+        if (this.stamina <= 0) this.exhausted = true;
+        if (this.exhausted && this.stamina >= 30) this.exhausted = false;
+
+        const wantSprint = this.shiftKey.isDown && moving && !this.exhausted;
+        this.isSprinting = wantSprint;
+
+        if (wantSprint) {
+            this.stamina = Math.max(0, this.stamina - 40 * delta);
+        } else {
+            const regenRate = this.exhausted ? 12 : 20;
+            this.stamina = Math.min(this.maxStamina, this.stamina + regenRate * delta);
+        }
+
+        const speed = wantSprint ? 280 : 160;
         let vx = 0, vy = 0;
         if (this.cursors.left.isDown  || this.wasd.A.isDown) vx = -speed;
         if (this.cursors.right.isDown || this.wasd.D.isDown) vx =  speed;
@@ -414,10 +453,14 @@ export default class GameScene extends Phaser.Scene {
 
         if (vx !== 0 || vy !== 0) {
             this.player.play('warrior_run', true);
+            this.player.anims.timeScale = wantSprint ? 1.8 : 1;
             if (vx < 0) this.player.setFlipX(true);
             else if (vx > 0) this.player.setFlipX(false);
         } else {
             this.player.play('warrior_idle', true);
+            this.player.anims.timeScale = 1;
         }
+
+        this.updateHUD();
     }
 }
