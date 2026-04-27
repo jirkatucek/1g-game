@@ -4,7 +4,10 @@
       "Bash(git config *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(gh --version)"
+      "Bash(gh --version)",
+      "Bash(python3 -c ' *)",
+      "Bash(mkdir -p \"c:/Users/jirka/Desktop/1.G Math game/assets/warrior\")",
+      "Bash(cp \"c:/Users/jirka/Downloads/Tiny Swords \\(Free Pack\\)/Tiny Swords \\(Free Pack\\)/Units/Blue Units/Warrior/\"*.png \"c:/Users/jirka/Desktop/1.G Math game/assets/warrior/\")"
     ]
   }
 }

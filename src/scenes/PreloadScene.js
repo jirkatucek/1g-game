@@ -1,7 +1,17 @@
 export default class PreloadScene extends Phaser.Scene {
     constructor() { super({ key: 'PreloadScene' }); }
 
+    preload() {
+        this.load.spritesheet('warrior_idle',   'assets/warrior/Warrior_Idle.png',    { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('warrior_run',    'assets/warrior/Warrior_Run.png',     { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('warrior_attack', 'assets/warrior/Warrior_Attack1.png', { frameWidth: 192, frameHeight: 192 });
+    }
+
     create() {
+        this.anims.create({ key: 'warrior_idle',   frames: this.anims.generateFrameNumbers('warrior_idle',   { start: 0, end: 7 }), frameRate: 6,  repeat: -1 });
+        this.anims.create({ key: 'warrior_run',    frames: this.anims.generateFrameNumbers('warrior_run',    { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'warrior_attack', frames: this.anims.generateFrameNumbers('warrior_attack', { start: 0, end: 3 }), frameRate: 8,  repeat: 0  });
+
         this.createTiles();
         this.createCharacters();
         this.scene.start('MenuScene');

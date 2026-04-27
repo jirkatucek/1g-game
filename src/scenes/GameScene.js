@@ -33,14 +33,17 @@ export default class GameScene extends Phaser.Scene {
         this.renderTiles();
         this.buildWalls();
 
-        const { x, y } = this.levelData.playerStart;
-        this.player = this.physics.add.sprite(x * TILE + TILE/2, y * TILE + TILE/2, 'player');
+        const ps = this.levelData.playerStart;
+        const safeStart = this.findSafeTile(ps.x, ps.y);
+        this.player = this.physics.add.sprite(safeStart.col * TILE + TILE/2, safeStart.row * TILE + TILE/2, 'warrior_idle');
         this.player.setCollideWorldBounds(true);
-        this.player.setScale(2);
-        this.player.setBodySize(20, 20);
+        this.player.setScale(0.9);
+        this.player.setBodySize(48, 64);
+        this.player.body.setOffset(72, 108);
         this.player.hp    = this.playerHP;
         this.player.maxHp = this.playerMaxHP;
         this.player.setDepth(10);
+        this.player.play('warrior_idle');
 
         this.physics.add.collider(this.player, this.walls);
 
@@ -91,10 +94,33 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
+    isSafe(col, row) {
+        if (row < 1 || row >= this.rows - 1 || col < 1 || col >= this.cols - 1) return false;
+        const t = this.mapData[row][col];
+        return t === 0 || t === 2;
+    }
+
+    findSafeTile(col, row) {
+        if (this.isSafe(col, row)) return { col, row };
+        for (let r = 1; r <= 5; r++) {
+            for (let dc = -r; dc <= r; dc++) {
+                for (let dr = -r; dr <= r; dr++) {
+                    if (Math.abs(dc) === r || Math.abs(dr) === r) {
+                        if (this.isSafe(col + dc, row + dr)) return { col: col + dc, row: row + dr };
+                    }
+                }
+            }
+        }
+        return { col, row };
+    }
+
     spawnEnemies() {
         this.levelData.enemies.forEach((ed, i) => {
-            const e = this.enemies.create(ed.x * TILE + TILE/2, ed.y * TILE + TILE/2, ed.type === 'boss' ? 'boss' : ed.type);
+            const safe = this.findSafeTile(ed.x, ed.y);
+            const e = this.physics.add.sprite(safe.col * TILE + TILE/2, safe.row * TILE + TILE/2, ed.type === 'boss' ? 'boss' : ed.type);
             e.setScale(2);
+            e.setCollideWorldBounds(true);
+            this.enemies.add(e);
             e.enemyData  = ed;
             e.enemyIndex = i;
             e.setDepth(10);
@@ -113,11 +139,12 @@ export default class GameScene extends Phaser.Scene {
 
     spawnNPCs() {
         this.levelData.npcs.forEach(nd => {
-            const npc = this.npcs.create(nd.x * TILE + TILE/2, nd.y * TILE + TILE/2, 'npc');
+            const safe = this.findSafeTile(nd.x, nd.y);
+            const npc = this.npcs.create(safe.col * TILE + TILE/2, safe.row * TILE + TILE/2, 'npc');
             npc.npcData = nd;
             npc.setScale(2).refreshBody();
             npc.setDepth(10);
-            this.add.text(nd.x * TILE + TILE/2, nd.y * TILE - 10, '!', {
+            this.add.text(safe.col * TILE + TILE/2, safe.row * TILE - 10, '!', {
                 fontSize: '18px', fill: '#ffff00', fontFamily: 'Arial Black',
             }).setOrigin(0.5).setDepth(11);
         });
@@ -288,6 +315,7 @@ export default class GameScene extends Phaser.Scene {
             if (this.dialogBox)
                 this.dialogBox.setPosition(this.cameras.main.scrollX + 50, this.cameras.main.scrollY + 440);
             this.player.setVelocity(0, 0);
+            this.player.play('warrior_idle', true);
             return;
         }
 
@@ -299,5 +327,13 @@ export default class GameScene extends Phaser.Scene {
         if (this.cursors.down.isDown  || this.wasd.S.isDown) vy =  speed;
         if (vx !== 0 && vy !== 0) { vx *= 0.707; vy *= 0.707; }
         this.player.setVelocity(vx, vy);
+
+        if (vx !== 0 || vy !== 0) {
+            this.player.play('warrior_run', true);
+            if (vx < 0) this.player.setFlipX(true);
+            else if (vx > 0) this.player.setFlipX(false);
+        } else {
+            this.player.play('warrior_idle', true);
+        }
     }
 }

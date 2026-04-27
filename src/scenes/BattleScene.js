@@ -69,7 +69,7 @@ export default class BattleScene extends Phaser.Scene {
         this.refreshEnemyHP();
 
         const px = W * 0.78, py = H * 0.4;
-        this.add.image(px, py, 'player').setScale(8);
+        this.add.sprite(px, py, 'warrior_idle').setScale(2.5).play('warrior_idle');
 
         const pBarX = W * 0.6;
         this.add.text(pBarX, H * 0.52, 'Tvůj HP:', { fontSize: '22px', fill: '#ccc', fontFamily: 'Arial' });
