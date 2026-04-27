@@ -43,8 +43,8 @@ export default class GameScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(safeStart.col * TILE + TILE/2, safeStart.row * TILE + TILE/2, 'warrior_idle');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.9);
-        this.player.setBodySize(48, 64);
-        this.player.body.setOffset(72, 108);
+        // Circular body slides around tree corners instead of catching on them
+        this.player.setCircle(22, 74, 120);
         this.player.hp    = this.playerHP;
         this.player.maxHp = this.playerMaxHP;
         this.player.setDepth(10);
@@ -64,6 +64,7 @@ export default class GameScene extends Phaser.Scene {
         this.spawnGate();
 
         this.cameras.main.setBounds(0, 0, worldW, worldH);
+        this.cameras.main.setBackgroundColor(0x8aae4f);
         this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 
         this.cursors   = this.input.keyboard.createCursorKeys();
@@ -84,10 +85,44 @@ export default class GameScene extends Phaser.Scene {
     }
 
     renderTiles() {
-        const keys = ['grass', 'tree', 'path', 'water'];
-        for (let r = 0; r < this.rows; r++)
-            for (let c = 0; c < this.cols; c++)
-                this.add.image(c * TILE + TILE/2, r * TILE + TILE/2, keys[this.mapData[r][c]]).setScale(2);
+        const TREES   = ['ts_tree1', 'ts_tree2', 'ts_tree3', 'ts_tree4'];
+        const BUSHES  = ['ts_bush1', 'ts_bush2', 'ts_bush3', 'ts_bush4'];
+        const ROCKS   = ['ts_rock1', 'ts_rock2', 'ts_rock3', 'ts_rock4'];
+
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                const t = this.mapData[r][c];
+                const x = c * TILE + TILE / 2;
+                const y = r * TILE + TILE / 2;
+
+                // Ground — ts_grass/ts_path/ts_water, all 64x64 native
+                const groundKey = t === 2 ? 'ts_path'
+                                : t === 3 ? 'ts_water'
+                                : 'ts_grass';
+                this.add.image(x, y, groundKey).setDisplaySize(TILE + 2, TILE + 2).setDepth(0);
+
+                if (t === 1) {
+                    // Tree: anchor at tile bottom so trunk sits on ground, canopy rises above
+                    const key   = TREES[(c * 3 + r * 7) % 4];
+                    const tall  = key === 'ts_tree1' || key === 'ts_tree2'; // 192x256 vs 192x192
+                    const scale = tall ? 0.60 : 0.72;
+                    this.add.image(x, y + TILE * 0.5, key)
+                        .setScale(scale)
+                        .setOrigin(0.5, 1.0)
+                        .setDepth(2 + r * 0.001); // slight Y-sort within tree layer
+                } else if (t === 0) {
+                    // Scattered decorations on open grass
+                    const hash = (c * 13 + r * 17) % 24;
+                    if (hash === 0) {
+                        const key = BUSHES[(c + r) % 4];
+                        this.add.image(x, y + 16, key).setScale(0.28).setDepth(1);
+                    } else if (hash === 7) {
+                        const key = ROCKS[(c * 2 + r) % 4];
+                        this.add.image(x, y + 8, key).setScale(0.9).setDepth(1);
+                    }
+                }
+            }
+        }
     }
 
     buildWalls() {
@@ -95,9 +130,17 @@ export default class GameScene extends Phaser.Scene {
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 const t = this.mapData[r][c];
-                if (t === 1 || t === 3)
-                    this.walls.create(c * TILE + TILE/2, r * TILE + TILE/2, t === 1 ? 'tree' : 'water')
-                        .setImmovable(true).setScale(2).refreshBody();
+                if (t === 1 || t === 3) {
+                    // Trees shrunk by 10px so player can navigate flush against them
+                    // without hitting an invisible wall inside the visually overhanging canopy.
+                    // Water stays full-tile (no visual overhang issue).
+                    const size = t === 1 ? TILE - 10 : TILE;
+                    this.walls.create(c * TILE + TILE/2, r * TILE + TILE/2, 'ts_grass')
+                        .setImmovable(true)
+                        .setDisplaySize(size, size)
+                        .refreshBody()
+                        .setAlpha(0);
+                }
             }
         }
     }

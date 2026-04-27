@@ -120,25 +120,48 @@ function makeMap(pathVariant) {
 }
 
 export const LEVELS = [
-    // ── Level 1: Slunná vesnice ──────────────────────────────────────────
+    // ── Level 1: Lesní stezka ────────────────────────────────────────────
     {
-        name: 'Slunná vesnice',
-        bgColor: 0x1a2e1a,
-        map: makeMap('village'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 24, y: 13 },
+        name: 'Lesní stezka',
+        bgColor: 0x0d1a0d,
+        map: [
+        //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 0
+            [T, G, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, G, G, T, G, T], // 1
+            [T, G, G, G, G, G, T, G, G, T, T, G, G, G, G, T, G, G, G, G, G, G, G, G, T, T, G, G, G, T], // 2
+            [T, G, G, G, G, G, G, G, G, T, T, G, G, G, G, T, T, G, G, G, G, G, G, G, T, G, T, G, G, T], // 3
+            [T, G, G, P, P, P, P, P, P, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, G, T, G, T], // 4  ← player (2,4)
+            [T, T, G, P, G, T, G, G, P, G, G, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, T], // 5
+            [T, T, G, P, G, G, G, G, P, P, P, P, P, P, P, G, G, G, T, G, G, G, G, G, T, G, G, G, T, T], // 6  NPC (4,6)
+            [T, G, G, P, G, G, T, T, G, G, G, G, G, G, P, G, G, T, T, G, G, G, G, G, G, G, T, G, G, T], // 7
+            [T, G, G, P, G, G, T, T, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, T, G, G, G, G, T], // 8
+            [T, G, G, P, P, P, G, G, G, G, G, G, G, G, P, G, W, W, W, W, G, G, G, G, T, T, G, G, G, T], // 9
+            [T, G, G, G, G, P, G, G, G, G, G, T, G, G, P, G, W, W, W, W, G, G, G, G, G, T, G, G, G, T], // 10
+            [T, G, G, G, G, P, G, T, G, G, G, T, G, G, P, G, W, W, W, W, G, G, G, G, G, G, T, G, G, T], // 11
+            [T, G, T, G, G, P, G, T, G, G, G, G, G, G, P, P, P, P, P, P, P, P, P, G, T, G, G, T, T, T], // 12 ← gate (22,12)
+            [T, G, T, G, G, P, P, G, G, G, G, G, T, G, G, G, G, G, G, G, G, G, P, G, G, G, T, G, G, T], // 13
+            [T, G, G, G, G, G, P, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, P, G, T, G, G, G, G, T], // 14
+            [T, G, G, G, T, G, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, T, T, G, G, G, T], // 15
+            [T, G, G, G, T, T, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, T, G, G, G, T], // 16
+            [T, G, G, G, G, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, T], // 17
+            [T, G, T, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, G, G, T, G, G, T], // 18
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 19
+        ],
+        playerStart: { x: 2, y: 4 },
+        gate: { x: 22, y: 12 },
         enemies: [
-            { x: 10, y: 5, type: 'goblin', level: 1, name: 'Zlomkový Duch' },
-            { x: 14, y: 6, type: 'goblin', level: 1, name: 'Zlomkový Duch' },
-            { x: 7,  y: 10, type: 'goblin', level: 1, name: 'Čtvrtinák' },
-            { x: 13, y: 11, type: 'goblin', level: 1, name: 'Čtvrtinák' },
-            { x: 20, y: 8,  type: 'orc',   level: 1, name: 'Půlkový Strážce' },
+            { x: 12, y: 2,  type: 'goblin', level: 1, name: 'Zlomkový Duch' },
+            { x: 18, y: 3,  type: 'goblin', level: 1, name: 'Zlomkový Duch' },
+            { x:  5, y: 8,  type: 'goblin', level: 1, name: 'Čtvrtinák' },
+            { x:  9, y: 11, type: 'goblin', level: 1, name: 'Čtvrtinák' },
+            { x: 20, y: 14, type: 'goblin', level: 1, name: 'Lesní Strážce' },
         ],
         npcs: [{
-            x: 5, y: 5,
-            name: 'Starosta',
-            message: '„Vítej, Sire Kalkulusi! Věž zlomků je daleko. Procvič si sčítání základů! Piš odpovědi jako zlomek, např. 3/4"',
+            x: 4, y: 6,
+            name: 'Lesní Mudrc',
+            message: '„Vítej v Lesní stezce! Každá příšera tě zkouší ze zlomků. Piš odpovědi jako 3/4. Poraz 5 příšer a pak najdi cestu k bráně!"',
         }],
+        reward: 50,
     },
 
     // ── Level 2: Les Rozšiřování ─────────────────────────────────────────

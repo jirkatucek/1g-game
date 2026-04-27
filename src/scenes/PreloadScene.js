@@ -10,6 +10,24 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('btn_blue_pressed', 'assets/buttons/btn_blue_pressed.png');
         this.load.image('btn_red',          'assets/buttons/btn_red.png');
         this.load.image('btn_red_pressed',  'assets/buttons/btn_red_pressed.png');
+        // Tiny Swords terrain tiles (64x64 native)
+        this.load.image('ts_grass',  'assets/tiles/ts_grass.png');
+        this.load.image('ts_path',   'assets/tiles/ts_path.png');
+        this.load.image('ts_water',  'assets/tiles/ts_water.png');
+        // Tiny Swords trees
+        this.load.image('ts_tree1',  'assets/tiles/ts_tree1.png');
+        this.load.image('ts_tree2',  'assets/tiles/ts_tree2.png');
+        this.load.image('ts_tree3',  'assets/tiles/ts_tree3.png');
+        this.load.image('ts_tree4',  'assets/tiles/ts_tree4.png');
+        // Decorations
+        this.load.image('ts_bush1',  'assets/tiles/ts_bush1.png');
+        this.load.image('ts_bush2',  'assets/tiles/ts_bush2.png');
+        this.load.image('ts_bush3',  'assets/tiles/ts_bush3.png');
+        this.load.image('ts_bush4',  'assets/tiles/ts_bush4.png');
+        this.load.image('ts_rock1',  'assets/tiles/ts_rock1.png');
+        this.load.image('ts_rock2',  'assets/tiles/ts_rock2.png');
+        this.load.image('ts_rock3',  'assets/tiles/ts_rock3.png');
+        this.load.image('ts_rock4',  'assets/tiles/ts_rock4.png');
     }
 
     create() {

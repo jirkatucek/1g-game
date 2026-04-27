@@ -17,7 +17,8 @@
       "Bash(powershell -Command ' *)",
       "Bash(python -c ' *)",
       "Bash(identify \"c:/Users/jirka/Desktop/1.G Math game/assets/buttons/btn_blue.png\")",
-      "Bash(python -c \"from PIL import Image; img = Image.open\\('c:/Users/jirka/Desktop/1.G Math game/assets/buttons/btn_blue_pressed.png'\\); print\\(img.size\\)\")"
+      "Bash(python -c \"from PIL import Image; img = Image.open\\('c:/Users/jirka/Desktop/1.G Math game/assets/buttons/btn_blue_pressed.png'\\); print\\(img.size\\)\")",
+      "Bash(python3)"
     ]
   }
 }
