@@ -162,10 +162,17 @@ export const LEVELS = [
                 name: 'Lesní Mudrc',
                 message: '„Vítej v Lesní stezce! Každá příšera tě zkouší ze zlomků. Piš odpovědi jako 3/4. Poraz 5 příšer a pak najdi cestu k bráně!"',
             },
+            {
+                x: 13, y: 2,
+                name: 'Goblin Kuchař',
+                type: 'shop',
+                sprite: 'goblin_worker',
+                anim: 'goblin_worker_idle',
+                wanderCX: 13, wanderCY: 2, wanderR: 1,
+            },
         ],
         props: [
             { x: 12, y: 2, key: 'grill', frame: 0, scale: 1.8, depth: 5, collide: true, bodyW: 72, bodyH: 28 },
-            { x: 13, y: 2, key: 'cook_idle', frame: 0, scale: 2.5, depth: 10 },
         ],
         reward: 50,
     },
