@@ -172,8 +172,9 @@ export const LEVELS = [
             },
         ],
         props: [
-            { x: 12, y: 2, key: 'grill',    frame: 0, scale: 1.8, depth: 5, collide: true, bodyW: 72, bodyH: 28 },
-            { x: 2,  y: 2, key: 'campfire', anim: 'campfire_burn', scale: 1.4, depth: 6 },
+            { x: 12, y: 2,  key: 'grill',    frame: 0, scale: 1.8, depth: 5, collide: true, bodyW: 72, bodyH: 28 },
+            { x: 2,  y: 2,  key: 'campfire', anim: 'campfire_burn', scale: 1.4, depth: 6 },
+            { x: 10, y: 7,  key: 'cabin',    scale: 1.5, depth: 8, collide: true, bodyW: 180, bodyH: 55, bodyOffY: 40, depthSort: true },
         ],
         reward: 50,
     },

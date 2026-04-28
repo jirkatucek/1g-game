@@ -26,6 +26,11 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.spritesheet('goblin_worker', 'assets/goblin_worker.png', { frameWidth: 48, frameHeight: 48 });
         // Campfire decoration (9 frames, 50x86 each)
         this.load.spritesheet('campfire', 'assets/campfire.png', { frameWidth: 50, frameHeight: 86 });
+        // Cabin building
+        this.load.image('cabin', 'assets/cabin.png');
+        // Cabin woodland decorations
+        ['rock1','rock2','mushroom1','mushroom2','grass1','grass2','tree_color'].forEach(k =>
+            this.load.image(`cd_${k}`, `assets/cabin_deco/${k}.png`));
         // Tiny Swords terrain tiles (64x64 native)
         this.load.image('ts_grass',  'assets/tiles/ts_grass.png');
         this.load.image('ts_path',   'assets/tiles/ts_path.png');

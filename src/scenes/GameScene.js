@@ -148,14 +148,35 @@ export default class GameScene extends Phaser.Scene {
                         .setScale(0.85).setDepth(1).setAlpha(0.92);
                     this.time.delayedCall(delay * 125, () => { if (rock.active) rock.play(anim); });
                 } else if (t === 0) {
-                    // Scattered decorations on open grass
-                    const hash = (c * 13 + r * 17) % 24;
-                    if (hash === 0) {
-                        const key = BUSHES[(c + r) % 4];
-                        this.add.image(x, y + 16, key).setScale(0.28).setDepth(1);
-                    } else if (hash === 7) {
-                        const key = ROCKS[(c * 2 + r) % 4];
-                        this.add.image(x, y + 8, key).setScale(0.9).setDepth(1);
+                    // Skip decorations on tiles adjacent to a path
+                    const nearPath = [-1, 0, 1].some(dr => [-1, 0, 1].some(dc => {
+                        if (dr === 0 && dc === 0) return false;
+                        const nr = r + dr, nc = c + dc;
+                        return nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols
+                            && this.mapData[nr][nc] === 2;
+                    }));
+                    if (!nearPath) {
+                        // Tiny Swords scattered decorations
+                        const hash = (c * 13 + r * 17) % 24;
+                        if (hash === 0) {
+                            this.add.image(x, y + 16, BUSHES[(c + r) % 4]).setScale(0.28).setDepth(1);
+                        } else if (hash === 7) {
+                            this.add.image(x, y + 8, ROCKS[(c * 2 + r) % 4]).setScale(0.9).setDepth(1);
+                        }
+                        // Cabin-pack woodland decorations
+                        const CD       = ['cd_rock1','cd_rock2','cd_mushroom1','cd_mushroom2','cd_grass1','cd_grass2','cd_tree_color'];
+                        const CD_SCALE = [       2.8,       2.8,           2.4,           2.4,        2.6,        2.6,             1.6];
+                        const hash2 = (c * 7 + r * 11) % 55;
+                        if (hash2 < CD.length) {
+                            const ox  = ((c * 5 + r * 9) % 20) - 10;
+                            const oy  = ((c * 9 + r * 5) % 16) - 8;
+                            const key = CD[hash2];
+                            const isTree = key === 'cd_tree_color';
+                            this.add.image(x + ox, isTree ? y + TILE * 0.5 : y + oy, key)
+                                .setScale(isTree ? 2.2 : CD_SCALE[hash2])
+                                .setOrigin(0.5, isTree ? 1.0 : 0.5)
+                                .setDepth(2 + r * 0.001);
+                        }
                     }
                 }
             }
@@ -163,20 +184,30 @@ export default class GameScene extends Phaser.Scene {
     }
 
     renderProps() {
-        this.propBodies = this.physics.add.staticGroup();
+        this.propBodies   = this.physics.add.staticGroup();
+        this.depthSortedProps = [];
+
         (this.levelData.props || []).forEach(p => {
             const x = p.x * TILE + TILE / 2;
             const y = p.y * TILE + TILE / 2;
+            let sprite;
             if (p.anim) {
-                this.add.sprite(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5).play(p.anim);
+                sprite = this.add.sprite(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5);
+                sprite.play(p.anim);
             } else {
-                this.add.image(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5);
+                sprite = this.add.image(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5);
             }
             if (p.collide) {
-                const bw = p.bodyW ?? TILE;
-                const bh = p.bodyH ?? TILE;
-                this.propBodies.create(x, y, null)
-                    .setDisplaySize(bw, bh).refreshBody().setAlpha(0);
+                const bw  = p.bodyW   ?? TILE;
+                const bh  = p.bodyH   ?? TILE;
+                const ofy = p.bodyOffY ?? 0;
+                this.propBodies.create(x, y + ofy, 'ts_grass')
+                    .setImmovable(true).setDisplaySize(bw, bh).refreshBody().setAlpha(0);
+                if (p.depthSort) {
+                    // sortY = visual bottom edge of the building base
+                    sprite.sortY = y + (p.bodyOffY ?? 0);
+                    this.depthSortedProps.push(sprite);
+                }
             }
         });
     }
@@ -658,6 +689,13 @@ export default class GameScene extends Phaser.Scene {
 
     update() {
         if (this.inBattle) return;
+
+        // Y-sort props (e.g. cabin) vs player
+        if (this.depthSortedProps) {
+            this.depthSortedProps.forEach(s => {
+                s.setDepth(this.player.y < s.sortY ? 11 : 8);
+            });
+        }
 
         // Update shop NPC exclamation positions to follow them
         if (this.shopNPCs) {
