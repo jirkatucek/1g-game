@@ -164,17 +164,15 @@ export default class GameScene extends Phaser.Scene {
                             this.add.image(x, y + 8, ROCKS[(c * 2 + r) % 4]).setScale(0.9).setDepth(1);
                         }
                         // Cabin-pack woodland decorations
-                        const CD       = ['cd_rock1','cd_rock2','cd_mushroom1','cd_mushroom2','cd_grass1','cd_grass2','cd_tree_color'];
-                        const CD_SCALE = [       2.8,       2.8,           2.4,           2.4,        2.6,        2.6,             1.6];
+                        const CD       = ['cd_mushroom1','cd_mushroom2'];
+                        const CD_SCALE = [          2.4,           2.4];
                         const hash2 = (c * 7 + r * 11) % 55;
                         if (hash2 < CD.length) {
-                            const ox  = ((c * 5 + r * 9) % 20) - 10;
-                            const oy  = ((c * 9 + r * 5) % 16) - 8;
-                            const key = CD[hash2];
-                            const isTree = key === 'cd_tree_color';
-                            this.add.image(x + ox, isTree ? y + TILE * 0.5 : y + oy, key)
-                                .setScale(isTree ? 1.1 : CD_SCALE[hash2])
-                                .setOrigin(0.5, isTree ? 1.0 : 0.5)
+                            const ox = ((c * 5 + r * 9) % 20) - 10;
+                            const oy = ((c * 9 + r * 5) % 16) - 8;
+                            this.add.image(x + ox, y + oy, CD[hash2])
+                                .setScale(CD_SCALE[hash2])
+                                .setOrigin(0.5, 0.5)
                                 .setDepth(2 + r * 0.001);
                         }
                     }
@@ -458,14 +456,6 @@ export default class GameScene extends Phaser.Scene {
                 });
             },
         });
-
-        // Remove collider so player can walk through the open portal
-        this.physics.world.removeCollider(
-            this.physics.world.colliders.getActive().find(c =>
-                (c.object1 === this.player && c.object2 === this.gate) ||
-                (c.object1 === this.gate   && c.object2 === this.player)
-            )
-        );
 
         this.showFloatingText('Portal otevřen! ✨', 0x44aaff);
         this.updateHUD();

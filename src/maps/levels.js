@@ -180,45 +180,224 @@ export const LEVELS = [
     },
 
     // ── Level 2: Les Rozšiřování ─────────────────────────────────────────
+    // Path: bottom-left (col 3, row 16) → right → up col 13 → right row 7 → up col 24 → gate (24,2)
     {
         name: 'Les Rozšiřování',
-        bgColor: 0x0d1a0d,
-        map: makeMap('forest'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 22, y: 12 },
+        bgColor: 0x0a1a0a,
+        map: [
+        //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 0
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 1
+            [T, T, G, G, T, T, G, G, G, G, T, T, G, G, G, G, T, T, G, G, T, T, G, G, P, G, G, G, G, T], // 2  ← gate (24,2)
+            [T, G, G, G, T, T, G, G, G, G, T, T, G, G, G, G, G, G, G, G, T, T, G, G, P, G, T, T, G, T], // 3
+            [T, G, G, G, G, G, G, T, T, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, P, G, T, T, G, T], // 4
+            [T, G, T, T, G, G, G, T, T, G, G, G, T, T, G, G, G, G, G, G, G, G, T, T, P, G, G, G, G, T], // 5
+            [T, G, T, T, G, G, G, G, G, G, T, T, G, G, G, G, T, T, G, G, G, G, T, T, P, G, G, G, G, T], // 6
+            [T, G, G, G, G, G, G, G, G, G, T, T, G, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, G, T], // 7  ← middle path
+            [T, G, G, G, T, T, G, G, G, G, T, T, G, P, G, G, G, G, T, T, G, G, G, G, G, T, T, G, G, T], // 8
+            [T, G, T, T, G, G, G, G, G, G, G, G, G, P, G, T, T, G, T, T, G, G, G, G, G, T, T, G, G, T], // 9
+            [T, G, T, T, G, G, G, G, G, T, T, G, G, P, G, T, T, G, G, G, G, G, T, T, G, G, G, G, G, T], // 10
+            [T, G, G, G, G, T, T, G, G, T, T, G, G, P, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, T], // 11
+            [T, G, G, G, G, T, T, G, G, G, G, G, G, P, G, G, G, T, T, G, G, T, T, G, G, G, G, G, G, T], // 12
+            [T, G, T, T, G, G, G, G, G, G, T, T, G, P, G, G, G, T, T, G, G, G, G, G, G, T, T, G, G, T], // 13
+            [T, G, T, T, G, G, G, G, G, G, T, T, G, P, G, G, G, G, G, G, T, T, G, G, G, T, T, G, G, T], // 14
+            [T, G, G, G, G, G, G, T, T, G, G, G, G, P, G, T, T, G, G, G, T, T, G, G, G, G, G, G, G, T], // 15
+            [T, G, G, P, P, P, P, P, P, P, P, P, P, P, G, T, T, G, G, G, G, G, G, G, G, G, G, T, T, T], // 16 ← bottom path, player (2,16)
+            [T, G, G, G, G, G, T, T, G, G, G, G, G, G, G, T, T, G, G, G, G, T, T, G, G, G, G, G, G, T], // 17
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 18
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 19
+        ],
+        playerStart: { x: 2, y: 16 },
+        gate: { x: 24, y: 2 },
         enemies: [
-            { x: 5,  y: 3, type: 'goblin', level: 2, name: 'Větvičník' },
-            { x: 12, y: 4, type: 'goblin', level: 2, name: 'Větvičník' },
-            { x: 7,  y: 7, type: 'orc',   level: 2, name: 'Kmenový Troll' },
-            { x: 14, y: 7, type: 'orc',   level: 2, name: 'Kmenový Troll' },
-            { x: 17, y: 9, type: 'orc',   level: 2, name: 'Lesní Hlídač' },
+            { x:  7, y:  3, type: 'goblin', level: 2, name: 'Větvičník' },
+            { x:  9, y:  4, type: 'goblin', level: 2, name: 'Větvičník' },
+            { x:  7, y: 10, type: 'orc',   level: 2, name: 'Kmenový Troll' },
+            { x: 20, y: 12, type: 'orc',   level: 2, name: 'Kmenový Troll' },
+            { x: 19, y: 10, type: 'orc',   level: 2, name: 'Lesní Hlídač' },
         ],
         npcs: [{
-            x: 3, y: 3,
+            x: 9, y: 14,
             name: 'Dřevorubec',
             message: '„Tady stromy rostou do šířky! Musíš zlomek správně rozšířit – vynásob vršek i spodek stejným číslem!"',
         }],
+        reward: 60,
     },
 
     // ── Level 3: Zahrada Krácení ─────────────────────────────────────────
+    // Layout: two hedge rows (6, 12) divide the map into 3 garden zones.
+    // Main alley: row 9 (horizontal, cols 1-22) → col 22 (vertical, rows 2-9) → gate (22,2).
+    // Flower beds (intentionally empty): upper zone cols 4-10 & 13-19, lower zone same.
     {
         name: 'Zahrada Krácení',
         bgColor: 0x1a2a10,
-        map: makeMap('village'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 24, y: 13 },
+        map: [
+        //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 0
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 1
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 2  ← gate (22,2)
+            [T, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, P, G, G, G, G, G, G, T], // 3
+            [T, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, P, G, T, T, G, G, G, T], // 4
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, T, T, G, G, G, T], // 5
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, P, T, T, T, T, T, T, T], // 6  ← hedge + path gap
+            [T, G, T, T, G, G, G, T, T, G, G, G, T, T, G, G, G, T, T, G, G, G, P, G, G, G, T, T, G, T], // 7  ← tree alley
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 8
+            [T, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, G, G, G, T], // 9  ← main path + player (1,9)
+            [T, G, T, T, G, G, G, T, T, G, G, G, T, T, G, G, G, T, T, G, G, G, G, G, G, G, T, T, G, T], // 10 ← tree alley (mirror of 7)
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 11
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, G, T, T, T, T, T, T, T], // 12 ← lower hedge
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 13
+            [T, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, T], // 14
+            [T, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, T], // 15
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 16
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 17
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 18
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 19
+        ],
+        playerStart: { x: 1, y: 9 },
+        gate: { x: 22, y: 2 },
         enemies: [
-            { x: 10, y: 5, type: 'goblin', level: 3, name: 'Nafouklý Zlomek' },
-            { x: 14, y: 6, type: 'goblin', level: 3, name: 'Nafouklý Zlomek' },
-            { x: 7,  y: 10, type: 'orc',   level: 3, name: 'Keřový Strašák' },
-            { x: 13, y: 11, type: 'orc',   level: 3, name: 'Keřový Strašák' },
-            { x: 20, y: 8,  type: 'orc',   level: 3, name: 'Přerostlý Goblin' },
+            { x:  8, y:  3, type: 'goblin', level: 3, name: 'Nafouklý Zlomek' },
+            { x: 14, y:  5, type: 'goblin', level: 3, name: 'Nafouklý Zlomek' },
+            { x:  5, y: 10, type: 'orc',   level: 3, name: 'Keřový Strašák' },
+            { x: 15, y: 11, type: 'orc',   level: 3, name: 'Keřový Strašák' },
+            { x: 19, y:  8, type: 'orc',   level: 3, name: 'Přerostlý Goblin' },
         ],
         npcs: [{
-            x: 5, y: 5,
+            x: 11, y: 11,
             name: 'Zahradník s nůžkami',
             message: '„Pozor, tato monstra jsou zbytečně nafouklá! Musíš je zkrátit na základní tvar. Např. 4/8 = 1/2"',
         }],
+        props: [
+            // ── Horní sekce (řady 2-5): kytky, borovice a příroda ──
+            { x:  4, y: 2, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x:  7, y: 2, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 11, y: 2, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 14, y: 2, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 17, y: 2, key: 'fd_flower3', scale: 2, depth: 2 },
+
+            { x:  4, y: 3, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x:  6, y: 3, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x:  8, y: 3, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 10, y: 3, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x: 13, y: 3, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 15, y: 3, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 17, y: 3, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 19, y: 3, key: 'fd_flower3', scale: 2, depth: 2 },
+
+            { x:  4, y: 4, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x:  7, y: 4, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x:  9, y: 4, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 12, y: 4, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 14, y: 4, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 16, y: 4, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 18, y: 4, key: 'fd_flower3', scale: 2, depth: 2 },
+
+            { x:  5, y: 5, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x:  7, y: 5, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 10, y: 5, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 12, y: 5, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x: 15, y: 5, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 18, y: 5, key: 'fd_flower1', scale: 2, depth: 2 },
+
+            // ── Borovice v horní zóně ──
+            { x:  3, y: 2, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x:  9, y: 2, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x: 20, y: 2, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x:  5, y: 3, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x: 11, y: 3, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x: 18, y: 3, key: 'pt_bigbush_v1',  scale: 1.5, depth: 2 },
+            { x:  6, y: 4, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x: 19, y: 4, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x:  9, y: 5, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x: 13, y: 5, key: 'pt_bigmushroom',  scale: 1.5, depth: 2 },
+
+            // ── Dolní sekce (řady 13-17): kytky, borovice a příroda ──
+            { x:  4, y: 13, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x:  7, y: 13, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 10, y: 13, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 13, y: 13, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x: 16, y: 13, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 19, y: 13, key: 'fd_flower4', scale: 2, depth: 2 },
+
+            { x:  4, y: 14, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x:  6, y: 14, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x:  9, y: 14, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 12, y: 14, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 15, y: 14, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x: 17, y: 14, key: 'fd_flower1', scale: 2, depth: 2 },
+
+            { x:  4, y: 15, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x:  7, y: 15, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 10, y: 15, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 12, y: 15, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x: 16, y: 15, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 18, y: 15, key: 'fd_flower2', scale: 2, depth: 2 },
+
+            { x:  5, y: 16, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x:  8, y: 16, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 11, y: 16, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x: 14, y: 16, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x: 17, y: 16, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 20, y: 16, key: 'fd_flower2', scale: 2, depth: 2 },
+
+            { x:  5, y: 17, key: 'fd_flower1', scale: 2, depth: 2 },
+            { x:  9, y: 17, key: 'fd_flower3', scale: 2, depth: 2 },
+            { x: 13, y: 17, key: 'fd_flower2', scale: 2, depth: 2 },
+            { x: 17, y: 17, key: 'fd_flower4', scale: 2, depth: 2 },
+            { x: 21, y: 17, key: 'fd_flower3', scale: 2, depth: 2 },
+
+            // ── Borovice v dolní zóně ──
+            { x:  2, y: 13, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x:  9, y: 13, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x: 18, y: 13, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x: 21, y: 13, key: 'pt_bigbush_v2',  scale: 1.5, depth: 2 },
+            { x:  7, y: 14, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x: 19, y: 14, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x:  5, y: 15, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x: 13, y: 15, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x:  9, y: 16, key: 'pt_pinetree_v2', scale: 1.6, depth: 2 },
+            { x: 19, y: 16, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x:  7, y: 17, key: 'pt_bigmushroom',  scale: 1.5, depth: 2 },
+            { x: 14, y: 17, key: 'pt_bigbush_v1',  scale: 1.5, depth: 2 },
+
+            // ── Keře podél horního živého plotu (řada 5, těsně před plotem) ──
+            { x:  1, y: 5, key: 'pb_bush1_green',  scale: 0.9, depth: 2 },
+            { x:  5, y: 5, key: 'pb_bush10_red',   scale: 1.1, depth: 2 },
+            { x:  8, y: 5, key: 'pb_bush3_green',  scale: 0.9, depth: 2 },
+            { x: 11, y: 5, key: 'pb_bush10_yellow',scale: 1.1, depth: 2 },
+            { x: 14, y: 5, key: 'pb_bush1_red',    scale: 0.9, depth: 2 },
+            { x: 17, y: 5, key: 'pb_bush3_red',    scale: 0.9, depth: 2 },
+            { x: 20, y: 5, key: 'pb_bush10_green', scale: 1.1, depth: 2 },
+
+            // ── Keře podél dolního živého plotu (řada 11, těsně před plotem) ──
+            { x:  1, y: 11, key: 'pb_bush10_yellow',scale: 1.1, depth: 2 },
+            { x:  5, y: 11, key: 'pb_bush1_teal',   scale: 0.9, depth: 2 },
+            { x:  8, y: 11, key: 'pb_bush10_red',   scale: 1.1, depth: 2 },
+            { x: 11, y: 11, key: 'pb_bush3_green',  scale: 0.9, depth: 2 },
+            { x: 14, y: 11, key: 'pb_bush1_green',  scale: 0.9, depth: 2 },
+            { x: 17, y: 11, key: 'pb_bush10_green', scale: 1.1, depth: 2 },
+            { x: 20, y: 11, key: 'pb_bush3_red',    scale: 0.9, depth: 2 },
+
+            // ── Keře v alejích (řady 7 a 10, mezi stromy) ──
+            { x:  5, y:  7, key: 'pb_bush10_green', scale: 1.0, depth: 2 },
+            { x: 11, y:  7, key: 'pb_bush10_red',   scale: 1.0, depth: 2 },
+            { x: 16, y:  7, key: 'pb_bush10_yellow',scale: 1.0, depth: 2 },
+            { x:  5, y: 10, key: 'pb_bush10_yellow',scale: 1.0, depth: 2 },
+            { x: 11, y: 10, key: 'pb_bush10_green', scale: 1.0, depth: 2 },
+            { x: 16, y: 10, key: 'pb_bush10_red',   scale: 1.0, depth: 2 },
+
+            // ── Keře na okrajích dolní zahrady ──
+            { x:  1, y: 14, key: 'pb_bush1_green',  scale: 0.9, depth: 2 },
+            { x:  1, y: 16, key: 'pb_bush3_red',    scale: 0.9, depth: 2 },
+            { x: 22, y: 14, key: 'pb_bush1_teal',   scale: 0.9, depth: 2 },
+            { x: 22, y: 16, key: 'pb_bush10_yellow',scale: 1.1, depth: 2 },
+
+            // Pařezy u křižovatky cesty
+            { x: 23, y:  8, key: 'fd_stump1',    scale: 2, depth: 2 },
+            { x: 25, y: 11, key: 'fd_stump2',    scale: 2, depth: 2 },
+        ],
+        reward: 70,
     },
 
     // ── Level 4: Břeh Řeky Jmenovatelů ──────────────────────────────────

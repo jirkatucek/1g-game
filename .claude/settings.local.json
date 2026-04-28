@@ -25,7 +25,23 @@
       "Bash(cp \"c:/Users/jirka/Downloads/Water Rocks_04.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/tiles/water_rock4.png\")",
       "Bash(xargs '-I{}' python3 -c ' *)",
       "Bash(cp \"c:/Users/jirka/Downloads/Basic Asset Pack/Basic Asset Pack/Basic Animal Animations/Mad Boar/MadBoar.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/boar.png\")",
-      "Bash(cp \"c:/Users/jirka/Downloads/Basic Asset Pack/Basic Asset Pack/Basic Animal Animations/Timber Wolf/TimberWolf.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/wolf.png\")"
+      "Bash(cp \"c:/Users/jirka/Downloads/Basic Asset Pack/Basic Asset Pack/Basic Animal Animations/Timber Wolf/TimberWolf.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/wolf.png\")",
+      "Bash(python3 -c \"from PIL import Image; img = Image.open\\('c:/Users/jirka/Desktop/1.G Math game/assets/cabin_deco/tree_color.png'\\); print\\(img.size, img.mode\\)\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/spr_flower_1.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/forest_deco/flower1.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/spr_flower_2.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/forest_deco/flower2.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/spr_flower_3.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/forest_deco/flower3.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/spr_flower_4.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/forest_deco/flower4.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/Forest Ground Details Pack – Pixel Art \\(32x32, Top-Down\\)/spr_tree_stump_1.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/forest_deco/stump1.png\")",
+      "Bash(cp 'C:/Users/jirka/Downloads/Pixel Art Bush Pack/Pixel Art Bush Pack/Bush 1/Bush 1_GREEN.png' 'c:/Users/jirka/Desktop/1.G Math game/assets/bushes/bush1_green.png')",
+      "Bash(cp 'C:/Users/jirka/Downloads/Pixel Art Bush Pack/Pixel Art Bush Pack/Bush 1/Bush 1_RED.png' 'c:/Users/jirka/Desktop/1.G Math game/assets/bushes/bush1_red.png')",
+      "Bash(cp 'C:/Users/jirka/Downloads/Pixel Art Bush Pack/Pixel Art Bush Pack/Bush 1/Bush 1_YELLOW.png' 'c:/Users/jirka/Desktop/1.G Math game/assets/bushes/bush1_yellow.png')",
+      "Bash(cp 'C:/Users/jirka/Downloads/Pixel Art Bush Pack/Pixel Art Bush Pack/Bush 1/Bush 1_TEAL.png' 'c:/Users/jirka/Desktop/1.G Math game/assets/bushes/bush1_teal.png')",
+      "Bash(cp 'C:/Users/jirka/Downloads/Pixel Art Bush Pack/Pixel Art Bush Pack/Bush 3/Bush 3_GREEN.png' 'c:/Users/jirka/Desktop/1.G Math game/assets/bushes/bush3_green.png')",
+      "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/PineTree_v1.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/pinetree_v1.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Objects_Without_Shadow/PineTree_v2.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/pinetree_v2.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/BigBush_v1.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/bigbush_v1.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Objects_Without_Shadow/BigBush_v2.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/bigbush_v2.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Flower1_Tile.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/flower1.png\")"
     ]
   }
 }

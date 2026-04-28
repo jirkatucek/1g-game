@@ -31,6 +31,15 @@ export default class PreloadScene extends Phaser.Scene {
         // Cabin woodland decorations
         ['rock1','rock2','mushroom1','mushroom2','grass1','grass2','tree_color'].forEach(k =>
             this.load.image(`cd_${k}`, `assets/cabin_deco/${k}.png`));
+        // Forest Ground Details Pack (32×32) – garden decorations
+        ['flower1','flower2','flower3','flower4','stump1','stump2','tuft1','tuft2','mushroom1','log1'].forEach(k =>
+            this.load.image(`fd_${k}`, `assets/forest_deco/${k}.png`));
+        // Pixel Art Bush Pack – garden bushes
+        ['bush1_green','bush1_red','bush1_yellow','bush1_teal','bush3_green','bush3_red','bush10_green','bush10_red','bush10_yellow'].forEach(k =>
+            this.load.image(`pb_${k}`, `assets/bushes/${k}.png`));
+        // Pine Tree Asset Pack – pine trees and nature decorations
+        ['pinetree_v1','pinetree_v2','bigbush_v1','bigbush_v2','flower1','flower2','smallbush','bigmushroom'].forEach(k =>
+            this.load.image(`pt_${k}`, `assets/pine_trees/${k}.png`));
         // Tiny Swords terrain tiles (64x64 native)
         this.load.image('ts_grass',  'assets/tiles/ts_grass.png');
         this.load.image('ts_path',   'assets/tiles/ts_path.png');
