@@ -173,7 +173,7 @@ export default class GameScene extends Phaser.Scene {
                             const key = CD[hash2];
                             const isTree = key === 'cd_tree_color';
                             this.add.image(x + ox, isTree ? y + TILE * 0.5 : y + oy, key)
-                                .setScale(isTree ? 2.2 : CD_SCALE[hash2])
+                                .setScale(isTree ? 1.1 : CD_SCALE[hash2])
                                 .setOrigin(0.5, isTree ? 1.0 : 0.5)
                                 .setDepth(2 + r * 0.001);
                         }
