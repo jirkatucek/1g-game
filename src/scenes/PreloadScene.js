@@ -24,6 +24,8 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.spritesheet('cook_idle', 'assets/cook_idle.png', { frameWidth: 64, frameHeight: 64 });
         // Goblin worker shop NPC (48x48 frames, 7 cols x 6 rows)
         this.load.spritesheet('goblin_worker', 'assets/goblin_worker.png', { frameWidth: 48, frameHeight: 48 });
+        // Campfire decoration (9 frames, 50x86 each)
+        this.load.spritesheet('campfire', 'assets/campfire.png', { frameWidth: 50, frameHeight: 86 });
         // Tiny Swords terrain tiles (64x64 native)
         this.load.image('ts_grass',  'assets/tiles/ts_grass.png');
         this.load.image('ts_path',   'assets/tiles/ts_path.png');
@@ -42,6 +44,13 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('ts_rock2',  'assets/tiles/ts_rock2.png');
         this.load.image('ts_rock3',  'assets/tiles/ts_rock3.png');
         this.load.image('ts_rock4',  'assets/tiles/ts_rock4.png');
+        // Animated water background (8 frames, 64x64 each)
+        this.load.spritesheet('water_anim', 'assets/tiles/water_anim.png', { frameWidth: 64, frameHeight: 64 });
+        // Animated water rocks (16 frames, 64x64 each)
+        this.load.spritesheet('water_rock1', 'assets/tiles/water_rock1.png', { frameWidth: 64, frameHeight: 64 });
+        this.load.spritesheet('water_rock2', 'assets/tiles/water_rock2.png', { frameWidth: 64, frameHeight: 64 });
+        this.load.spritesheet('water_rock3', 'assets/tiles/water_rock3.png', { frameWidth: 64, frameHeight: 64 });
+        this.load.spritesheet('water_rock4', 'assets/tiles/water_rock4.png', { frameWidth: 64, frameHeight: 64 });
 
         // Red units used as enemy variants in overworld and battle
         this.load.spritesheet('enemy_pawn_idle',    'assets/enemy_units/Pawn_Idle.png',    { frameWidth: 192, frameHeight: 192 });
@@ -67,7 +76,13 @@ export default class PreloadScene extends Phaser.Scene {
         this.anims.create({ key: 'wizard_idle',    frames: this.anims.generateFrameNumbers('wizard_idle',    { start: 0, end: 4 }), frameRate: 5,  repeat: -1 });
         this.anims.create({ key: 'cook_idle',        frames: this.anims.generateFrameNumbers('cook_idle',      { start: 0, end: 4 }), frameRate: 5,  repeat: -1 });
         this.anims.create({ key: 'goblin_worker_idle', frames: this.anims.generateFrameNumbers('goblin_worker', { start: 7, end: 13 }), frameRate: 6, repeat: -1 });
-        this.anims.create({ key: 'portal_spin',   frames: this.anims.generateFrameNumbers('portal',         { start: 0, end: 7 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'campfire_burn', frames: this.anims.generateFrameNumbers('campfire', { start: 0, end: 8 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'portal_spin',   frames: this.anims.generateFrameNumbers('portal',         { start: 0, end: 7  }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'water_flow', frames: this.anims.generateFrameNumbers('water_anim', { start: 0, end: 7 }), frameRate: 4, repeat: -1 });
+        this.anims.create({ key: 'water_rock1_anim', frames: this.anims.generateFrameNumbers('water_rock1', { start: 0, end: 15 }), frameRate: 8, repeat: -1 });
+        this.anims.create({ key: 'water_rock2_anim', frames: this.anims.generateFrameNumbers('water_rock2', { start: 0, end: 15 }), frameRate: 8, repeat: -1 });
+        this.anims.create({ key: 'water_rock3_anim', frames: this.anims.generateFrameNumbers('water_rock3', { start: 0, end: 15 }), frameRate: 8, repeat: -1 });
+        this.anims.create({ key: 'water_rock4_anim', frames: this.anims.generateFrameNumbers('water_rock4', { start: 0, end: 15 }), frameRate: 8, repeat: -1 });
         this.anims.create({ key: 'grill_sizzle', frames: this.anims.generateFrameNumbers('grill',           { start: 0, end: 3 }), frameRate: 5,  repeat: -1 });
 
         Object.entries(RED_ENEMY_UNITS).forEach(([unit, cfg]) => {

@@ -114,11 +114,17 @@ export default class GameScene extends Phaser.Scene {
                 const x = c * TILE + TILE / 2;
                 const y = r * TILE + TILE / 2;
 
-                // Ground — ts_grass/ts_path/ts_water, all 64x64 native
-                const groundKey = t === 2 ? 'ts_path'
-                                : t === 3 ? 'ts_water'
-                                : 'ts_grass';
+                // Ground — ts_grass/ts_path/water animation, all 64x64 native
+                if (t === 3) {
+                    // Stagger water anim start so tiles don't all pulse together
+                    const startFrame = (c + r * 3) % 8;
+                    const ws = this.add.sprite(x, y, 'water_anim', startFrame)
+                        .setDisplaySize(TILE + 4, TILE + 4).setDepth(0);
+                    this.time.delayedCall(startFrame * 250, () => { if (ws.active) ws.play('water_flow'); });
+                } else {
+                    const groundKey = t === 2 ? 'ts_path' : 'ts_grass';
                     this.add.image(x, y, groundKey).setDisplaySize(TILE + 4, TILE + 4).setDepth(0);
+                }
 
                 if (t === 1) {
                     // Tree: anchor at tile bottom so trunk sits on ground, canopy rises above
@@ -129,6 +135,18 @@ export default class GameScene extends Phaser.Scene {
                         .setScale(scale)
                         .setOrigin(0.5, 1.0)
                         .setDepth(2 + r * 0.001); // slight Y-sort within tree layer
+                } else if (t === 3) {
+                    // Water rock decoration — every tile gets one, variant + offset from hash
+                    const hash  = (c * 11 + r * 13) % 4;
+                    const key   = `water_rock${hash + 1}`;
+                    const anim  = `water_rock${hash + 1}_anim`;
+                    const ox = ((c * 7 + r * 3) % 20) - 10; // -10..+9 px offset
+                    const oy = ((c * 3 + r * 7) % 16) - 8;
+                    // Stagger animation start so all rocks don't pulse in sync
+                    const delay = (c * 5 + r * 3) % 16;
+                    const rock = this.add.sprite(x + ox, y + oy, key, delay)
+                        .setScale(0.85).setDepth(1).setAlpha(0.92);
+                    this.time.delayedCall(delay * 125, () => { if (rock.active) rock.play(anim); });
                 } else if (t === 0) {
                     // Scattered decorations on open grass
                     const hash = (c * 13 + r * 17) % 24;
@@ -306,7 +324,7 @@ export default class GameScene extends Phaser.Scene {
         this.gate.setScale(3).refreshBody();
         this.gate.setDepth(9);
         this.gate.setAlpha(0); // invisible until quest is complete
-        this.physics.add.collider(this.player, this.gate);
+        this.gate.body.enable = false; // no collision while invisible
         this.gateOverlap = this.physics.add.overlap(this.player, this.gate, this.enterGate, null, this);
     }
 
@@ -396,6 +414,7 @@ export default class GameScene extends Phaser.Scene {
 
     openGate() {
         this.gateOpen = true;
+        this.gate.body.enable = true;
         this.gate.play('portal_spin');
 
         // Fade portal in, then pulse scale

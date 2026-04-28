@@ -18,7 +18,14 @@
       "Bash(python -c ' *)",
       "Bash(identify \"c:/Users/jirka/Desktop/1.G Math game/assets/buttons/btn_blue.png\")",
       "Bash(python -c \"from PIL import Image; img = Image.open\\('c:/Users/jirka/Desktop/1.G Math game/assets/buttons/btn_blue_pressed.png'\\); print\\(img.size\\)\")",
-      "Bash(python3)"
+      "Bash(python3)",
+      "Bash(cp \"c:/Users/jirka/Downloads/Water Rocks_01.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/tiles/water_rock1.png\")",
+      "Bash(cp \"c:/Users/jirka/Downloads/Water Rocks_02.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/tiles/water_rock2.png\")",
+      "Bash(cp \"c:/Users/jirka/Downloads/Water Rocks_03.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/tiles/water_rock3.png\")",
+      "Bash(cp \"c:/Users/jirka/Downloads/Water Rocks_04.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/tiles/water_rock4.png\")",
+      "Bash(xargs '-I{}' python3 -c ' *)",
+      "Bash(cp \"c:/Users/jirka/Downloads/Basic Asset Pack/Basic Asset Pack/Basic Animal Animations/Mad Boar/MadBoar.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/boar.png\")",
+      "Bash(cp \"c:/Users/jirka/Downloads/Basic Asset Pack/Basic Asset Pack/Basic Animal Animations/Timber Wolf/TimberWolf.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/wolf.png\")"
     ]
   }
 }
