@@ -90,18 +90,28 @@ export default class BattleScene extends Phaser.Scene {
         this.pHPTxt = this.add.text(pBarX + bw / 2, barY, '', { fontSize: '20px', fill: '#fff', fontFamily: 'Arial' }).setOrigin(0.5, 0);
         this.refreshPlayerHP();
 
-        this.add.rectangle(cx, H * 0.68, W * 0.6, H * 0.12, 0x08082a).setStrokeStyle(3, 0x2255aa);
-        this.qText = this.add.text(cx, H * 0.68, '', {
+        this.add.rectangle(cx, H * 0.66, W * 0.6, H * 0.12, 0x08082a).setStrokeStyle(3, 0x2255aa);
+        this.qText = this.add.text(cx, H * 0.66, '', {
             fontSize: '38px', fill: '#fff', fontFamily: 'Arial', align: 'center',
         }).setOrigin(0.5);
 
-        this.add.text(cx, H * 0.79, 'Tvoje odpověď (formát: 3/4):', { fontSize: '22px', fill: '#888', fontFamily: 'Arial' }).setOrigin(0.5);
-        this.add.rectangle(cx, H * 0.855, W * 0.18, 60, 0x101030).setStrokeStyle(3, 0x44aaff);
-        this.aTxt = this.add.text(cx, H * 0.855, '_', {
+        // Timer bar
+        const barW = W * 0.52;
+        this.add.rectangle(cx, H * 0.745, barW + 4, 18, 0x0a0a1a).setOrigin(0.5);
+        this.timerBarBg = this.add.rectangle(cx - barW / 2, H * 0.745, barW, 14, 0x1a1a2a).setOrigin(0, 0.5);
+        this.timerBar   = this.add.rectangle(cx - barW / 2, H * 0.745, barW, 14, 0x22cc44).setOrigin(0, 0.5);
+        this.timerLabel = this.add.text(cx, H * 0.745, '', {
+            fontSize: '11px', fill: '#888888', fontFamily: 'Arial',
+        }).setOrigin(0.5);
+        this._timerBarW = barW;
+
+        this.add.text(cx, H * 0.795, 'Tvoje odpověď (formát: 3/4):', { fontSize: '22px', fill: '#888', fontFamily: 'Arial' }).setOrigin(0.5);
+        this.add.rectangle(cx, H * 0.865, W * 0.18, 60, 0x101030).setStrokeStyle(3, 0x44aaff);
+        this.aTxt = this.add.text(cx, H * 0.865, '_', {
             fontSize: '44px', fill: '#44ddff', fontFamily: 'Courier New',
         }).setOrigin(0.5);
 
-        this.fbTxt = this.add.text(cx, H * 0.92, '', {
+        this.fbTxt = this.add.text(cx, H * 0.93, '', {
             fontSize: '26px', fill: '#fff', fontFamily: 'Arial', align: 'center',
         }).setOrigin(0.5);
 
@@ -122,6 +132,39 @@ export default class BattleScene extends Phaser.Scene {
         this.qText.setText(this.question.question);
         this.aTxt.setText('_');
         this.fbTxt.setText('');
+        this.startTimer();
+    }
+
+    startTimer() {
+        if (this._timerTween) this._timerTween.stop();
+        this._questionStart = this.time.now;
+        this.timerBar.setDisplaySize(this._timerBarW, 14);
+        this.timerBar.setFillStyle(0x22cc44);
+        this.timerLabel.setText('⚡ do 5s = 25 dmg   |   po 5s = 15 dmg');
+
+        this._timerTween = this.tweens.add({
+            targets: this.timerBar,
+            displayWidth: 0,
+            duration: 5000,
+            ease: 'Linear',
+            onUpdate: () => {
+                const ratio = this.timerBar.displayWidth / this._timerBarW;
+                const color = ratio > 0.5 ? 0x22cc44 : ratio > 0.2 ? 0xffaa00 : 0xff3322;
+                this.timerBar.setFillStyle(color);
+            },
+            onComplete: () => {
+                this.timerLabel.setText('🐢 pomalý = 15 dmg').setStyle({ fill: '#ff8800' });
+            },
+        });
+    }
+
+    stopTimer() {
+        if (this._timerTween) { this._timerTween.stop(); this._timerTween = null; }
+    }
+
+    getTimedDamage() {
+        const elapsed = (this.time.now - this._questionStart) / 1000;
+        return elapsed < 5 ? 25 : 15;
     }
 
     onKey(e) {
@@ -141,6 +184,7 @@ export default class BattleScene extends Phaser.Scene {
     submit() {
         if (!this.answerStr || !this.canAnswer) return;
         this.canAnswer = false;
+        this.stopTimer();
 
         const correct = this.answerStr === '1' || MathGenerator.checkAnswer(this.answerStr, this.question.answer);
 
@@ -157,8 +201,11 @@ export default class BattleScene extends Phaser.Scene {
                     this.time.delayedCall(700, () => this.nextQuestion());
                 }
             } else {
-                this.fbTxt.setText('✓ Správně!').setStyle({ fill: '#44ff44' });
-                this.enemyHP = Math.max(0, this.enemyHP - (20 + Math.floor(Math.random() * 15)));
+                const dmg = this.getTimedDamage();
+                const fast = dmg === 25;
+                this.fbTxt.setText(fast ? `✓ Správně!  ⚡ −${dmg} HP (rychlá odpověď!)` : `✓ Správně!  −${dmg} HP`)
+                    .setStyle({ fill: fast ? '#88ff44' : '#44ff44' });
+                this.enemyHP = Math.max(0, this.enemyHP - dmg);
                 this.cameras.main.flash(180, 0, 180, 0);
                 this.time.delayedCall(750, () => {
                     this.refreshEnemyHP();

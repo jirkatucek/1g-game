@@ -150,17 +150,23 @@ export const LEVELS = [
         playerStart: { x: 2, y: 4 },
         gate: { x: 22, y: 12 },
         enemies: [
-            { x: 12, y: 2,  type: 'goblin', level: 1, name: 'Zlomkový Duch' },
+            { x: 17, y: 5,  type: 'goblin', level: 1, name: 'Zlomkový Duch' },
             { x: 18, y: 3,  type: 'goblin', level: 1, name: 'Zlomkový Duch' },
             { x:  5, y: 8,  type: 'goblin', level: 1, name: 'Čtvrtinák' },
             { x:  9, y: 11, type: 'goblin', level: 1, name: 'Čtvrtinák' },
             { x: 20, y: 14, type: 'goblin', level: 1, name: 'Lesní Strážce' },
         ],
-        npcs: [{
-            x: 4, y: 6,
-            name: 'Lesní Mudrc',
-            message: '„Vítej v Lesní stezce! Každá příšera tě zkouší ze zlomků. Piš odpovědi jako 3/4. Poraz 5 příšer a pak najdi cestu k bráně!"',
-        }],
+        npcs: [
+            {
+                x: 4, y: 6,
+                name: 'Lesní Mudrc',
+                message: '„Vítej v Lesní stezce! Každá příšera tě zkouší ze zlomků. Piš odpovědi jako 3/4. Poraz 5 příšer a pak najdi cestu k bráně!"',
+            },
+        ],
+        props: [
+            { x: 12, y: 2, key: 'grill', frame: 0, scale: 1.8, depth: 5, collide: true, bodyW: 72, bodyH: 28 },
+            { x: 13, y: 2, key: 'cook_idle', frame: 0, scale: 2.5, depth: 10 },
+        ],
         reward: 50,
     },
 

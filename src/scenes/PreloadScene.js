@@ -18,6 +18,12 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('btn_blue_pressed', 'assets/buttons/btn_blue_pressed.png');
         this.load.image('btn_red',          'assets/buttons/btn_red.png');
         this.load.image('btn_red_pressed',  'assets/buttons/btn_red_pressed.png');
+        // Wizard NPC spritesheet (5 idle frames, 64x64 each)
+        this.load.spritesheet('wizard_idle', 'assets/wizard/wizard_idle.png', { frameWidth: 64, frameHeight: 64 });
+        // Cook NPC spritesheet (5 idle frames, 64x64 each)
+        this.load.spritesheet('cook_idle', 'assets/cook_idle.png', { frameWidth: 64, frameHeight: 64 });
+        // Goblin worker shop NPC (48x48 frames, 7 cols x 6 rows)
+        this.load.spritesheet('goblin_worker', 'assets/goblin_worker.png', { frameWidth: 48, frameHeight: 48 });
         // Tiny Swords terrain tiles (64x64 native)
         this.load.image('ts_grass',  'assets/tiles/ts_grass.png');
         this.load.image('ts_path',   'assets/tiles/ts_path.png');
@@ -48,12 +54,20 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.spritesheet('enemy_lancer_run',   'assets/enemy_units/Lancer_Run.png',   { frameWidth: 320, frameHeight: 320 });
         this.load.spritesheet('enemy_monk_idle',    'assets/enemy_units/Monk_Idle.png',    { frameWidth: 192, frameHeight: 192 });
         this.load.spritesheet('enemy_monk_run',     'assets/enemy_units/Monk_Run.png',     { frameWidth: 192, frameHeight: 192 });
+        // Blue portal gate (8 frames, 64x64 each, horizontal strip)
+        this.load.spritesheet('portal', 'assets/portal.png', { frameWidth: 64, frameHeight: 64 });
+        // BBQ grill decoration (4 frames, 80x64 each)
+        this.load.spritesheet('grill', 'assets/grill.png', { frameWidth: 80, frameHeight: 64 });
     }
 
     create() {
         this.anims.create({ key: 'warrior_idle',   frames: this.anims.generateFrameNumbers('warrior_idle',   { start: 0, end: 7 }), frameRate: 6,  repeat: -1 });
         this.anims.create({ key: 'warrior_run',    frames: this.anims.generateFrameNumbers('warrior_run',    { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'warrior_attack', frames: this.anims.generateFrameNumbers('warrior_attack', { start: 0, end: 3 }), frameRate: 8,  repeat: 0  });
+        this.anims.create({ key: 'wizard_idle',    frames: this.anims.generateFrameNumbers('wizard_idle',    { start: 0, end: 4 }), frameRate: 5,  repeat: -1 });
+        this.anims.create({ key: 'cook_idle',     frames: this.anims.generateFrameNumbers('cook_idle',      { start: 0, end: 4 }), frameRate: 5,  repeat: -1 });
+        this.anims.create({ key: 'portal_spin',   frames: this.anims.generateFrameNumbers('portal',         { start: 0, end: 7 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'grill_sizzle', frames: this.anims.generateFrameNumbers('grill',           { start: 0, end: 3 }), frameRate: 5,  repeat: -1 });
 
         Object.entries(RED_ENEMY_UNITS).forEach(([unit, cfg]) => {
             const idleAnim = `enemy_${unit}_idle_anim`;
@@ -126,8 +140,6 @@ export default class PreloadScene extends Phaser.Scene {
         this.drawBoss(g, 'boss');
         this.drawGate(g, 'gate_closed', 0x553311, false);
         this.drawGate(g, 'gate_open',   0xffcc44, true);
-
-        // NPC - golden villager
         this.drawNPC(g, 'npc', 0xdd9922);
 
         g.destroy();

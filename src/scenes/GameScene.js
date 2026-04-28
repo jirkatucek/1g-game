@@ -51,6 +51,7 @@ export default class GameScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, worldW, worldH);
 
         this.renderTiles();
+        this.renderProps();
         this.buildWalls();
 
 
@@ -67,6 +68,7 @@ export default class GameScene extends Phaser.Scene {
         this.player.play('warrior_idle');
 
         this.physics.add.collider(this.player, this.walls);
+        this.physics.add.collider(this.player, this.propBodies);
 
         this.enemies = this.physics.add.group();
         this.spawnEnemies();
@@ -76,6 +78,7 @@ export default class GameScene extends Phaser.Scene {
         this.npcs = this.physics.add.staticGroup();
         this.spawnNPCs();
         this.physics.add.overlap(this.player, this.npcs, this.openDialog, null, this);
+        this.physics.add.overlap(this.player, this.shopNPCs, this.openShopDialog, null, this);
 
         this.spawnGate();
 
@@ -139,6 +142,25 @@ export default class GameScene extends Phaser.Scene {
                 }
             }
         }
+    }
+
+    renderProps() {
+        this.propBodies = this.physics.add.staticGroup();
+        (this.levelData.props || []).forEach(p => {
+            const x = p.x * TILE + TILE / 2;
+            const y = p.y * TILE + TILE / 2;
+            if (p.anim) {
+                this.add.sprite(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5).play(p.anim);
+            } else {
+                this.add.image(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5);
+            }
+            if (p.collide) {
+                const bw = p.bodyW ?? TILE;
+                const bh = p.bodyH ?? TILE;
+                this.propBodies.create(x, y, null)
+                    .setDisplaySize(bw, bh).refreshBody().setAlpha(0);
+            }
+        });
     }
 
     buildWalls() {
@@ -216,24 +238,74 @@ export default class GameScene extends Phaser.Scene {
     }
 
     spawnNPCs() {
+        this.shopNPCs = this.physics.add.group();
+
         this.levelData.npcs.forEach(nd => {
             const safe = this.findSafeTile(nd.x, nd.y);
-            const npc = this.npcs.create(safe.col * TILE + TILE/2, safe.row * TILE + TILE/2, 'npc');
-            npc.npcData = nd;
-            npc.setScale(2).refreshBody();
-            npc.setDepth(10);
-            this.add.text(safe.col * TILE + TILE/2, safe.row * TILE - 10, '!', {
-                fontSize: '18px', fill: '#ffff00', fontFamily: 'Arial Black',
-            }).setOrigin(0.5).setDepth(11);
+            const x = safe.col * TILE + TILE/2;
+            const y = safe.row * TILE + TILE/2;
+
+            if (nd.type === 'shop') {
+                // Wandering shop NPC (dynamic physics sprite)
+                const cook = this.physics.add.sprite(x, y, nd.sprite || 'cook_idle');
+                cook.npcData = nd;
+                cook.setScale(2.5).setDepth(10).setCollideWorldBounds(true);
+                cook.body.setSize(30, 30, 17, 17);
+                if (nd.anim) cook.play(nd.anim);
+                this.shopNPCs.add(cook);
+
+                const cx = (nd.wanderCX ?? nd.x) * TILE + TILE/2;
+                const cy = (nd.wanderCY ?? nd.y) * TILE + TILE/2;
+                const wr = (nd.wanderR ?? 1) * TILE;
+                this.time.addEvent({
+                    delay: 2200 + Math.random() * 1000, loop: true,
+                    callback: () => {
+                        if (!cook.active) return;
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist  = Math.random() * wr;
+                        const tx = cx + Math.cos(angle) * dist;
+                        const ty = cy + Math.sin(angle) * dist;
+                        const dx = tx - cook.x, dy = ty - cook.y;
+                        const len = Math.sqrt(dx*dx + dy*dy) || 1;
+                        cook.setVelocity(dx/len * 45, dy/len * 45);
+                        if (dx < 0) cook.setFlipX(true); else cook.setFlipX(false);
+                        this.time.delayedCall(1100, () => { if (cook.active) cook.setVelocity(0, 0); });
+                    },
+                });
+
+                const label = this.add.text(x, y - TILE * 0.55, '!', {
+                    fontSize: '18px', fill: '#ffff44', fontFamily: 'Arial Black',
+                    stroke: '#000000', strokeThickness: 3,
+                }).setOrigin(0.5).setDepth(11);
+                this.tweens.add({ targets: label, y: y - TILE * 0.75, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+                cook.exclamation = label;
+
+            } else {
+                // Quest NPC: static body
+                const npc = this.npcs.create(x, y, nd.sprite || 'wizard_idle');
+                npc.npcData = nd;
+                npc.setScale(3).refreshBody();
+                npc.body.setSize(90, 90, 51, 51);
+                npc.setDepth(10);
+                npc.play(nd.anim || 'wizard_idle');
+
+                const label = this.add.text(x, y - TILE * 0.7, '!', {
+                    fontSize: '22px', fill: '#ffff00', fontFamily: 'Arial Black',
+                    stroke: '#000000', strokeThickness: 4,
+                }).setOrigin(0.5).setDepth(11);
+                this.tweens.add({ targets: label, y: y - TILE * 0.9, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+                npc.exclamation = label;
+            }
         });
     }
 
     spawnGate() {
         if (!this.levelData.gate) return;
         const { x, y } = this.levelData.gate;
-        this.gate = this.physics.add.staticSprite(x * TILE + TILE/2, y * TILE + TILE/2, 'gate_closed');
-        this.gate.setScale(2).refreshBody();
+        this.gate = this.physics.add.staticSprite(x * TILE + TILE/2, y * TILE + TILE/2, 'portal');
+        this.gate.setScale(3).refreshBody();
         this.gate.setDepth(9);
+        this.gate.setAlpha(0); // invisible until quest is complete
         this.physics.add.collider(this.player, this.gate);
         this.gateOverlap = this.physics.add.overlap(this.player, this.gate, this.enterGate, null, this);
     }
@@ -324,10 +396,20 @@ export default class GameScene extends Phaser.Scene {
 
     openGate() {
         this.gateOpen = true;
-        this.gate.setTexture('gate_open');
-        this.gate.refreshBody();
+        this.gate.play('portal_spin');
 
-        // Remove collider, keep overlap
+        // Fade portal in, then pulse scale
+        this.tweens.add({
+            targets: this.gate, alpha: 1, duration: 900, ease: 'Sine.easeIn',
+            onComplete: () => {
+                this.tweens.add({
+                    targets: this.gate, scaleX: 3.3, scaleY: 3.3,
+                    duration: 140, yoyo: true, repeat: 3, ease: 'Sine.easeInOut',
+                });
+            },
+        });
+
+        // Remove collider so player can walk through the open portal
         this.physics.world.removeCollider(
             this.physics.world.colliders.getActive().find(c =>
                 (c.object1 === this.player && c.object2 === this.gate) ||
@@ -335,10 +417,7 @@ export default class GameScene extends Phaser.Scene {
             )
         );
 
-        // Flash gate
-        this.tweens.add({ targets: this.gate, alpha: 0.3, duration: 200, yoyo: true, repeat: 3 });
-
-        this.showFloatingText('Vrata otevřena!', 0xffcc00);
+        this.showFloatingText('Portal otevřen! ✨', 0x44aaff);
         this.updateHUD();
     }
 
@@ -372,100 +451,182 @@ export default class GameScene extends Phaser.Scene {
     openDialog(player, npc) {
         if (this.inDialog || this.inBattle || this.dialogCooldown) return;
         this.inDialog = true;
+        this.dialogType = 'quest';
         this.npcTalked = true;
+        if (npc.exclamation) { npc.exclamation.destroy(); npc.exclamation = null; }
         this.showDialog(npc.npcData.message);
         this.updateHUD();
         this.checkGate();
     }
 
-    showDialog(msg) {
-        if (this.dialogBox) { this.dialogBox.destroy(); this.dialogBox = null; }
+    openShopDialog(player, cook) {
+        if (this.inDialog || this.inBattle || this.dialogCooldown) return;
+        this.inDialog = true;
+        this.dialogType = 'shop';
+        this._activeCook = cook;
+        this.showShopDialog();
+    }
+
+    showShopDialog() {
+        if (this.dialogBox)    { this.dialogBox.destroy();    this.dialogBox    = null; }
+        if (this.dialogOverlay){ this.dialogOverlay.destroy(); this.dialogOverlay = null; }
 
         const W = this.scale.width, H = this.scale.height;
-        const cam = this.cameras.main;
 
-        const pW = Math.min(900, W * 0.88);
-        const pH = Math.min(600, H * 0.82);
-        const px = (W - pW) / 2, py = (H - pH) / 2;
+        this.dialogOverlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.65)
+            .setOrigin(0, 0).setScrollFactor(0).setDepth(98).setInteractive();
+
+        const pW = Math.min(520, W * 0.62);
+        const pH = Math.min(380, H * 0.60);
+        const px = (W - pW) / 2;
+        const py = (H - pH) / 2;
+
+        const bg = this.add.image(0, 0, 'parchment').setOrigin(0, 0).setDisplaySize(pW, pH);
+
+        const title = this.add.text(pW / 2, 38, 'Kuchař', {
+            fontSize: '22px', fill: '#3A2A12', fontFamily: '"Press Start 2P", monospace',
+        }).setOrigin(0.5);
+
+        const line = this.add.graphics();
+        line.lineStyle(2, 0x8C6B36, 1);
+        line.beginPath(); line.moveTo(50, 78); line.lineTo(pW - 50, 78); line.strokePath();
+
+        this._shopHpTxt   = this.add.text(pW / 2, 100, `HP:    ${this.player.hp} / ${this.player.maxHp}`, {
+            fontSize: '28px', fill: '#2E1F0A', fontFamily: '"VT323", monospace',
+        }).setOrigin(0.5);
+        this._shopGoldTxt = this.add.text(pW / 2, 130, `Zlato: ${this.gold}`, {
+            fontSize: '28px', fill: '#B8870D', fontFamily: '"VT323", monospace',
+        }).setOrigin(0.5);
+
+        // Buy button
+        const btnW = pW - 80, btnH = 54;
+        const btnBg = this.add.rectangle(pW / 2, 202, btnW, btnH, 0x3a6e1a).setStrokeStyle(3, 0x22440a);
+        const btnTxt = this.add.text(pW / 2, 202, 'Doplnit zdraví   -50 zlata / +30 HP', {
+            fontSize: '22px', fill: '#eeffcc', fontFamily: '"VT323", monospace',
+        }).setOrigin(0.5);
+
+        this._shopFeedback = this.add.text(pW / 2, 265, '', {
+            fontSize: '24px', fill: '#fff', fontFamily: '"VT323", monospace', align: 'center',
+        }).setOrigin(0.5);
+
+        const hint = this.add.text(pW / 2, pH - 26, 'ENTER = koupit   •   ESC = zavřít', {
+            fontSize: '11px', fill: '#8C6B36', fontFamily: '"Press Start 2P", monospace',
+        }).setOrigin(0.5);
+
+        btnBg.setInteractive({ useHandCursor: true })
+            .on('pointerover',  () => btnBg.setFillStyle(0x4e9022))
+            .on('pointerout',   () => btnBg.setFillStyle(0x3a6e1a))
+            .on('pointerdown',  () => this.buyHealth());
+        btnTxt.setInteractive().on('pointerdown', () => this.buyHealth());
+
+        this.dialogBox = this.add.container(px, py,
+            [bg, title, line, this._shopHpTxt, this._shopGoldTxt, btnBg, btnTxt, this._shopFeedback, hint]
+        ).setDepth(99).setScrollFactor(0);
+    }
+
+    buyHealth() {
+        if (this.gold < 50) {
+            this._shopFeedback.setText('Nemáš dost zlata!').setStyle({ fill: '#ff4444' });
+            return;
+        }
+        if (this.player.hp >= this.player.maxHp) {
+            this._shopFeedback.setText('Máš plné zdraví!').setStyle({ fill: '#ffaa44' });
+            return;
+        }
+        this.gold -= 50;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + 30);
+        this._shopHpTxt.setText(`HP:    ${this.player.hp} / ${this.player.maxHp}`);
+        this._shopGoldTxt.setText(`Zlato: ${this.gold}`);
+        this._shopFeedback.setText('+30 HP!').setStyle({ fill: '#44ff44' });
+        this.updateHUD();
+    }
+
+    showDialog(msg) {
+        if (this.dialogBox) { this.dialogBox.destroy(); this.dialogBox = null; }
+        if (this.dialogOverlay) { this.dialogOverlay.destroy(); this.dialogOverlay = null; }
+
+        const W = this.scale.width, H = this.scale.height;
+
+        // Dark overlay — fixed to screen, blocks game view
+        this.dialogOverlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.65)
+            .setOrigin(0, 0)
+            .setScrollFactor(0)
+            .setDepth(98)
+            .setInteractive(); // eat clicks so nothing behind is triggered
+
+        const pW = Math.min(900, W * 0.86);
+        const pH = Math.min(580, H * 0.80);
+        const px = (W - pW) / 2;
+        const py = (H - pH) / 2;
 
         const bg = this.add.image(0, 0, 'parchment')
             .setOrigin(0, 0)
-            .setDisplaySize(pW, pH)
-            .setDepth(100);
+            .setDisplaySize(pW, pH);
 
         // pečeť K
-        const seal = this.add.rectangle(90, 70, 56, 56, 0x8c2828).setDepth(101);
-        const sealBorder = this.add.rectangle(90, 70, 56, 56, 0x1a1c2c).setDepth(101);
-        sealBorder.setStrokeStyle(3, 0x1a1c2c).setFillStyle();
+        const seal    = this.add.rectangle(90, 70, 56, 56, 0x8c2828);
+        const sealBrd = this.add.rectangle(90, 70, 56, 56, 0x1a1c2c).setStrokeStyle(3, 0x1a1c2c).setFillStyle();
         const sealTxt = this.add.text(90, 70, 'K', {
             fontSize: '22px', fill: '#F4B41B', fontFamily: '"Press Start 2P", monospace',
-        }).setOrigin(0.5).setDepth(102);
+        }).setOrigin(0.5);
 
         const questLabel = this.add.text(130, 58, 'QUEST', {
             fontSize: '11px', fill: '#3A2A12', fontFamily: '"Press Start 2P", monospace',
-        }).setDepth(101);
-
-        // název levelu
+        });
         const title = this.add.text(130, 82, this.levelData.name, {
             fontSize: '18px', fill: '#3A2A12', fontFamily: '"Press Start 2P", monospace',
-        }).setDepth(101);
+        });
 
-        // oddělovač
-        const line1 = this.add.graphics().setDepth(101);
+        const line1 = this.add.graphics();
         line1.lineStyle(2, 0x8C6B36, 1);
         line1.beginPath(); line1.moveTo(60, 130); line1.lineTo(pW - 60, 130); line1.strokePath();
 
-        // zpráva NPC
-        const body = this.add.text(60, 148, msg, {
+        const bodyTxt = this.add.text(60, 148, msg, {
             fontSize: '30px', fill: '#2E1F0A', fontFamily: '"VT323", monospace',
             wordWrap: { width: pW - 120 }, lineSpacing: 6,
-        }).setDepth(101);
+        });
 
-        // cíle questu
         const objY = 290;
         const kills = Math.min(this.killCount, KILLS_NEEDED);
         const objectives = [
-            { done: this.npcTalked,              text: 'Promluv s NPC' },
-            { done: kills >= KILLS_NEEDED,        text: `Poraž ${KILLS_NEEDED} příšer (${kills}/${KILLS_NEEDED})` },
+            { done: this.npcTalked,         text: 'Promluv s NPC' },
+            { done: kills >= KILLS_NEEDED,   text: `Poraž ${KILLS_NEEDED} příšer (${kills}/${KILLS_NEEDED})` },
         ];
-
         const objItems = [];
         objectives.forEach((o, idx) => {
             const yy = objY + idx * 38;
-            const icon = this.add.text(60, yy, o.done ? '✓' : '□', {
-                fontSize: '16px', fill: o.done ? '#1F7A3F' : '#3A2A12',
-                fontFamily: '"Press Start 2P", monospace',
-            }).setDepth(101);
-            const label = this.add.text(95, yy, o.text, {
-                fontSize: '24px', fill: o.done ? 'rgba(58,42,18,0.5)' : '#2E1F0A',
-                fontFamily: '"VT323", monospace',
-            }).setDepth(101);
-            objItems.push(icon, label);
+            objItems.push(
+                this.add.text(60, yy, o.done ? '✓' : '□', {
+                    fontSize: '16px', fill: o.done ? '#1F7A3F' : '#3A2A12',
+                    fontFamily: '"Press Start 2P", monospace',
+                }),
+                this.add.text(95, yy, o.text, {
+                    fontSize: '24px', fill: o.done ? 'rgba(58,42,18,0.5)' : '#2E1F0A',
+                    fontFamily: '"VT323", monospace',
+                })
+            );
         });
 
-        // oddělovač dole
         const rewardY = objY + objectives.length * 38 + 20;
-        const line2 = this.add.graphics().setDepth(101);
+        const line2 = this.add.graphics();
         line2.lineStyle(2, 0x8C6B36, 1);
         line2.beginPath(); line2.moveTo(60, rewardY); line2.lineTo(pW - 60, rewardY); line2.strokePath();
 
-        // odměna
         const rewardLabel = this.add.text(60, rewardY + 20, 'Odměna:', {
             fontSize: '26px', fill: '#3A2A12', fontFamily: '"VT323", monospace',
-        }).setDepth(101);
+        });
         const rewardVal = this.add.text(210, rewardY + 20, `★ ${this.levelData.reward ?? 50} zlaťáků`, {
             fontSize: '26px', fill: '#B8870D', fontFamily: '"VT323", monospace',
-        }).setDepth(101);
-
-        // ESC hint
+        });
         const hint = this.add.text(pW / 2, pH - 28, 'ESC — zavřít', {
             fontSize: '13px', fill: '#8C6B36', fontFamily: '"Press Start 2P", monospace',
-        }).setOrigin(0.5).setDepth(101);
+        }).setOrigin(0.5);
 
-        this.dialogBox = this.add.container(cam.scrollX + px, cam.scrollY + py,
-            [bg, seal, sealBorder, sealTxt, questLabel, title, line1, body,
+        // Container fixed to screen — setScrollFactor(0) ignores camera movement
+        this.dialogBox = this.add.container(px, py,
+            [bg, seal, sealBrd, sealTxt, questLabel, title, line1, bodyTxt,
              ...objItems, line2, rewardLabel, rewardVal, hint]
-        ).setDepth(100);
+        ).setDepth(99).setScrollFactor(0);
     }
 
     nextLevel() {
@@ -479,17 +640,38 @@ export default class GameScene extends Phaser.Scene {
     update() {
         if (this.inBattle) return;
 
+        // Update shop NPC exclamation positions to follow them
+        if (this.shopNPCs) {
+            this.shopNPCs.getChildren().forEach(cook => {
+                if (cook.exclamation) {
+                    cook.exclamation.setPosition(cook.x, cook.y - TILE * 0.55);
+                }
+            });
+        }
+
         if (this.inDialog) {
-            if (Phaser.Input.Keyboard.JustDown(this.escKey) ||
-                Phaser.Input.Keyboard.JustDown(this.enterKey) ||
-                Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-                if (this.dialogBox) { this.dialogBox.destroy(); this.dialogBox = null; }
-                this.inDialog = false;
-                this.dialogCooldown = true;
-                this.time.delayedCall(3000, () => { this.dialogCooldown = false; });
+            const escDown   = Phaser.Input.Keyboard.JustDown(this.escKey);
+            const enterDown = Phaser.Input.Keyboard.JustDown(this.enterKey);
+            const spaceDown = Phaser.Input.Keyboard.JustDown(this.spaceKey);
+
+            if (this.dialogType === 'shop') {
+                if (enterDown) this.buyHealth();
+                if (escDown || spaceDown) {
+                    if (this.dialogBox)    { this.dialogBox.destroy();    this.dialogBox    = null; }
+                    if (this.dialogOverlay){ this.dialogOverlay.destroy(); this.dialogOverlay = null; }
+                    this.inDialog = false;
+                    this.dialogCooldown = true;
+                    this.time.delayedCall(1200, () => { this.dialogCooldown = false; });
+                }
+            } else {
+                if (escDown || enterDown || spaceDown) {
+                    if (this.dialogBox)    { this.dialogBox.destroy();    this.dialogBox    = null; }
+                    if (this.dialogOverlay){ this.dialogOverlay.destroy(); this.dialogOverlay = null; }
+                    this.inDialog = false;
+                    this.dialogCooldown = true;
+                    this.time.delayedCall(3000, () => { this.dialogCooldown = false; });
+                }
             }
-            if (this.dialogBox)
-                this.dialogBox.setPosition(this.cameras.main.scrollX + 50, this.cameras.main.scrollY + 440);
             this.player.setVelocity(0, 0);
             this.player.play('warrior_idle', true);
             return;
