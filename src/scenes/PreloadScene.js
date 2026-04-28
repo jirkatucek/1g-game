@@ -65,7 +65,8 @@ export default class PreloadScene extends Phaser.Scene {
         this.anims.create({ key: 'warrior_run',    frames: this.anims.generateFrameNumbers('warrior_run',    { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'warrior_attack', frames: this.anims.generateFrameNumbers('warrior_attack', { start: 0, end: 3 }), frameRate: 8,  repeat: 0  });
         this.anims.create({ key: 'wizard_idle',    frames: this.anims.generateFrameNumbers('wizard_idle',    { start: 0, end: 4 }), frameRate: 5,  repeat: -1 });
-        this.anims.create({ key: 'cook_idle',     frames: this.anims.generateFrameNumbers('cook_idle',      { start: 0, end: 4 }), frameRate: 5,  repeat: -1 });
+        this.anims.create({ key: 'cook_idle',        frames: this.anims.generateFrameNumbers('cook_idle',      { start: 0, end: 4 }), frameRate: 5,  repeat: -1 });
+        this.anims.create({ key: 'goblin_worker_idle', frames: this.anims.generateFrameNumbers('goblin_worker', { start: 1, end: 6 }), frameRate: 6,  repeat: -1 });
         this.anims.create({ key: 'portal_spin',   frames: this.anims.generateFrameNumbers('portal',         { start: 0, end: 7 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'grill_sizzle', frames: this.anims.generateFrameNumbers('grill',           { start: 0, end: 3 }), frameRate: 5,  repeat: -1 });
 
