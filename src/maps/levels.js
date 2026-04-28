@@ -167,8 +167,8 @@ export const LEVELS = [
                 name: 'Goblin Kuchař',
                 type: 'shop',
                 sprite: 'goblin_worker',
-                anim: 'goblin_worker_idle',
-                wanderCX: 13, wanderCY: 2, wanderR: 1,
+                frame: 7,
+                wanderR: 0,
             },
         ],
         props: [

@@ -247,7 +247,7 @@ export default class GameScene extends Phaser.Scene {
 
             if (nd.type === 'shop') {
                 // Wandering shop NPC (dynamic physics sprite)
-                const cook = this.physics.add.sprite(x, y, nd.sprite || 'cook_idle');
+                const cook = this.physics.add.sprite(x, y, nd.sprite || 'cook_idle', nd.frame ?? 0);
                 cook.npcData = nd;
                 cook.setScale(2.5).setDepth(10).setCollideWorldBounds(true);
                 cook.body.setSize(30, 30, 17, 17);
