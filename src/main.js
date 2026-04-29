@@ -69,9 +69,12 @@ if (shouldBlock) {
         backgroundColor: '#0a0a1a',
         pixelArt: true,
         scale: {
-            mode: Phaser.Scale.RESIZE,
+            mode: Phaser.Scale.FILL,
             autoCenter: Phaser.Scale.CENTER_BOTH,
+            width: 1280,
+            height: 720,
             parent: document.body,
+            expandParent: true,
         },
         physics: {
             default: 'arcade',
