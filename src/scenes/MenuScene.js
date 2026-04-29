@@ -9,6 +9,11 @@ export default class MenuScene extends Phaser.Scene {
         this.buildBackground(W, H);
         this.buildLeft(W, H);
         this.buildRight(W, H);
+
+        // Play theme music if not already playing
+        if (!this.sound.get('theme_adventure')?.isPlaying) {
+            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
+        }
     }
 
     buildBackground(W, H) {
@@ -30,8 +35,7 @@ export default class MenuScene extends Phaser.Scene {
             g.fillStyle(0xffee88, 0.9);
             g.fillCircle(Math.random() * W, Math.random() * H * 0.8, 2.5);
         }
-
-        // Bottom platform row
+        
         const platH = H * 0.12, platY = H - platH / 2;
         g.fillStyle(0x0b1c2e); g.fillRect(0, H - platH, W, platH);
         const platW = W / 14;

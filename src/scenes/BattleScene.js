@@ -36,6 +36,11 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     create() {
+        // Ensure theme music continues playing
+        if (!this.sound.get('theme_adventure')?.isPlaying) {
+            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
+        }
+
         const W = this.scale.width, H = this.scale.height;
         const unitByType = {
             goblin: 'pawn',

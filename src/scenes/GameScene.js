@@ -37,9 +37,15 @@ export default class GameScene extends Phaser.Scene {
         this.isSprinting     = false;
         this.exhausted       = false;
         this.gateOpen       = false;
+        this.nextFootstepAt  = 0;
     }
 
     create() {
+        // Ensure theme music continues playing
+        if (!this.sound.get('theme_adventure')?.isPlaying) {
+            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
+        }
+
         this.levelData = LEVELS[this.currentLevel];
         this.mapData   = this.levelData.map;
         this.rows      = this.mapData.length;
@@ -92,6 +98,8 @@ export default class GameScene extends Phaser.Scene {
         this.enterKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.spaceKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.shiftKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+
+        this.footstepsGrass = this.sound.add('footsteps_grass', { volume: 0.35 });
 
         this.createHUD();
 
@@ -193,7 +201,7 @@ export default class GameScene extends Phaser.Scene {
                 sprite = this.add.sprite(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5);
                 sprite.play(p.anim);
             } else {
-                sprite = this.add.image(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5);
+                sprite = this.add.image(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5).setAngle(p.angle ?? 0);
             }
             if (p.collide) {
                 const bw  = p.bodyW   ?? TILE;
@@ -332,7 +340,7 @@ export default class GameScene extends Phaser.Scene {
                 const npc = this.npcs.create(x, y, nd.sprite || 'wizard_idle');
                 npc.npcData = nd;
                 npc.setScale(3).refreshBody();
-                npc.body.setSize(90, 90, 51, 51);
+                npc.body.setSize(36, 40, 78, 76);
                 npc.setDepth(10);
                 npc.play(nd.anim || 'wizard_idle');
 
@@ -399,6 +407,8 @@ export default class GameScene extends Phaser.Scene {
         if (this.inBattle || this.inDialog || this.battleCooldown) return;
         this.inBattle = true;
         enemy.setVelocity(0, 0);
+        this.nextFootstepAt = 0;
+        if (this.footstepsGrass?.isPlaying) this.footstepsGrass.stop();
         this.scene.launch('BattleScene', {
             enemyData:   enemy.enemyData,
             enemyIndex:  enemy.enemyIndex,
@@ -697,6 +707,8 @@ export default class GameScene extends Phaser.Scene {
         }
 
         if (this.inDialog) {
+            this.nextFootstepAt = 0;
+            if (this.footstepsGrass?.isPlaying) this.footstepsGrass.stop();
             const escDown   = Phaser.Input.Keyboard.JustDown(this.escKey);
             const enterDown = Phaser.Input.Keyboard.JustDown(this.enterKey);
             const spaceDown = Phaser.Input.Keyboard.JustDown(this.spaceKey);
@@ -733,7 +745,7 @@ export default class GameScene extends Phaser.Scene {
         if (this.stamina <= 0) this.exhausted = true;
         if (this.exhausted && this.stamina >= 30) this.exhausted = false;
 
-        const wantSprint = this.shiftKey.isDown && moving && !this.exhausted;
+        const wantSprint = this.shiftKey.isDown && !this.exhausted;
         this.isSprinting = wantSprint;
 
         if (wantSprint) {
@@ -743,7 +755,7 @@ export default class GameScene extends Phaser.Scene {
             this.stamina = Math.min(this.maxStamina, this.stamina + regenRate * delta);
         }
 
-        const speed = wantSprint ? 280 : 160;
+        const speed = wantSprint ? 238 : 160;
         let vx = 0, vy = 0;
         if (this.cursors.left.isDown  || this.wasd.A.isDown) vx = -speed;
         if (this.cursors.right.isDown || this.wasd.D.isDown) vx =  speed;
@@ -754,12 +766,15 @@ export default class GameScene extends Phaser.Scene {
 
         if (vx !== 0 || vy !== 0) {
             this.player.play('warrior_run', true);
-            this.player.anims.timeScale = wantSprint ? 1.8 : 1;
+            this.player.anims.timeScale = wantSprint ? 1.53 : 1;
             if (vx < 0) this.player.setFlipX(true);
             else if (vx > 0) this.player.setFlipX(false);
+            this.playFootsteps(wantSprint);
         } else {
             this.player.play('warrior_idle', true);
             this.player.anims.timeScale = 1;
+            this.nextFootstepAt = 0;
+            if (this.footstepsGrass?.isPlaying) this.footstepsGrass.stop();
         }
 
         this.enemies.getChildren().forEach(e => {
@@ -781,5 +796,17 @@ export default class GameScene extends Phaser.Scene {
         });
 
         this.updateHUD();
+    }
+
+    playFootsteps(isSprinting) {
+        if (!this.footstepsGrass || !this.player?.body) return;
+        const moving = Math.abs(this.player.body.velocity.x) > 1 || Math.abs(this.player.body.velocity.y) > 1;
+        if (!moving) return;
+
+        const now = this.time.now;
+        if (now < this.nextFootstepAt) return;
+
+        this.footstepsGrass.play();
+        this.nextFootstepAt = now + (isSprinting ? 260 : 340);
     }
 }

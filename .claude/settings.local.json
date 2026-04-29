@@ -41,7 +41,10 @@
       "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Objects_Without_Shadow/PineTree_v2.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/pinetree_v2.png\")",
       "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/BigBush_v1.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/bigbush_v1.png\")",
       "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Objects_Without_Shadow/BigBush_v2.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/bigbush_v2.png\")",
-      "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Flower1_Tile.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/flower1.png\")"
+      "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Flower1_Tile.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/flower1.png\")",
+      "Read(//c/Users/jirka/Downloads/Castle Walls/Castle Walls/**)",
+      "Read(//c/Users/jirka/Downloads/Castle Walls/**)",
+      "Bash(node --input-type=module)"
     ]
   }
 }

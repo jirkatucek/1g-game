@@ -2,6 +2,11 @@ export default class VictoryScene extends Phaser.Scene {
     constructor() { super({ key: 'VictoryScene' }); }
 
     create() {
+        // Ensure theme music continues playing
+        if (!this.sound.get('theme_adventure')?.isPlaying) {
+            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
+        }
+
         const W = this.scale.width, H = this.scale.height;
         this.add.rectangle(W/2, H/2, W, H, 0x080800);
 

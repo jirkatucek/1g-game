@@ -264,7 +264,7 @@ export const LEVELS = [
             { x: 19, y:  8, type: 'orc',   level: 3, name: 'Přerostlý Goblin' },
         ],
         npcs: [{
-            x: 11, y: 11,
+            x: 11, y: 10,
             name: 'Zahradník s nůžkami',
             message: '„Pozor, tato monstra jsou zbytečně nafouklá! Musíš je zkrátit na základní tvar. Např. 4/8 = 1/2"',
         }],
@@ -400,25 +400,81 @@ export const LEVELS = [
         reward: 70,
     },
 
-    // ── Level 4: Břeh Řeky Jmenovatelů ──────────────────────────────────
+    // ── Level 4: Pevnost Společného Jmenovatele ──────────────────────────
+    // Les vlevo (cols 1-10), vnější hradba (col 11, brána na řadách 8-10),
+    // nádvoří (cols 12-16), vnitřní hrad (cols 17-24, vstup na col 17 řady 8-10),
+    // portál (21,9) uvnitř hradu.
     {
-        name: 'Břeh Řeky Jmenovatelů',
-        bgColor: 0x0a1a2e,
-        map: makeMap('bridge'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 26, y: 12 },
+        name: 'Pevnost Společného Jmenovatele',
+        bgColor: 0x0d1a0d,
+        map: [
+        //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 0
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 1
+            [T, T, T, G, T, T, G, T, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 2  col11=T (zeď)
+            [T, T, G, G, T, G, T, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 3  col11=T
+            [T, G, T, T, G, T, G, T, T, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 4  col11=T
+            [T, T, T, G, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 5  col11=T
+            [T, T, G, T, T, G, T, G, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 6  col11=T
+            [T, G, T, T, G, G, T, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 7  col11=T
+            [T, T, G, T, G, T, T, G, T, G, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 8  col11=G (brána nahoře)
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 9  col11=G (průchod)
+            [T, T, G, T, G, T, T, G, T, G, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 10 col11=G (brána dole)
+            [T, T, G, G, T, G, T, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 11 col11=T
+            [T, G, G, T, T, G, T, G, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 12 col11=T
+            [T, T, T, G, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 13 col11=T
+            [T, G, T, T, G, T, G, G, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 14 col11=T
+            [T, T, T, G, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 15 col11=T
+            [T, T, G, T, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 16 col11=T
+            [T, T, T, G, T, T, G, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 17 col11=T
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 18
+            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 19
+        ],
+        playerStart: { x: 1, y: 9 },
+        gate: { x: 21, y: 9 },
         enemies: [
-            { x: 7,  y: 5, type: 'goblin', level: 4, name: 'Říční Duch' },
-            { x: 12, y: 5, type: 'orc',    level: 4, name: 'Jmenovatelník' },
-            { x: 17, y: 5, type: 'orc',    level: 4, name: 'Mostní Troll' },
-            { x: 22, y: 5, type: 'dragon', level: 4, name: 'Mostní Troll' },
-            { x: 26, y: 9, type: 'dragon', level: 4, name: 'Říční Démon' },
+            { x:  3, y:  3, type: 'goblin', level: 4, name: 'Lesní Goblin' },
+            { x:  8, y:  5, type: 'goblin', level: 4, name: 'Lesní Goblin' },
+            { x:  5, y:  7, type: 'orc',   level: 4, name: 'Lesní Troll' },
+            { x:  2, y: 12, type: 'orc',   level: 4, name: 'Lesní Troll' },
+            { x:  7, y: 14, type: 'orc',   level: 4, name: 'Výsadkový Strážce' },
         ],
         npcs: [{
-            x: 1, y: 1,
-            name: 'Starý rybář',
-            message: '„Na druhou stranu se nedostaneš, dokud nenajdeš společného jmenovatele! Najdi číslo, do kterého se vejdou oba spodky."',
+            x: 10, y: 9,
+            name: 'Strážce brány',
+            message: '„Pevnost se otevře, až vyřešíš příklady na krácení zlomků u monster v lese!"',
         }],
+        props: [
+            // ── Vnější hradba (sloupec 11, řady 2-17) ────────────────────────
+            // wall1 = čisté cihly bez pilířů → rotované tvoří čistou svislou zeď
+            { x: 11, y:  2, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y:  3, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y:  4, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y:  5, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y:  6, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y:  7, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y:  8, key: 'cw_last1',  scale: 1, depth: 15, angle: 90 },
+            { x: 11, y:  9, key: 'cw_door',   scale: 1, depth: 15, angle: 90 },
+            { x: 11, y: 10, key: 'cw_last2',  scale: 1, depth: 15, angle: 90 },
+            { x: 11, y: 11, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 12, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 13, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 14, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 15, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 16, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 17, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
+
+            // ── Dekorace nádvoří (cols 12-16) ───────────────────────────────
+            { x: 13, y:  4, key: 'pt_pinetree_v2', scale: 1.4, depth: 2 },
+            { x: 15, y:  3, key: 'fd_flower1',     scale: 2,   depth: 2 },
+            { x: 14, y:  7, key: 'fd_stump1',      scale: 2,   depth: 2 },
+            { x: 16, y:  7, key: 'pb_bush1_green',  scale: 0.9, depth: 2 },
+            { x: 16, y: 11, key: 'pb_bush10_red',   scale: 1.0, depth: 2 },
+            { x: 15, y: 11, key: 'fd_stump2',      scale: 2,   depth: 2 },
+            { x: 13, y: 15, key: 'fd_flower3',     scale: 2,   depth: 2 },
+            { x: 16, y: 14, key: 'pt_pinetree_v1', scale: 1.2, depth: 2 },
+        ],
+        reward: 80,
     },
 
     // ── Level 5: Bažina Sčítání ──────────────────────────────────────────
@@ -442,104 +498,4 @@ export const LEVELS = [
         }],
     },
 
-    // ── Level 6: Hory Násobení ───────────────────────────────────────────
-    {
-        name: 'Hory Násobení',
-        bgColor: 0x1a1a2a,
-        map: makeMap('dungeon'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 19, y: 10 },
-        enemies: [
-            { x: 5,  y: 3, type: 'orc',    level: 6, name: 'Skalní Troll' },
-            { x: 5,  y: 6, type: 'orc',    level: 6, name: 'Skalní Troll' },
-            { x: 9,  y: 5, type: 'dragon', level: 6, name: 'Horský Drak' },
-            { x: 14, y: 6, type: 'dragon', level: 6, name: 'Horský Drak' },
-            { x: 10, y: 8, type: 'dragon', level: 6, name: 'Ledový Golem' },
-        ],
-        npcs: [{
-            x: 3, y: 3,
-            name: 'Zrzavý horolezec',
-            message: '„Nahoru to jde snadno! U násobení nepřemýšlej nad společným spodkem. Dej vršek s vrškem a spodek se spodkem! Např. 2/3 × 1/4 = 2/12 = 1/6"',
-        }],
-    },
-
-    // ── Level 7: Jeskyně Převrácených hodnot ─────────────────────────────
-    {
-        name: 'Jeskyně Převrácených hodnot',
-        bgColor: 0x0a0a1a,
-        map: makeMap('dungeon'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 19, y: 10 },
-        enemies: [
-            { x: 5,  y: 3, type: 'orc',    level: 7, name: 'Obrácený Duch' },
-            { x: 5,  y: 6, type: 'orc',    level: 7, name: 'Obrácený Duch' },
-            { x: 9,  y: 5, type: 'dragon', level: 7, name: 'Krystalový Stvůr' },
-            { x: 14, y: 6, type: 'dragon', level: 7, name: 'Krystalový Stvůr' },
-            { x: 10, y: 8, type: 'dragon', level: 7, name: 'Netopýří Golem' },
-        ],
-        npcs: [{
-            x: 3, y: 3,
-            name: 'Netopýr',
-            message: '„Tady se ti zatočí hlava! Musíš se naučit věci obracet. Z čitatele jmenovatel a naopak! Např. 3/4 → 4/3"',
-        }],
-    },
-
-    // ── Level 8: Propast Dělení ───────────────────────────────────────────
-    {
-        name: 'Propast Dělení',
-        bgColor: 0x1a0a00,
-        map: makeMap('bridge'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 26, y: 12 },
-        enemies: [
-            { x: 7,  y: 5, type: 'orc',    level: 8, name: 'Lávový Troll' },
-            { x: 12, y: 5, type: 'dragon', level: 8, name: 'Lávový Troll' },
-            { x: 17, y: 5, type: 'dragon', level: 8, name: 'Propastný Drak' },
-            { x: 22, y: 5, type: 'dragon', level: 8, name: 'Propastný Drak' },
-            { x: 26, y: 9, type: 'dragon', level: 8, name: 'Ohnivý Golem' },
-        ],
-        npcs: [{
-            x: 1, y: 1,
-            name: 'Duch padlého rytíře',
-            message: '„Dělení je zrádné! Pamatuj: první zlomek nech být a vynásob ho obráceným druhým zlomkem! Např. 1/2 ÷ 1/4 = 1/2 × 4/1 = 2"',
-        }],
-    },
-
-    // ── Level 9: Kobky Smíšených čísel ───────────────────────────────────
-    {
-        name: 'Kobky Smíšených čísel',
-        bgColor: 0x0a0a0a,
-        map: makeMap('dungeon'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 19, y: 10 },
-        enemies: [
-            { x: 5,  y: 3, type: 'orc',    level: 9, name: 'Smíšenec' },
-            { x: 5,  y: 6, type: 'orc',    level: 9, name: 'Smíšenec' },
-            { x: 9,  y: 5, type: 'dragon', level: 9, name: 'Kobkový Démon' },
-            { x: 14, y: 6, type: 'dragon', level: 9, name: 'Kobkový Démon' },
-            { x: 10, y: 8, type: 'dragon', level: 9, name: 'Zlomkový Golem' },
-        ],
-        npcs: [{
-            x: 3, y: 3,
-            name: 'Kostlivec v brnění',
-            message: '„Skoro jsi u princezny! Tihle strážci jsou napůl celá čísla. Rozlož je na jeden velký zlomek! Např. 1 a 1/2 = 3/2"',
-        }],
-    },
-
-    // ── Level 10: Věž – Finální souboj ───────────────────────────────────
-    {
-        name: 'Věž Princezny Algebry',
-        bgColor: 0x1a1a2e,
-        map: makeMap('tower'),
-        playerStart: { x: 2, y: 2 },
-        gate: null,
-        enemies: [
-            { x: 13, y: 6, type: 'boss', level: 10, name: 'Kalkulační Golem' },
-        ],
-        npcs: [{
-            x: 24, y: 6,
-            name: 'Princezna Algebra',
-            message: '„Cože? Ty jsi prošel přes moji zlomkovou ochranku? Stvořila jsem ty příšery, abych měla klid! Ukaž, jestli zvládneš mého Golema – poraž ho správně 3× v řadě!"',
-        }],
-    },
 ];

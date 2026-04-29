@@ -26,6 +26,10 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.spritesheet('goblin_worker', 'assets/goblin_worker.png', { frameWidth: 48, frameHeight: 48 });
         // Campfire decoration (9 frames, 50x86 each)
         this.load.spritesheet('campfire', 'assets/campfire.png', { frameWidth: 50, frameHeight: 86 });
+        // Footsteps on grass
+        this.load.audio('footsteps_grass', 'assets/sounds/footsteps_grass.mp3');
+        // Main theme
+        this.load.audio('theme_adventure', 'assets/sounds/theme_adventure.mp3');
         // Cabin building
         this.load.image('cabin', 'assets/cabin.png');
         // Cabin woodland decorations
@@ -37,6 +41,10 @@ export default class PreloadScene extends Phaser.Scene {
         // Pixel Art Bush Pack – garden bushes
         ['bush1_green','bush1_red','bush1_yellow','bush1_teal','bush3_green','bush3_red','bush10_green','bush10_red','bush10_yellow'].forEach(k =>
             this.load.image(`pb_${k}`, `assets/bushes/${k}.png`));
+        // Castle Walls Pack – fortress wall tiles (64×64)
+        ['corner1','corner2','corner3','corner4','wall1','wall2','window1','window2',
+         'vertical1','vertical2','vertical3','vertical4','door','last1','last2','twice1','twice2'].forEach(k =>
+            this.load.image(`cw_${k}`, `assets/castle/Castle_${k}.png`));
         // Pine Tree Asset Pack – pine trees and nature decorations
         ['pinetree_v1','pinetree_v2','bigbush_v1','bigbush_v2','flower1','flower2','smallbush','bigmushroom'].forEach(k =>
             this.load.image(`pt_${k}`, `assets/pine_trees/${k}.png`));
