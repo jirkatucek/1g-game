@@ -1,4 +1,5 @@
 import MathGenerator from '../utils/MathGenerator.js';
+import { applyAudioPreferences, loadGameState, playThemeMusic } from '../utils/GameState.js';
 
 const STATS = {
     goblin: { maxHp: 50,  attack: 10, gold: 5, name: 'Zlomkový Duch' },
@@ -36,10 +37,11 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     create() {
-        // Ensure theme music continues playing
-        if (!this.sound.get('theme_adventure')?.isPlaying) {
-            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
-        }
+        const prefs = loadGameState();
+        applyAudioPreferences(this, prefs);
+        playThemeMusic(this, prefs);
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdownScene, this);
 
         const W = this.scale.width, H = this.scale.height;
         const unitByType = {
@@ -323,5 +325,13 @@ export default class BattleScene extends Phaser.Scene {
         this.refreshPlayerHP();
         this.fbTxt.setText('Utíkáš! −20 HP').setStyle({ fill: '#ff8800' });
         this.end('flee', { delay: 900 });
+    }
+
+    shutdownScene() {
+        this.input.keyboard.off('keydown', this.onKey, this);
+        if (this._timerTween) {
+            this._timerTween.stop();
+            this._timerTween = null;
+        }
     }
 }

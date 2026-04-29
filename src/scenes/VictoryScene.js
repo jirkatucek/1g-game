@@ -1,13 +1,23 @@
 import { playRandomClick } from '../utils/SoundEffects.js';
+import { applyAudioPreferences, loadGameState, playThemeMusic, saveGameState } from '../utils/GameState.js';
 
 export default class VictoryScene extends Phaser.Scene {
     constructor() { super({ key: 'VictoryScene' }); }
 
     create() {
-        // Ensure theme music continues playing
-        if (!this.sound.get('theme_adventure')?.isPlaying) {
-            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
-        }
+        const prefs = loadGameState();
+        applyAudioPreferences(this, prefs);
+        playThemeMusic(this, prefs);
+
+        saveGameState({
+            currentLevel: 0,
+            lastLevel: prefs.currentLevel ?? prefs.lastLevel ?? 0,
+            playerHP: 100,
+            gold: 0,
+            killCount: 0,
+            npcTalked: false,
+            resumeMode: 'fresh',
+        });
 
         const W = this.scale.width, H = this.scale.height;
         this.add.rectangle(W/2, H/2, W, H, 0x080800);

@@ -1,8 +1,10 @@
 import { LEVELS } from '../maps/levels.js';
 import { playRandomClick } from '../utils/SoundEffects.js';
+import { applyAudioPreferences, loadGameState, playThemeMusic, saveGameState, saveProgress } from '../utils/GameState.js';
+import { GAME_CONFIG } from '../utils/GameConfig.js';
 
 const TILE = 64;
-const KILLS_NEEDED = 5;
+const KILLS_NEEDED = GAME_CONFIG.gameplay.killsNeeded;
 
 const ENEMY_UNIT_POOLS = {
     goblin: ['pawn', 'archer'],
@@ -23,17 +25,27 @@ export default class GameScene extends Phaser.Scene {
     constructor() { super({ key: 'GameScene' }); }
 
     init(data) {
-        this.currentLevel   = data.level ?? 0;
-        this.playerHP       = data.playerHP ?? 100;
+        const saved = loadGameState();
+        this.currentLevel   = data.level ?? saved.currentLevel ?? 0;
+        this.playerHP       = data.playerHP ?? saved.playerHP ?? 100;
         this.playerMaxHP    = 100;
-        this.gold           = data.gold ?? 0;
+        this.gold           = data.gold ?? saved.gold ?? 0;
+        this.killCount      = data.killCount ?? saved.killCount ?? 0;
+        this.npcTalked      = data.npcTalked ?? saved.npcTalked ?? false;
         this.registry.set('lastLevel', this.currentLevel);
+        saveProgress(this, {
+            currentLevel: this.currentLevel,
+            playerHP: this.playerHP,
+            gold: this.gold,
+            killCount: this.killCount,
+            npcTalked: this.npcTalked,
+            unlockedLevel: Math.max(saved.unlockedLevel ?? 0, this.currentLevel),
+            resumeMode: 'resume',
+        });
         this.inBattle        = false;
         this.inDialog        = false;
         this.dialogCooldown  = false;
         this.battleCooldown  = false;
-        this.killCount       = 0;
-        this.npcTalked       = false;
         this.stamina         = 100;
         this.maxStamina      = 100;
         this.isSprinting     = false;
@@ -45,10 +57,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
-        // Ensure theme music continues playing
-        if (!this.sound.get('theme_adventure')?.isPlaying) {
-            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
-        }
+        this.saveData = loadGameState();
+        applyAudioPreferences(this, this.saveData);
+        playThemeMusic(this, this.saveData);
 
         this.levelData = LEVELS[this.currentLevel];
         this.mapData   = this.levelData.map;
@@ -107,12 +118,15 @@ export default class GameScene extends Phaser.Scene {
 
         this.createHUD();
 
-        this.events.on('resume', () => {
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdownScene, this);
+
+        this._onResume = () => {
             const result = this.game.registry.get('battleResult');
             if (!result) return;
             this.game.registry.remove('battleResult');
             this.handleBattleResult(result);
-        }, this);
+        };
+        this.events.on('resume', this._onResume, this);
     }
 
     renderTiles() {
@@ -462,14 +476,23 @@ export default class GameScene extends Phaser.Scene {
             });
             this.gold += data.goldEarned ?? 10;
             this.killCount++;
+            saveProgress(this, {
+                currentLevel: this.currentLevel,
+                playerHP: this.player.hp,
+                gold: this.gold,
+                killCount: this.killCount,
+                npcTalked: this.npcTalked,
+                unlockedLevel: loadGameState().unlockedLevel,
+                resumeMode: 'resume',
+            });
             this.updateHUD();
             this.checkGate();
         } else if (data.result === 'lose') {
-            this.time.delayedCall(400, () => this.scene.start('GameOverScene'));
+            this.time.delayedCall(GAME_CONFIG.gameplay.battleLoseTransitionMs, () => this.scene.start('GameOverScene'));
         } else {
             this.updateHUD();
             if (this.player.hp <= 0)
-                this.time.delayedCall(400, () => this.scene.start('GameOverScene'));
+                this.time.delayedCall(GAME_CONFIG.gameplay.battleLoseTransitionMs, () => this.scene.start('GameOverScene'));
         }
     }
 
@@ -498,6 +521,15 @@ export default class GameScene extends Phaser.Scene {
 
         this.showFloatingText('Portal otevřen! ✨', 0x44aaff);
         this.updateHUD();
+        saveProgress(this, {
+            currentLevel: this.currentLevel,
+            playerHP: this.player.hp,
+            gold: this.gold,
+            killCount: this.killCount,
+            npcTalked: this.npcTalked,
+            unlockedLevel: Math.max(loadGameState().unlockedLevel ?? 0, this.currentLevel + 1),
+            resumeMode: 'resume',
+        });
     }
 
     enterGate() {
@@ -511,13 +543,13 @@ export default class GameScene extends Phaser.Scene {
                         ? `Poraž ještě ${KILLS_NEEDED - this.killCount} příšer!`
                         : 'Promluv nejdřív s NPC!';
                 this.showFloatingText(msg, 0xff8800);
-                this.time.delayedCall(2000, () => { this._gateMsgShown = false; });
+                this.time.delayedCall(GAME_CONFIG.gameplay.gateMsgCooldownMs, () => { this._gateMsgShown = false; });
             }
             return;
         }
         this._enteringGate = true;
         this.sound.play('portal_whoosh', { volume: 1.2 });
-        this.time.delayedCall(650, () => this.nextLevel());
+        this.time.delayedCall(GAME_CONFIG.gameplay.portalEnterDelayMs, () => this.nextLevel());
     }
 
     showFloatingText(msg, color) {
@@ -583,7 +615,7 @@ export default class GameScene extends Phaser.Scene {
         // Buy button
         const btnW = pW - 80, btnH = 54;
         const btnBg = this.add.rectangle(pW / 2, 202, btnW, btnH, 0x3a6e1a).setStrokeStyle(3, 0x22440a);
-        const btnTxt = this.add.text(pW / 2, 202, 'Doplnit zdraví   -50 zlata / +30 HP', {
+        const btnTxt = this.add.text(pW / 2, 202, `Doplnit zdraví   -${GAME_CONFIG.gameplay.shopHealthCost} zlata / +${GAME_CONFIG.gameplay.shopHealthGain} HP`, {
             fontSize: '22px', fill: '#eeffcc', fontFamily: '"VT323", monospace',
         }).setOrigin(0.5);
 
@@ -608,7 +640,7 @@ export default class GameScene extends Phaser.Scene {
 
     buyHealth() {
         playRandomClick(this);
-        if (this.gold < 50) {
+        if (this.gold < GAME_CONFIG.gameplay.shopHealthCost) {
             this._shopFeedback.setText('Nemáš dost zlata!').setStyle({ fill: '#ff4444' });
             return;
         }
@@ -616,11 +648,11 @@ export default class GameScene extends Phaser.Scene {
             this._shopFeedback.setText('Máš plné zdraví!').setStyle({ fill: '#ffaa44' });
             return;
         }
-        this.gold -= 50;
-        this.player.hp = Math.min(this.player.maxHp, this.player.hp + 30);
+        this.gold -= GAME_CONFIG.gameplay.shopHealthCost;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + GAME_CONFIG.gameplay.shopHealthGain);
         this._shopHpTxt.setText(`HP:    ${this.player.hp} / ${this.player.maxHp}`);
         this._shopGoldTxt.setText(`Zlato: ${this.gold}`);
-        this._shopFeedback.setText('+30 HP!').setStyle({ fill: '#44ff44' });
+        this._shopFeedback.setText(`+${GAME_CONFIG.gameplay.shopHealthGain} HP!`).setStyle({ fill: '#44ff44' });
         this.updateHUD();
     }
 
@@ -714,8 +746,18 @@ export default class GameScene extends Phaser.Scene {
 
     nextLevel() {
         const next = this.currentLevel + 1;
+        saveGameState({
+            currentLevel: next < LEVELS.length ? next : this.currentLevel,
+            lastLevel: next < LEVELS.length ? next : this.currentLevel,
+            playerHP: this.player.hp,
+            gold: this.gold,
+            killCount: 0,
+            npcTalked: false,
+            unlockedLevel: Math.max(loadGameState().unlockedLevel ?? 0, next),
+            resumeMode: 'resume',
+        });
         if (next < LEVELS.length)
-            this.scene.start('GameScene', { level: next, playerHP: this.player.hp, gold: this.gold });
+            this.scene.start('GameScene', { level: next, playerHP: this.player.hp, gold: this.gold, killCount: 0, npcTalked: false });
         else
             this.scene.start('VictoryScene');
     }
@@ -753,7 +795,7 @@ export default class GameScene extends Phaser.Scene {
                     if (this.dialogOverlay){ this.dialogOverlay.destroy(); this.dialogOverlay = null; }
                     this.inDialog = false;
                     this.dialogCooldown = true;
-                    this.time.delayedCall(1200, () => { this.dialogCooldown = false; });
+                    this.time.delayedCall(GAME_CONFIG.gameplay.shopCooldownMs, () => { this.dialogCooldown = false; });
                 }
             } else {
                 if (escDown || enterDown || spaceDown) {
@@ -761,7 +803,7 @@ export default class GameScene extends Phaser.Scene {
                     if (this.dialogOverlay){ this.dialogOverlay.destroy(); this.dialogOverlay = null; }
                     this.inDialog = false;
                     this.dialogCooldown = true;
-                    this.time.delayedCall(3000, () => { this.dialogCooldown = false; });
+                    this.time.delayedCall(GAME_CONFIG.gameplay.dialogCooldownMs, () => { this.dialogCooldown = false; });
                 }
             }
             this.player.setVelocity(0, 0);
@@ -917,9 +959,10 @@ export default class GameScene extends Phaser.Scene {
 
         let isDragging = false;
         volumeButton.on('pointerdown', () => { isDragging = true; });
-        this.input.on('pointerup', () => { isDragging = false; });
+        this._pauseVolumeUp = () => { isDragging = false; };
+        this.input.on('pointerup', this._pauseVolumeUp);
 
-        this.input.on('pointermove', (pointer) => {
+        this._pauseVolumeMove = (pointer) => {
             if (!isDragging) return;
             const relX = Phaser.Math.Clamp(pointer.x - sliderLeft, 0, sliderW);
             const vol = relX / sliderW;
@@ -929,7 +972,9 @@ export default class GameScene extends Phaser.Scene {
                 themeSound.setVolume(vol);
             }
             this.sound.mute = vol === 0;
-        });
+            saveGameState({ volume: vol, muted: vol === 0 });
+        };
+        this.input.on('pointermove', this._pauseVolumeMove);
 
         // Resume button
         const resumeY = H * 0.52;
@@ -964,10 +1009,34 @@ export default class GameScene extends Phaser.Scene {
             event.stopPropagation();
             playRandomClick(this);
             this.isPaused = false;
+            saveProgress(this, {
+                currentLevel: this.currentLevel,
+                playerHP: this.player.hp,
+                gold: this.gold,
+                killCount: this.killCount,
+                npcTalked: this.npcTalked,
+                unlockedLevel: loadGameState().unlockedLevel,
+                resumeMode: 'resume',
+            });
             this.scene.start('MenuScene');
         });
         container.add([menuBg, menuTxt]);
 
         return { overlay, panel: container };
+    }
+
+    shutdownScene() {
+        if (this._onResume) {
+            this.events.off('resume', this._onResume, this);
+            this._onResume = null;
+        }
+        if (this._pauseVolumeMove) {
+            this.input.off('pointermove', this._pauseVolumeMove);
+            this._pauseVolumeMove = null;
+        }
+        if (this._pauseVolumeUp) {
+            this.input.off('pointerup', this._pauseVolumeUp);
+            this._pauseVolumeUp = null;
+        }
     }
 }

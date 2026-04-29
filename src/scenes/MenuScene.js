@@ -1,5 +1,7 @@
 import { LEVELS } from '../maps/levels.js';
 import { playRandomClick } from '../utils/SoundEffects.js';
+import { applyAudioPreferences, getResumePayload, loadGameState, playThemeMusic, saveFreshRun, saveGameState } from '../utils/GameState.js';
+import { GAME_CONFIG } from '../utils/GameConfig.js';
 
 export default class MenuScene extends Phaser.Scene {
     constructor() { super({ key: 'MenuScene' }); }
@@ -7,17 +9,18 @@ export default class MenuScene extends Phaser.Scene {
     create() {
         const W = this.scale.width, H = this.scale.height;
 
-        this.currentVolume = 0.5;  // Initialize volume
-        this.lastLevel = this.registry.get('lastLevel') ?? 0;
+        this.saveData = loadGameState();
+        this.currentVolume = this.saveData.volume ?? GAME_CONFIG.audio.themeVolume;
+        this.lastLevel = this.saveData.currentLevel ?? this.saveData.lastLevel ?? 0;
+        applyAudioPreferences(this, this.saveData);
 
         this.buildBackground(W, H);
         this.buildLeft(W, H);
         this.buildRight(W, H);
 
-        // Play theme music if not already playing
-        if (!this.sound.get('theme_adventure')?.isPlaying) {
-            this.sound.play('theme_adventure', { loop: true, volume: this.currentVolume });
-        }
+        playThemeMusic(this, this.saveData);
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdownScene, this);
     }
 
     buildBackground(W, H) {
@@ -110,7 +113,7 @@ export default class MenuScene extends Phaser.Scene {
         const gap = H * 0.185;
 
         const btns = [
-            { label: '▶  HRÁT',      fill: 0x7a5200, stroke: 0xffcc00, action: () => this.startLevel(this.lastLevel) },
+            { label: '▶  HRÁT',      fill: 0x7a5200, stroke: 0xffcc00, action: () => this.resumeGame() },
             { label: '☰  LEVELY',    fill: 0x0e2d88, stroke: 0x44aaff, action: () => this.toggleLevelSelect() },
             { label: '⚙  NASTAVENÍ', fill: 0x1a3344, stroke: 0x6688aa, action: () => this.toggleSettings() },
             { label: '✕  ODEJÍT',    fill: 0x881111, stroke: 0xff4444, action: () => this.exitGame() },
@@ -277,9 +280,29 @@ export default class MenuScene extends Phaser.Scene {
 
     startLevel(index = this.lastLevel ?? 0) {
         this.lastLevel = index;
+        this.saveData = saveFreshRun(this, index, { muted: this.sound.mute, volume: this.currentVolume, sfxVolume: loadGameState().sfxVolume });
         this.registry.set('lastLevel', index);
         this.cameras.main.fadeOut(300);
-        this.time.delayedCall(300, () => this.scene.start('GameScene', { level: index, playerHP: 100, gold: 0 }));
+        this.time.delayedCall(300, () => this.scene.start('GameScene', {
+            level: index,
+            playerHP: 100,
+            gold: 0,
+            killCount: 0,
+            npcTalked: false,
+        }));
+    }
+
+    resumeGame() {
+        const saved = loadGameState();
+        const freshLevel = saved.resumeMode === 'resume' ? saved.currentLevel : (saved.currentLevel ?? saved.unlockedLevel ?? 0);
+        const payload = saved.resumeMode === 'resume'
+            ? getResumePayload(saved)
+            : { level: freshLevel, playerHP: 100, gold: 0, killCount: 0, npcTalked: false };
+
+        this.lastLevel = payload.level ?? freshLevel;
+        this.registry.set('lastLevel', this.lastLevel);
+        this.cameras.main.fadeOut(300);
+        this.time.delayedCall(300, () => this.scene.start('GameScene', payload));
     }
 
     exitGame() {
@@ -349,7 +372,7 @@ export default class MenuScene extends Phaser.Scene {
 
         // Volume slider button
         const themeSound = this.sound.get('theme_adventure');
-        const initialVol = themeSound ? themeSound.volume : (this.currentVolume || 0.5);
+        const initialVol = themeSound ? themeSound.volume : (this.currentVolume || GAME_CONFIG.audio.themeVolume);
         this.volumeButton = this.add.rectangle(sliderLeft + initialVol * sliderW, sliderY, 20, 26, 0xffcc44)
             .setStrokeStyle(2, 0xff8800)
             .setInteractive({ useHandCursor: true })
@@ -358,9 +381,10 @@ export default class MenuScene extends Phaser.Scene {
 
         let isDragging = false;
         this.volumeButton.on('pointerdown', () => { isDragging = true; });
-        this.input.on('pointerup', () => { isDragging = false; });
+        this._menuVolumeUp = () => { isDragging = false; };
+        this.input.on('pointerup', this._menuVolumeUp);
 
-        this.input.on('pointermove', (pointer) => {
+        this._menuVolumeMove = (pointer) => {
             if (!isDragging) return;
             const relX = Phaser.Math.Clamp(pointer.x - sliderLeft, 0, sliderW);
             const vol = relX / sliderW;
@@ -371,7 +395,9 @@ export default class MenuScene extends Phaser.Scene {
             }
             this.sound.mute = vol === 0;
             this.currentVolume = vol;
-        });
+            saveGameState({ volume: vol, muted: vol === 0 });
+        };
+        this.input.on('pointermove', this._menuVolumeMove);
 
         // Mute button
         const muteY = H * 0.52;
@@ -394,12 +420,14 @@ export default class MenuScene extends Phaser.Scene {
                     themeSound.setVolume(0);
                     this.sound.mute = true;
                     this.volumeButton.setX(sliderLeft);
+                    saveGameState({ volume: this.currentVolume, muted: true });
                 } else {
-                    const newVol = this.currentVolume || 0.5;
+                    const newVol = this.currentVolume || GAME_CONFIG.audio.themeVolume;
                     themeSound.setVolume(newVol);
                     this.sound.mute = false;
                     this.volumeButton.setX(sliderLeft + newVol * sliderW);
                     this.currentVolume = newVol;
+                    saveGameState({ volume: newVol, muted: false });
                 }
             }
         });
@@ -505,5 +533,16 @@ Vytvořeno s ❤️ pro učení
         container.add([backBtn, backTxt]);
 
         return { overlay, panel: container };
+    }
+
+    shutdownScene() {
+        if (this._menuVolumeMove) {
+            this.input.off('pointermove', this._menuVolumeMove);
+            this._menuVolumeMove = null;
+        }
+        if (this._menuVolumeUp) {
+            this.input.off('pointerup', this._menuVolumeUp);
+            this._menuVolumeUp = null;
+        }
     }
 }
