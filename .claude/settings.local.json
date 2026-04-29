@@ -47,7 +47,12 @@
       "Bash(node --input-type=module)",
       "Bash(unzip -o \"GrasslandAssests.zip\" -d \"GrasslandAssests_extracted\")",
       "PowerShell(Expand-Archive -Path \"C:\\\\Users\\\\jirka\\\\Downloads\\\\pixel_art_top_down_rocks_pack.zip\" -DestinationPath \"C:\\\\Users\\\\jirka\\\\Downloads\\\\rocks_extracted\" -Force)",
-      "PowerShell(Expand-Archive -Path \"C:\\\\Users\\\\jirka\\\\Downloads\\\\Pixel Lands Village Demo.zip\" -DestinationPath \"C:\\\\Users\\\\jirka\\\\Downloads\\\\village_extracted\" -Force)"
+      "PowerShell(Expand-Archive -Path \"C:\\\\Users\\\\jirka\\\\Downloads\\\\Pixel Lands Village Demo.zip\" -DestinationPath \"C:\\\\Users\\\\jirka\\\\Downloads\\\\village_extracted\" -Force)",
+      "Bash(mkdir -p \"c:/Users/jirka/Desktop/1.G Math game/assets/menu\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/menu/background2.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/background.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/menu/math-quest.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/logo.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/menu/dobrodruzstvi.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/subtitle.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/menu/hrat tlacitko.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/btn_hrat.png\")"
     ]
   }
 }

@@ -221,6 +221,7 @@ export default class GameScene extends Phaser.Scene {
             } else {
                 sprite = this.add.image(x, y, p.key, p.frame ?? 0).setScale(p.scale ?? 1).setDepth(p.depth ?? 5).setAngle(p.angle ?? 0);
             }
+            if (p.originY !== undefined) sprite.setOrigin(0.5, p.originY);
             if (p.collide) {
                 const bw  = p.bodyW   ?? TILE;
                 const bh  = p.bodyH   ?? TILE;
@@ -333,7 +334,7 @@ export default class GameScene extends Phaser.Scene {
                 this.time.addEvent({
                     delay: 2200 + Math.random() * 1000, loop: true,
                     callback: () => {
-                        if (!cook.active) return;
+                        if (!cook.active || wr <= 0) return;
                         const angle = Math.random() * Math.PI * 2;
                         const dist  = Math.random() * wr;
                         const tx = cx + Math.cos(angle) * dist;

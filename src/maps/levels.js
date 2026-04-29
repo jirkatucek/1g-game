@@ -447,13 +447,13 @@ export const LEVELS = [
                 name: 'Goblin Kuchař',
                 type: 'shop',
                 sprite: 'goblin_worker',
-                anim: 'goblin_worker_idle',
+                frame: 7,
                 shopTitle: 'Krčma U Grilu',
                 shopItems: [
                     { id: 'hp_potion', label: 'Lektvar HP +30', cost: 30, effect: 'hp',  value: 30 },
                     { id: 'shield',    label: 'Štít   DEF +5',  cost: 50, effect: 'def', value: 5  },
                 ],
-                wanderCX: 18, wanderCY: 12,
+                wanderCX: 18, wanderCY: 12, wanderR: 0,
             },
         ],
         props: [
@@ -476,10 +476,10 @@ export const LEVELS = [
             { x: 11, y: 17, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
 
             // ── Budovy vesnice ────────────────────────────────────────────────
-            { x: 13, y:  5, key: 'vb_1', scale: 1.5, depth: 8, collide: true, bodyW: 120, bodyH: 42, bodyOffY: 92 },
+            { x: 13, y:  7, key: 'vb_1', scale: 1.5, depth: 8, collide: true, bodyW: 120, bodyH: 42, bodyOffY: 92 },
             { x: 19, y:  5, key: 'vb_2', scale: 1.4, depth: 8, collide: true, bodyW: 175, bodyH: 40, bodyOffY: 70 },
             { x: 19, y: 13, key: 'vb_3', scale: 1.4, depth: 8, collide: true, bodyW: 220, bodyH: 38, bodyOffY: 48 },
-            { x: 26, y:  5, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 42, bodyOffY: 85 },
+            { x: 26, y:  7, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 42, bodyOffY: 85 },
             { x: 26, y: 13, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 42, bodyOffY: 85 },
 
             // ── Campfire (křižovatka sever) ───────────────────────────────────
@@ -510,7 +510,6 @@ export const LEVELS = [
             // ── Keře podél cest ───────────────────────────────────────────────
             { x: 12, y:  7, key: 'pb_bush1_green',  scale: 1.0, depth: 2 },
             { x: 12, y: 11, key: 'pb_bush1_teal',   scale: 1.0, depth: 2 },
-            { x: 23, y:  4, key: 'pb_bush3_green',  scale: 1.1, depth: 2 },
             { x: 23, y: 14, key: 'pb_bush10_yellow',scale: 1.0, depth: 2 },
             { x: 16, y: 14, key: 'pb_bush1_red',    scale: 0.9, depth: 2 },
             { x: 16, y:  4, key: 'pb_bush10_green', scale: 0.9, depth: 2 },

@@ -50,6 +50,16 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('vb_1', 'assets/village/building_1.png');
         this.load.image('vb_2', 'assets/village/building_2.png');
         this.load.image('vb_3', 'assets/village/building_3.png');
+        // Menu PNG assets
+        this.load.image('menu_bg',       'assets/menu/background.png');
+        this.load.image('menu_logo',     'assets/menu/logo.png');
+        this.load.image('menu_subtitle', 'assets/menu/subtitle.png');
+        this.load.image('menu_btn_hrat',      'assets/menu/btn_hrat.png');
+        this.load.image('menu_btn_levely',    'assets/menu/btn_levely.png');
+        this.load.image('menu_btn_nastaveni', 'assets/menu/btn_nastaveni.png');
+        this.load.image('menu_btn_odejit',    'assets/menu/btn_odejit.png');
+        this.load.image('menu_company',  'assets/menu/company_logo.png');
+        this.load.image('menu_wasd',     'assets/menu/wasd.png');
         // Castle Walls Pack – fortress wall tiles (64×64)
         ['corner1','corner2','corner3','corner4','wall1','wall2','window1','window2',
          'vertical1','vertical2','vertical3','vertical4','door','last1','last2','twice1','twice2'].forEach(k =>
