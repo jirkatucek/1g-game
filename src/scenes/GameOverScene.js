@@ -1,3 +1,5 @@
+import { playRandomClick } from '../utils/SoundEffects.js';
+
 export default class GameOverScene extends Phaser.Scene {
     constructor() { super({ key: 'GameOverScene' }); }
 
@@ -31,6 +33,9 @@ export default class GameOverScene extends Phaser.Scene {
 
         btn.on('pointerover', () => btn.setFillStyle(0x661111));
         btn.on('pointerout',  () => btn.setFillStyle(0x441111));
-        btn.on('pointerdown', () => this.scene.start('MenuScene'));
+        btn.on('pointerdown', () => {
+            playRandomClick(this);
+            this.scene.start('MenuScene');
+        });
     }
 }

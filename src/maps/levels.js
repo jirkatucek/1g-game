@@ -159,8 +159,8 @@ export const LEVELS = [
         npcs: [
             {
                 x: 4, y: 6,
-                name: 'Čaroděj kalkulátor',
-                message: '„Vítej v Lesní stezce! Každá příšera tě zkouší ze zlomků. Piš odpovědi jako 3/4. Poraz 5 příšer a pak najdi cestu k bráně!"',
+                name: 'Průvodce Lesní stezky',
+                message: '„Poraz 5 příšer a projdi bránou! Budou tě testovat ze základních operací - sčítání, odčítání, násobení, dělení. Mělo by to být jednoduché!"',
             },
             {
                 x: 13, y: 2,
@@ -176,7 +176,7 @@ export const LEVELS = [
             { x: 2,  y: 2,  key: 'campfire', anim: 'campfire_burn', scale: 1.4, depth: 6 },
             { x: 10, y: 7,  key: 'cabin',    scale: 1.5, depth: 8, collide: true, bodyW: 180, bodyH: 55, bodyOffY: 40, depthSort: true },
         ],
-        reward: 50,
+        reward: 30,
     },
 
     // ── Level 2: Les Rozšiřování ─────────────────────────────────────────

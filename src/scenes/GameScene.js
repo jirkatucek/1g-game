@@ -1,4 +1,5 @@
 import { LEVELS } from '../maps/levels.js';
+import { playRandomClick } from '../utils/SoundEffects.js';
 
 const TILE = 64;
 const KILLS_NEEDED = 5;
@@ -26,6 +27,7 @@ export default class GameScene extends Phaser.Scene {
         this.playerHP       = data.playerHP ?? 100;
         this.playerMaxHP    = 100;
         this.gold           = data.gold ?? 0;
+        this.registry.set('lastLevel', this.currentLevel);
         this.inBattle        = false;
         this.inDialog        = false;
         this.dialogCooldown  = false;
@@ -37,7 +39,9 @@ export default class GameScene extends Phaser.Scene {
         this.isSprinting     = false;
         this.exhausted       = false;
         this.gateOpen       = false;
+        this._enteringGate   = false;
         this.nextFootstepAt  = 0;
+        this.isPaused        = false;
     }
 
     create() {
@@ -366,6 +370,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     createHUD() {
+        const W = this.scale.width, H = this.scale.height;
         const hud = this.add.container(0, 0).setScrollFactor(0).setDepth(50);
 
         const bg          = this.add.rectangle(6, 6, 260, 128, 0x000000, 0.75).setOrigin(0);
@@ -384,6 +389,30 @@ export default class GameScene extends Phaser.Scene {
 
         hud.add([bg, hpBarBg, this.hpBar, this.hpLabel, stBarBg, this.stBar, this.stLabel,
                  this.areaText, this.killText, this.npcText, this.goldText]);
+
+        // Menu button v rohu
+        const menuBtn = this.add.rectangle(W - 40, 20, 60, 50, 0x1a3344, 0.9)
+            .setStrokeStyle(2, 0x6688aa)
+            .setScrollFactor(0)
+            .setDepth(51)
+            .setInteractive({ useHandCursor: true });
+        const menuTxt = this.add.text(W - 40, 20, '☰', {
+            fontSize: '32px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(52);
+
+        menuBtn.on('pointerover', () => menuBtn.setFillStyle(0x2a4455, 0.95));
+        menuBtn.on('pointerout', () => menuBtn.setFillStyle(0x1a3344, 0.9));
+        menuBtn.on('pointerup', () => {
+            playRandomClick(this);
+            this.togglePauseMenu();
+        });
+
+        const { overlay, panel } = this.buildPausePanel(W, H);
+        this.pauseOverlay = overlay;
+        this.pausePanel = panel;
+        this.pauseOverlay.setVisible(false);
+        this.pausePanel.setVisible(false);
+
         this.updateHUD();
     }
 
@@ -472,6 +501,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     enterGate() {
+        if (this._enteringGate) return;
         if (!this.gateOpen) {
             if (!this._gateMsgShown) {
                 this._gateMsgShown = true;
@@ -485,7 +515,9 @@ export default class GameScene extends Phaser.Scene {
             }
             return;
         }
-        this.nextLevel();
+        this._enteringGate = true;
+        this.sound.play('portal_whoosh', { volume: 1.2 });
+        this.time.delayedCall(650, () => this.nextLevel());
     }
 
     showFloatingText(msg, color) {
@@ -575,6 +607,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     buyHealth() {
+        playRandomClick(this);
         if (this.gold < 50) {
             this._shopFeedback.setText('Nemáš dost zlata!').setStyle({ fill: '#ff4444' });
             return;
@@ -688,7 +721,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update() {
-        if (this.inBattle) return;
+        if (this.inBattle || this.isPaused) return;
 
         // Y-sort props (e.g. cabin) vs player
         if (this.depthSortedProps) {
@@ -808,5 +841,133 @@ export default class GameScene extends Phaser.Scene {
 
         this.footstepsGrass.play();
         this.nextFootstepAt = now + (isSprinting ? 260 : 340);
+    }
+
+    togglePauseMenu() {
+        const show = !this.pausePanel.visible;
+        this.isPaused = show;
+        this.pauseOverlay.setVisible(show);
+        this.pausePanel.setVisible(show);
+        if (show) {
+            this.player.setVelocity(0, 0);
+            if (this.footstepsGrass?.isPlaying) this.footstepsGrass.stop();
+        }
+    }
+
+    buildPausePanel(W, H) {
+        const overlay = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.55)
+            .setInteractive()
+            .setScrollFactor(0)
+            .setDepth(80);
+
+        const container = this.add.container(0, 0).setScrollFactor(0).setDepth(90);
+
+        const pW = W * 0.50, pH = H * 0.55;
+        const bg = this.add.rectangle(W / 2, H / 2, pW, pH, 0x0d0d2a)
+            .setStrokeStyle(3, 0x3355aa)
+            .setInteractive();
+        container.add(bg);
+
+        const title = this.add.text(W / 2, H * 0.24, 'PAUZA', {
+            fontSize: '36px', fill: '#ffcc44', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        container.add(title);
+
+        // Close button
+        const closeX = W / 2 + pW / 2 - 38;
+        const closeY = H / 2 - pH / 2 + 32;
+        const closeBg = this.add.rectangle(closeX, closeY, 48, 48, 0x881111)
+            .setStrokeStyle(2, 0xff4444)
+            .setInteractive({ useHandCursor: true });
+        const closeTxt = this.add.text(closeX, closeY + 2, '✕', {
+            fontSize: '30px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        closeBg.on('pointerover', () => closeBg.setFillStyle(0xcc2222));
+        closeBg.on('pointerout', () => closeBg.setFillStyle(0x881111));
+        closeBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            playRandomClick(this);
+            this.togglePauseMenu();
+        });
+        container.add([closeBg, closeTxt]);
+
+        // Volume label
+        const volLabelY = H * 0.38;
+        const volLabel = this.add.text(W / 2 - pW / 2 + 30, volLabelY, '🔊 Hlasitost:', {
+            fontSize: '24px', fill: '#aaaaff', fontFamily: 'Arial Black',
+        }).setOrigin(0, 0.5);
+        container.add(volLabel);
+
+        // Volume slider background
+        const sliderW = 280, sliderH = 12;
+        const sliderX = W / 2 + pW / 2 - 160, sliderY = volLabelY;
+        const sliderLeft = sliderX - sliderW / 2;
+        const sliderBg = this.add.rectangle(sliderX, sliderY, sliderW, sliderH, 0x1a1a2a)
+            .setStrokeStyle(2, 0x3355aa)
+            .setOrigin(0.5, 0.5);
+        container.add(sliderBg);
+
+        // Volume slider button
+        const currentVol = this.sound.get('theme_adventure')?.volume || 0.5;
+        const volumeButton = this.add.rectangle(sliderLeft + currentVol * sliderW, sliderY, 20, 26, 0xffcc44)
+            .setStrokeStyle(2, 0xff8800)
+            .setInteractive({ useHandCursor: true })
+            .setOrigin(0.5, 0.5);
+        container.add(volumeButton);
+
+        let isDragging = false;
+        volumeButton.on('pointerdown', () => { isDragging = true; });
+        this.input.on('pointerup', () => { isDragging = false; });
+
+        this.input.on('pointermove', (pointer) => {
+            if (!isDragging) return;
+            const relX = Phaser.Math.Clamp(pointer.x - sliderLeft, 0, sliderW);
+            const vol = relX / sliderW;
+            volumeButton.setX(sliderLeft + relX);
+            const themeSound = this.sound.get('theme_adventure');
+            if (themeSound) {
+                themeSound.setVolume(vol);
+            }
+            this.sound.mute = vol === 0;
+        });
+
+        // Resume button
+        const resumeY = H * 0.52;
+        const resumeBw = 420, resumeBh = 70;
+        const resumeBg = this.add.rectangle(W / 2, resumeY, resumeBw, resumeBh, 0x1a3344)
+            .setStrokeStyle(2, 0x6688aa)
+            .setInteractive({ useHandCursor: true });
+        const resumeTxt = this.add.text(W / 2, resumeY + 2, '▶  POKRAČOVAT', {
+            fontSize: '28px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        resumeBg.on('pointerover', () => resumeBg.setFillStyle(0x2a4455));
+        resumeBg.on('pointerout', () => resumeBg.setFillStyle(0x1a3344));
+        resumeBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            playRandomClick(this);
+            this.togglePauseMenu();
+        });
+        container.add([resumeBg, resumeTxt]);
+
+        // Main menu button
+        const menuY = H * 0.66;
+        const menuBw = 420, menuBh = 70;
+        const menuBg = this.add.rectangle(W / 2, menuY, menuBw, menuBh, 0x2d4411)
+            .setStrokeStyle(2, 0x88cc44)
+            .setInteractive({ useHandCursor: true });
+        const menuTxt = this.add.text(W / 2, menuY + 2, '🏠 HLAVNÍ MENU', {
+            fontSize: '28px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        menuBg.on('pointerover', () => menuBg.setFillStyle(0x3d5511));
+        menuBg.on('pointerout', () => menuBg.setFillStyle(0x2d4411));
+        menuBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            playRandomClick(this);
+            this.isPaused = false;
+            this.scene.start('MenuScene');
+        });
+        container.add([menuBg, menuTxt]);
+
+        return { overlay, panel: container };
     }
 }

@@ -1,4 +1,5 @@
 import { LEVELS } from '../maps/levels.js';
+import { playRandomClick } from '../utils/SoundEffects.js';
 
 export default class MenuScene extends Phaser.Scene {
     constructor() { super({ key: 'MenuScene' }); }
@@ -7,6 +8,7 @@ export default class MenuScene extends Phaser.Scene {
         const W = this.scale.width, H = this.scale.height;
 
         this.currentVolume = 0.5;  // Initialize volume
+        this.lastLevel = this.registry.get('lastLevel') ?? 0;
 
         this.buildBackground(W, H);
         this.buildLeft(W, H);
@@ -14,7 +16,7 @@ export default class MenuScene extends Phaser.Scene {
 
         // Play theme music if not already playing
         if (!this.sound.get('theme_adventure')?.isPlaying) {
-            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
+            this.sound.play('theme_adventure', { loop: true, volume: this.currentVolume });
         }
     }
 
@@ -108,10 +110,10 @@ export default class MenuScene extends Phaser.Scene {
         const gap = H * 0.185;
 
         const btns = [
-            { label: '▶  HRÁT',      fill: 0x7a5200, stroke: 0xffcc00, action: () => this.startLevel(0) },
+            { label: '▶  HRÁT',      fill: 0x7a5200, stroke: 0xffcc00, action: () => this.startLevel(this.lastLevel) },
             { label: '☰  LEVELY',    fill: 0x0e2d88, stroke: 0x44aaff, action: () => this.toggleLevelSelect() },
             { label: '⚙  NASTAVENÍ', fill: 0x1a3344, stroke: 0x6688aa, action: () => this.toggleSettings() },
-            { label: '✕  ODEJÍT',    fill: 0x881111, stroke: 0xff4444, action: () => {} },
+            { label: '✕  ODEJÍT',    fill: 0x881111, stroke: 0xff4444, action: () => this.exitGame() },
         ];
 
         btns.forEach((def, i) => {
@@ -165,6 +167,7 @@ export default class MenuScene extends Phaser.Scene {
             txt.setScale(1.0);
         });
         btn.on('pointerdown', () => {
+            playRandomClick(this);
             btn.setY(y + 4); txt.setY(y + 6);
         });
         btn.on('pointerup', () => {
@@ -214,6 +217,7 @@ export default class MenuScene extends Phaser.Scene {
         closeBg.on('pointerdown',  () => closeBg.setFillStyle(0xff2222));
         closeBg.on('pointerup', (pointer, lx, ly, event) => {
             event.stopPropagation();
+            playRandomClick(this);
             closeBg.setFillStyle(0x881111);
             this.toggleLevelSelect();
         });
@@ -242,6 +246,7 @@ export default class MenuScene extends Phaser.Scene {
             b.on('pointerout',  () => b.setFillStyle(0x112233));
             b.on('pointerup', (pointer, lx, ly, event) => {
                 event.stopPropagation();
+                playRandomClick(this);
                 this.toggleLevelSelect();
                 this.startLevel(i);
             });
@@ -270,9 +275,24 @@ export default class MenuScene extends Phaser.Scene {
         this.creditsPanel.setVisible(show);
     }
 
-    startLevel(index) {
+    startLevel(index = this.lastLevel ?? 0) {
+        this.lastLevel = index;
+        this.registry.set('lastLevel', index);
         this.cameras.main.fadeOut(300);
         this.time.delayedCall(300, () => this.scene.start('GameScene', { level: index, playerHP: 100, gold: 0 }));
+    }
+
+    exitGame() {
+        try {
+            window.open('', '_self');
+            window.close();
+        } catch (error) {
+            // Ignore browser restrictions and fall back below.
+        }
+
+        if (!window.closed) {
+            window.location.replace('about:blank');
+        }
     }
 
     buildSettingsPanel(W, H) {
@@ -306,6 +326,7 @@ export default class MenuScene extends Phaser.Scene {
         closeBg.on('pointerout', () => closeBg.setFillStyle(0x881111));
         closeBg.on('pointerup', (pointer, lx, ly, event) => {
             event.stopPropagation();
+            playRandomClick(this);
             this.toggleSettings();
         });
         container.add([closeBg, closeTxt]);
@@ -327,7 +348,8 @@ export default class MenuScene extends Phaser.Scene {
         container.add(sliderBg);
 
         // Volume slider button
-        const initialVol = this.currentVolume || 0.5;
+        const themeSound = this.sound.get('theme_adventure');
+        const initialVol = themeSound ? themeSound.volume : (this.currentVolume || 0.5);
         this.volumeButton = this.add.rectangle(sliderLeft + initialVol * sliderW, sliderY, 20, 26, 0xffcc44)
             .setStrokeStyle(2, 0xff8800)
             .setInteractive({ useHandCursor: true })
@@ -347,6 +369,7 @@ export default class MenuScene extends Phaser.Scene {
             if (themeSound) {
                 themeSound.setVolume(vol);
             }
+            this.sound.mute = vol === 0;
             this.currentVolume = vol;
         });
 
@@ -363,16 +386,20 @@ export default class MenuScene extends Phaser.Scene {
         muteBg.on('pointerout', () => muteBg.setFillStyle(0x1a3344));
         muteBg.on('pointerup', (pointer, lx, ly, event) => {
             event.stopPropagation();
+            playRandomClick(this);
             const themeSound = this.sound.get('theme_adventure');
             if (themeSound) {
                 if (themeSound.volume > 0) {
+                    this.currentVolume = themeSound.volume;
                     themeSound.setVolume(0);
+                    this.sound.mute = true;
                     this.volumeButton.setX(sliderLeft);
-                    this.currentVolume = 0;
                 } else {
                     const newVol = this.currentVolume || 0.5;
                     themeSound.setVolume(newVol);
+                    this.sound.mute = false;
                     this.volumeButton.setX(sliderLeft + newVol * sliderW);
+                    this.currentVolume = newVol;
                 }
             }
         });
@@ -391,6 +418,7 @@ export default class MenuScene extends Phaser.Scene {
         creditsBg.on('pointerout', () => creditsBg.setFillStyle(0x2d4411));
         creditsBg.on('pointerup', (pointer, lx, ly, event) => {
             event.stopPropagation();
+            playRandomClick(this);
             this.toggleSettings();
             this.toggleCredits();
         });
@@ -430,6 +458,7 @@ export default class MenuScene extends Phaser.Scene {
         closeBg.on('pointerout', () => closeBg.setFillStyle(0x881111));
         closeBg.on('pointerup', (pointer, lx, ly, event) => {
             event.stopPropagation();
+            playRandomClick(this);
             this.toggleCredits();
         });
         container.add([closeBg, closeTxt]);
@@ -470,6 +499,7 @@ Vytvořeno s ❤️ pro učení
         backBtn.on('pointerout', () => backBtn.setFillStyle(0x1a3344));
         backBtn.on('pointerup', (pointer, lx, ly, event) => {
             event.stopPropagation();
+            playRandomClick(this);
             this.toggleCredits();
         });
         container.add([backBtn, backTxt]);

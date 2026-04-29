@@ -1,10 +1,10 @@
 import MathGenerator from '../utils/MathGenerator.js';
 
 const STATS = {
-    goblin: { maxHp: 50,  attack: 10, gold: 10, name: 'Zlomkový Duch' },
-    orc:    { maxHp: 90,  attack: 20, gold: 25, name: 'Jmenovatelník'  },
-    dragon: { maxHp: 140, attack: 32, gold: 50, name: 'Zlomkový Golem' },
-    boss:   { maxHp: 1,   attack: 25, gold: 100, name: 'Kalkulační Golem' },
+    goblin: { maxHp: 50,  attack: 10, gold: 5, name: 'Zlomkový Duch' },
+    orc:    { maxHp: 90,  attack: 20, gold: 5, name: 'Jmenovatelník'  },
+    dragon: { maxHp: 140, attack: 32, gold: 5, name: 'Zlomkový Golem' },
+    boss:   { maxHp: 1,   attack: 25, gold: 5, name: 'Kalkulační Golem' },
 };
 
 export default class BattleScene extends Phaser.Scene {

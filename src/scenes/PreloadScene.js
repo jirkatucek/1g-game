@@ -28,6 +28,11 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.spritesheet('campfire', 'assets/campfire.png', { frameWidth: 50, frameHeight: 86 });
         // Footsteps on grass
         this.load.audio('footsteps_grass', 'assets/sounds/footsteps_grass.mp3');
+        ['click_1', 'click_2', 'click_3', 'click_4'].forEach((key, index) => {
+            this.load.audio(key, `assets/sounds/click_${index + 1}.mp3`);
+        });
+        // Portal whoosh when entering the gate
+        this.load.audio('portal_whoosh', 'assets/sounds/portal_whoosh.mp3');
         // Main theme
         this.load.audio('theme_adventure', 'assets/sounds/theme_adventure.mp3');
         // Cabin building
