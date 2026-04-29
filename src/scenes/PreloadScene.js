@@ -41,6 +41,10 @@ export default class PreloadScene extends Phaser.Scene {
         // Pixel Art Bush Pack – garden bushes
         ['bush1_green','bush1_red','bush1_yellow','bush1_teal','bush3_green','bush3_red','bush10_green','bush10_red','bush10_yellow'].forEach(k =>
             this.load.image(`pb_${k}`, `assets/bushes/${k}.png`));
+        // Village buildings (extracted from Pixel Lands Village Demo)
+        this.load.image('vb_1', 'assets/village/building_1.png');
+        this.load.image('vb_2', 'assets/village/building_2.png');
+        this.load.image('vb_3', 'assets/village/building_3.png');
         // Castle Walls Pack – fortress wall tiles (64×64)
         ['corner1','corner2','corner3','corner4','wall1','wall2','window1','window2',
          'vertical1','vertical2','vertical3','vertical4','door','last1','last2','twice1','twice2'].forEach(k =>
@@ -89,6 +93,10 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.spritesheet('portal', 'assets/portal.png', { frameWidth: 64, frameHeight: 64 });
         // BBQ grill decoration (4 frames, 80x64 each)
         this.load.spritesheet('grill', 'assets/grill.png', { frameWidth: 80, frameHeight: 64 });
+        // 2-Tone Pixel Grass Tufts (Small) – decorative overlays on grass tiles
+        for (let i = 1; i <= 14; i++) {
+            this.load.image(`gt_${i}`, `assets/grass_tufts/gt_${i}.png`);
+        }
     }
 
     create() {

@@ -6,6 +6,8 @@ export default class MenuScene extends Phaser.Scene {
     create() {
         const W = this.scale.width, H = this.scale.height;
 
+        this.currentVolume = 0.5;  // Initialize volume
+
         this.buildBackground(W, H);
         this.buildLeft(W, H);
         this.buildRight(W, H);
@@ -108,7 +110,7 @@ export default class MenuScene extends Phaser.Scene {
         const btns = [
             { label: '▶  HRÁT',      fill: 0x7a5200, stroke: 0xffcc00, action: () => this.startLevel(0) },
             { label: '☰  LEVELY',    fill: 0x0e2d88, stroke: 0x44aaff, action: () => this.toggleLevelSelect() },
-            { label: '⚙  NASTAVENÍ', fill: 0x1a3344, stroke: 0x6688aa, action: () => {} },
+            { label: '⚙  NASTAVENÍ', fill: 0x1a3344, stroke: 0x6688aa, action: () => this.toggleSettings() },
             { label: '✕  ODEJÍT',    fill: 0x881111, stroke: 0xff4444, action: () => {} },
         ];
 
@@ -116,11 +118,23 @@ export default class MenuScene extends Phaser.Scene {
             this.makeButton(cx, startY + i * gap, def.label, def.fill, def.stroke, def.action);
         });
 
-        const { overlay, panel } = this.buildLevelPanel(W, H);
-        this.levelOverlay = overlay;
-        this.levelPanel   = panel;
+        const { overlay: levelOverlay, panel: levelPanel } = this.buildLevelPanel(W, H);
+        this.levelOverlay = levelOverlay;
+        this.levelPanel   = levelPanel;
         this.levelOverlay.setVisible(false);
         this.levelPanel.setVisible(false);
+
+        const { overlay: settingsOverlay, panel: settingsPanel } = this.buildSettingsPanel(W, H);
+        this.settingsOverlay = settingsOverlay;
+        this.settingsPanel = settingsPanel;
+        this.settingsOverlay.setVisible(false);
+        this.settingsPanel.setVisible(false);
+
+        const { overlay: creditsOverlay, panel: creditsPanel } = this.buildCreditsPanel(W, H);
+        this.creditsOverlay = creditsOverlay;
+        this.creditsPanel = creditsPanel;
+        this.creditsOverlay.setVisible(false);
+        this.creditsPanel.setVisible(false);
     }
 
     makeButton(x, y, label, fillColor, strokeColor, callback) {
@@ -244,8 +258,222 @@ export default class MenuScene extends Phaser.Scene {
         this.levelPanel.setVisible(show);
     }
 
+    toggleSettings() {
+        const show = !this.settingsPanel.visible;
+        this.settingsOverlay.setVisible(show);
+        this.settingsPanel.setVisible(show);
+    }
+
+    toggleCredits() {
+        const show = !this.creditsPanel.visible;
+        this.creditsOverlay.setVisible(show);
+        this.creditsPanel.setVisible(show);
+    }
+
     startLevel(index) {
         this.cameras.main.fadeOut(300);
         this.time.delayedCall(300, () => this.scene.start('GameScene', { level: index, playerHP: 100, gold: 0 }));
+    }
+
+    buildSettingsPanel(W, H) {
+        const overlay = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.55)
+            .setInteractive()
+            .setDepth(80);
+
+        const container = this.add.container(0, 0).setDepth(90);
+
+        const pW = W * 0.50, pH = H * 0.55;
+        const bg = this.add.rectangle(W / 2, H / 2, pW, pH, 0x0d0d2a)
+            .setStrokeStyle(3, 0x3355aa)
+            .setInteractive();
+        container.add(bg);
+
+        const title = this.add.text(W / 2, H * 0.24, 'NASTAVENÍ', {
+            fontSize: '36px', fill: '#ffcc44', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        container.add(title);
+
+        // Close button
+        const closeX = W / 2 + pW / 2 - 38;
+        const closeY = H / 2 - pH / 2 + 32;
+        const closeBg = this.add.rectangle(closeX, closeY, 48, 48, 0x881111)
+            .setStrokeStyle(2, 0xff4444)
+            .setInteractive({ useHandCursor: true });
+        const closeTxt = this.add.text(closeX, closeY + 2, '✕', {
+            fontSize: '30px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        closeBg.on('pointerover', () => closeBg.setFillStyle(0xcc2222));
+        closeBg.on('pointerout', () => closeBg.setFillStyle(0x881111));
+        closeBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            this.toggleSettings();
+        });
+        container.add([closeBg, closeTxt]);
+
+        // Volume label
+        const volLabelY = H * 0.38;
+        const volLabel = this.add.text(W / 2 - pW / 2 + 30, volLabelY, '🔊 Hlasitost:', {
+            fontSize: '24px', fill: '#aaaaff', fontFamily: 'Arial Black',
+        }).setOrigin(0, 0.5);
+        container.add(volLabel);
+
+        // Volume slider background
+        const sliderW = 280, sliderH = 12;
+        const sliderX = W / 2 + pW / 2 - 160, sliderY = volLabelY;
+        const sliderLeft = sliderX - sliderW / 2;  // Levý okraj slideru
+        const sliderBg = this.add.rectangle(sliderX, sliderY, sliderW, sliderH, 0x1a1a2a)
+            .setStrokeStyle(2, 0x3355aa)
+            .setOrigin(0.5, 0.5);
+        container.add(sliderBg);
+
+        // Volume slider button
+        const initialVol = this.currentVolume || 0.5;
+        this.volumeButton = this.add.rectangle(sliderLeft + initialVol * sliderW, sliderY, 20, 26, 0xffcc44)
+            .setStrokeStyle(2, 0xff8800)
+            .setInteractive({ useHandCursor: true })
+            .setOrigin(0.5, 0.5);
+        container.add(this.volumeButton);
+
+        let isDragging = false;
+        this.volumeButton.on('pointerdown', () => { isDragging = true; });
+        this.input.on('pointerup', () => { isDragging = false; });
+
+        this.input.on('pointermove', (pointer) => {
+            if (!isDragging) return;
+            const relX = Phaser.Math.Clamp(pointer.x - sliderLeft, 0, sliderW);
+            const vol = relX / sliderW;
+            this.volumeButton.setX(sliderLeft + relX);
+            const themeSound = this.sound.get('theme_adventure');
+            if (themeSound) {
+                themeSound.setVolume(vol);
+            }
+            this.currentVolume = vol;
+        });
+
+        // Mute button
+        const muteY = H * 0.52;
+        const muteBw = 420, muteBh = 70;
+        const muteBg = this.add.rectangle(W / 2, muteY, muteBw, muteBh, 0x1a3344)
+            .setStrokeStyle(2, 0x6688aa)
+            .setInteractive({ useHandCursor: true });
+        const muteTxt = this.add.text(W / 2, muteY + 2, '🔇 ZTLUMIT/ZESÍLIT', {
+            fontSize: '28px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        muteBg.on('pointerover', () => muteBg.setFillStyle(0x2a4455));
+        muteBg.on('pointerout', () => muteBg.setFillStyle(0x1a3344));
+        muteBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            const themeSound = this.sound.get('theme_adventure');
+            if (themeSound) {
+                if (themeSound.volume > 0) {
+                    themeSound.setVolume(0);
+                    this.volumeButton.setX(sliderLeft);
+                    this.currentVolume = 0;
+                } else {
+                    const newVol = this.currentVolume || 0.5;
+                    themeSound.setVolume(newVol);
+                    this.volumeButton.setX(sliderLeft + newVol * sliderW);
+                }
+            }
+        });
+        container.add([muteBg, muteTxt]);
+
+        // Credits button
+        const creditsY = H * 0.66;
+        const creditsBw = 420, creditsBh = 70;
+        const creditsBg = this.add.rectangle(W / 2, creditsY, creditsBw, creditsBh, 0x2d4411)
+            .setStrokeStyle(2, 0x88cc44)
+            .setInteractive({ useHandCursor: true });
+        const creditsTxt = this.add.text(W / 2, creditsY + 2, '👥 AUTOŘI', {
+            fontSize: '28px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        creditsBg.on('pointerover', () => creditsBg.setFillStyle(0x3d5511));
+        creditsBg.on('pointerout', () => creditsBg.setFillStyle(0x2d4411));
+        creditsBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            this.toggleSettings();
+            this.toggleCredits();
+        });
+        container.add([creditsBg, creditsTxt]);
+
+        return { overlay, panel: container };
+    }
+
+    buildCreditsPanel(W, H) {
+        const overlay = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.55)
+            .setInteractive()
+            .setDepth(80);
+
+        const container = this.add.container(0, 0).setDepth(90);
+
+        const pW = W * 0.55, pH = H * 0.70;
+        const bg = this.add.rectangle(W / 2, H / 2, pW, pH, 0x0d0d2a)
+            .setStrokeStyle(3, 0x3355aa)
+            .setInteractive();
+        container.add(bg);
+
+        const title = this.add.text(W / 2, H * 0.18, 'AUTOŘI A ZDROJE', {
+            fontSize: '32px', fill: '#ffcc44', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        container.add(title);
+
+        // Close button
+        const closeX = W / 2 + pW / 2 - 40;
+        const closeY = H / 2 - pH / 2 + 34;
+        const closeBg = this.add.rectangle(closeX, closeY, 50, 50, 0x881111)
+            .setStrokeStyle(2, 0xff4444)
+            .setInteractive({ useHandCursor: true });
+        const closeTxt = this.add.text(closeX, closeY + 2, '✕', {
+            fontSize: '32px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        closeBg.on('pointerover', () => closeBg.setFillStyle(0xcc2222));
+        closeBg.on('pointerout', () => closeBg.setFillStyle(0x881111));
+        closeBg.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            this.toggleCredits();
+        });
+        container.add([closeBg, closeTxt]);
+
+        const creditsText = `
+🎮 GAME FRAMEWORK: Phaser 3
+
+🎨 ASSET AUTOR:
+Tiny Wonder Forest 1.0
+
+🎵 HUDBA (Theme):
+Alexander Nakarada
+CreatorChords - Adventure Royalty Free
+Medieval Fantasy Music
+
+🛠️  VÝVIN & DESIGN:
+Vytvořeno s ❤️ pro učení
+
+📝 MATEMATIKA:
+Úlohy 6.-8. třída - Základní matematika
+(Aritmetika, zlomky, krácení, sčítání/odčítání)
+        `;
+
+        const creditsContent = this.add.text(W / 2, H * 0.50, creditsText, {
+            fontSize: '16px', fill: '#aaaaaa', fontFamily: 'Arial', 
+            align: 'left', wordWrap: { width: pW - 80 },
+        }).setOrigin(0.5);
+        container.add(creditsContent);
+
+        // Back button
+        const backBtn = this.add.rectangle(W / 2, H / 2 + pH / 2 - 40, 300, 60, 0x1a3344)
+            .setStrokeStyle(2, 0x6688aa)
+            .setInteractive({ useHandCursor: true });
+        const backTxt = this.add.text(W / 2, H / 2 + pH / 2 - 40, '◀  ZPĚT', {
+            fontSize: '28px', fill: '#ffffff', fontFamily: 'Arial Black',
+        }).setOrigin(0.5);
+        backBtn.on('pointerover', () => backBtn.setFillStyle(0x2a4455));
+        backBtn.on('pointerout', () => backBtn.setFillStyle(0x1a3344));
+        backBtn.on('pointerup', (pointer, lx, ly, event) => {
+            event.stopPropagation();
+            this.toggleCredits();
+        });
+        container.add([backBtn, backTxt]);
+
+        return { overlay, panel: container };
     }
 }

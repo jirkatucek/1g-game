@@ -1,5 +1,5 @@
-// Tiles: 0=grass, 1=tree/wall, 2=path, 3=water
-const G = 0, T = 1, P = 2, W = 3;
+// Tiles: 0=grass, 1=tree/wall, 2=path, 3=water, 4=barrier (invisible wall, no tree visual)
+const G = 0, T = 1, P = 2, W = 3, B = 4;
 
 // Simple reusable map builder — open field with path to gate
 function makeMap(pathVariant) {
@@ -159,7 +159,7 @@ export const LEVELS = [
         npcs: [
             {
                 x: 4, y: 6,
-                name: 'Lesní Mudrc',
+                name: 'Čaroděj kalkulátor',
                 message: '„Vítej v Lesní stezce! Každá příšera tě zkouší ze zlomků. Piš odpovědi jako 3/4. Poraz 5 příšer a pak najdi cestu k bráně!"',
             },
             {
@@ -218,7 +218,7 @@ export const LEVELS = [
         ],
         npcs: [{
             x: 9, y: 14,
-            name: 'Dřevorubec',
+            name: 'Čaroděj kalkulátor',
             message: '„Tady stromy rostou do šířky! Musíš zlomek správně rozšířit – vynásob vršek i spodek stejným číslem!"',
         }],
         reward: 60,
@@ -265,7 +265,7 @@ export const LEVELS = [
         ],
         npcs: [{
             x: 11, y: 10,
-            name: 'Zahradník s nůžkami',
+            name: 'Čaroděj kalkulátor',
             message: '„Pozor, tato monstra jsou zbytečně nafouklá! Musíš je zkrátit na základní tvar. Např. 4/8 = 1/2"',
         }],
         props: [
@@ -401,9 +401,6 @@ export const LEVELS = [
     },
 
     // ── Level 4: Pevnost Společného Jmenovatele ──────────────────────────
-    // Les vlevo (cols 1-10), vnější hradba (col 11, brána na řadách 8-10),
-    // nádvoří (cols 12-16), vnitřní hrad (cols 17-24, vstup na col 17 řady 8-10),
-    // portál (21,9) uvnitř hradu.
     {
         name: 'Pevnost Společného Jmenovatele',
         bgColor: 0x0d1a0d,
@@ -411,27 +408,27 @@ export const LEVELS = [
         //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
             [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 0
             [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 1
-            [T, T, T, G, T, T, G, T, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 2  col11=T (zeď)
-            [T, T, G, G, T, G, T, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 3  col11=T
-            [T, G, T, T, G, T, G, T, T, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 4  col11=T
-            [T, T, T, G, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 5  col11=T
-            [T, T, G, T, T, G, T, G, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 6  col11=T
-            [T, G, T, T, G, G, T, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 7  col11=T
-            [T, T, G, T, G, T, T, G, T, G, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 8  col11=G (brána nahoře)
-            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 9  col11=G (průchod)
-            [T, T, G, T, G, T, T, G, T, G, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 10 col11=G (brána dole)
-            [T, T, G, G, T, G, T, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 11 col11=T
-            [T, G, G, T, T, G, T, G, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 12 col11=T
-            [T, T, T, G, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 13 col11=T
-            [T, G, T, T, G, T, G, G, T, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 14 col11=T
-            [T, T, T, G, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 15 col11=T
-            [T, T, G, T, T, G, T, T, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 16 col11=T
-            [T, T, T, G, T, T, G, T, G, T, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 17 col11=T
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 2
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 3
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 4
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 5
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 6
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 7
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 8
+            [T, G, G, G, G, G, G, G, G, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, T], // 9  hlavní cesta
+            [T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 10
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 11
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 12
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 13
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 14
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 15
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 16
+            [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 17
             [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 18
             [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 19
         ],
         playerStart: { x: 1, y: 9 },
-        gate: { x: 21, y: 9 },
+        gate: { x: 25, y: 9 },
         enemies: [
             { x:  3, y:  3, type: 'goblin', level: 4, name: 'Lesní Goblin' },
             { x:  8, y:  5, type: 'goblin', level: 4, name: 'Lesní Goblin' },
@@ -439,14 +436,28 @@ export const LEVELS = [
             { x:  2, y: 12, type: 'orc',   level: 4, name: 'Lesní Troll' },
             { x:  7, y: 14, type: 'orc',   level: 4, name: 'Výsadkový Strážce' },
         ],
-        npcs: [{
-            x: 10, y: 9,
-            name: 'Strážce brány',
-            message: '„Pevnost se otevře, až vyřešíš příklady na krácení zlomků u monster v lese!"',
-        }],
+        npcs: [
+            {
+                x: 10, y: 9,
+                name: 'Čaroděj kalkulátor',
+                message: '„Pevnost se otevře, až vyřešíš příklady na krácení zlomků u monster v lese!"',
+            },
+            {
+                x: 18, y: 12,
+                name: 'Goblin Kuchař',
+                type: 'shop',
+                sprite: 'goblin_worker',
+                anim: 'goblin_worker_idle',
+                shopTitle: 'Krčma U Grilu',
+                shopItems: [
+                    { id: 'hp_potion', label: 'Lektvar HP +30', cost: 30, effect: 'hp',  value: 30 },
+                    { id: 'shield',    label: 'Štít   DEF +5',  cost: 50, effect: 'def', value: 5  },
+                ],
+                wanderCX: 18, wanderCY: 12,
+            },
+        ],
         props: [
             // ── Vnější hradba (sloupec 11, řady 2-17) ────────────────────────
-            // wall1 = čisté cihly bez pilířů → rotované tvoří čistou svislou zeď
             { x: 11, y:  2, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y:  3, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y:  4, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
@@ -464,15 +475,51 @@ export const LEVELS = [
             { x: 11, y: 16, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y: 17, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
 
-            // ── Dekorace nádvoří (cols 12-16) ───────────────────────────────
-            { x: 13, y:  4, key: 'pt_pinetree_v2', scale: 1.4, depth: 2 },
-            { x: 15, y:  3, key: 'fd_flower1',     scale: 2,   depth: 2 },
-            { x: 14, y:  7, key: 'fd_stump1',      scale: 2,   depth: 2 },
-            { x: 16, y:  7, key: 'pb_bush1_green',  scale: 0.9, depth: 2 },
-            { x: 16, y: 11, key: 'pb_bush10_red',   scale: 1.0, depth: 2 },
-            { x: 15, y: 11, key: 'fd_stump2',      scale: 2,   depth: 2 },
-            { x: 13, y: 15, key: 'fd_flower3',     scale: 2,   depth: 2 },
-            { x: 16, y: 14, key: 'pt_pinetree_v1', scale: 1.2, depth: 2 },
+            // ── Budovy vesnice ────────────────────────────────────────────────
+            { x: 13, y:  5, key: 'vb_1', scale: 1.5, depth: 8, collide: true, bodyW: 120, bodyH: 42, bodyOffY: 92 },
+            { x: 19, y:  5, key: 'vb_2', scale: 1.4, depth: 8, collide: true, bodyW: 175, bodyH: 40, bodyOffY: 70 },
+            { x: 19, y: 13, key: 'vb_3', scale: 1.4, depth: 8, collide: true, bodyW: 220, bodyH: 38, bodyOffY: 48 },
+            { x: 26, y:  5, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 42, bodyOffY: 85 },
+            { x: 26, y: 13, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 42, bodyOffY: 85 },
+
+            // ── Campfire (křižovatka sever) ───────────────────────────────────
+            { x: 21, y:  7, key: 'campfire', scale: 1.8, depth: 6, anim: 'campfire_burn' },
+
+            // ── Gril s gobliným kuchařem ──────────────────────────────────────
+            { x: 17, y: 12, key: 'grill', frame: 0, scale: 2.0, depth: 6, anim: 'grill_sizzle', collide: true, bodyW: 80, bodyH: 28 },
+
+            // ── Stromy a keře u budov ─────────────────────────────────────────
+            { x: 24, y:  3, key: 'pt_pinetree_v1', scale: 1.4, depth: 2 },
+            { x: 28, y:  3, key: 'pt_pinetree_v2', scale: 1.3, depth: 2 },
+            { x: 24, y: 15, key: 'pt_pinetree_v1', scale: 1.3, depth: 2 },
+            { x: 28, y: 15, key: 'pt_pinetree_v2', scale: 1.4, depth: 2 },
+            { x: 13, y: 14, key: 'pt_bigbush_v1',  scale: 1.0, depth: 2 },
+            { x: 21, y: 15, key: 'pt_bigbush_v2',  scale: 1.0, depth: 2 },
+
+            // ── Květiny a drobné dekorace ─────────────────────────────────────
+            { x: 14, y:  8, key: 'fd_flower2',      scale: 2.2, depth: 2 },
+            { x: 16, y:  6, key: 'fd_flower4',      scale: 2.0, depth: 2 },
+            { x: 20, y:  7, key: 'fd_flower1',      scale: 2.2, depth: 2 },
+            { x: 24, y:  7, key: 'fd_flower3',      scale: 2.0, depth: 2 },
+            { x: 16, y: 11, key: 'fd_flower2',      scale: 2.0, depth: 2 },
+            { x: 20, y: 11, key: 'fd_flower4',      scale: 2.2, depth: 2 },
+            { x: 24, y: 11, key: 'fd_flower1',      scale: 2.0, depth: 2 },
+            { x: 13, y:  3, key: 'fd_tuft1',        scale: 2.5, depth: 2 },
+            { x: 17, y:  3, key: 'fd_tuft2',        scale: 2.5, depth: 2 },
+
+            // ── Keře podél cest ───────────────────────────────────────────────
+            { x: 12, y:  7, key: 'pb_bush1_green',  scale: 1.0, depth: 2 },
+            { x: 12, y: 11, key: 'pb_bush1_teal',   scale: 1.0, depth: 2 },
+            { x: 23, y:  4, key: 'pb_bush3_green',  scale: 1.1, depth: 2 },
+            { x: 23, y: 14, key: 'pb_bush10_yellow',scale: 1.0, depth: 2 },
+            { x: 16, y: 14, key: 'pb_bush1_red',    scale: 0.9, depth: 2 },
+            { x: 16, y:  4, key: 'pb_bush10_green', scale: 0.9, depth: 2 },
+
+            // ── Houbičky a pařezy ─────────────────────────────────────────────
+            { x: 14, y: 16, key: 'fd_mushroom1',    scale: 2.5, depth: 2 },
+            { x: 20, y: 16, key: 'cd_mushroom2',    scale: 2.5, depth: 2 },
+            { x: 27, y:  7, key: 'fd_stump1',       scale: 2.2, depth: 2 },
+            { x: 27, y: 11, key: 'fd_stump2',       scale: 2.2, depth: 2 },
         ],
         reward: 80,
     },
@@ -493,7 +540,7 @@ export const LEVELS = [
         ],
         npcs: [{
             x: 3, y: 3,
-            name: 'Žabí mudrc',
+            name: 'Čaroděj kalkulátor',
             message: '„Kvák! Sjednoť spodky a pak sečti vršky. Nenech se utopit v bahně! Např. 1/2 + 1/4 = 2/4 + 1/4 = 3/4"',
         }],
     },

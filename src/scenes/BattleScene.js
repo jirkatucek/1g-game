@@ -145,12 +145,26 @@ export default class BattleScene extends Phaser.Scene {
         this._questionStart = this.time.now;
         this.timerBar.setDisplaySize(this._timerBarW, 14);
         this.timerBar.setFillStyle(0x22cc44);
-        this.timerLabel.setText('⚡ do 5s = 25 dmg   |   po 5s = 15 dmg');
+        
+        // Čas podle levelu
+        const level = this.enemyData.level || 1;
+        let duration;
+        switch(level) {
+            case 1: duration = 20000; break;
+            case 2: duration = 15000; break;
+            case 3: duration = 13000; break;
+            case 4: duration = 13000; break;
+            case 5: duration = 10000; break;
+            default: duration = 20000;
+        }
+        
+        const seconds = duration / 1000;
+        this.timerLabel.setText(`⏱ ${seconds} sekund na odpověď`);
 
         this._timerTween = this.tweens.add({
             targets: this.timerBar,
             displayWidth: 0,
-            duration: 5000,
+            duration: duration,
             ease: 'Linear',
             onUpdate: () => {
                 const ratio = this.timerBar.displayWidth / this._timerBarW;
@@ -158,7 +172,17 @@ export default class BattleScene extends Phaser.Scene {
                 this.timerBar.setFillStyle(color);
             },
             onComplete: () => {
-                this.timerLabel.setText('🐢 pomalý = 15 dmg').setStyle({ fill: '#ff8800' });
+                // Čas vypršel - enemy útočí a dostane 25 DMG hráči, pak nový příklad
+                this.canAnswer = false;
+                this.timerLabel.setText('⏱ Čas vypršel!').setStyle({ fill: '#ff4444' });
+                this.fbTxt.setText('✗ Čas vypršel! Nepřítel útočí!').setStyle({ fill: '#ff4444' });
+                this.playerHP = Math.max(0, this.playerHP - 25);
+                this.cameras.main.shake(200, 0.012);
+                this.time.delayedCall(1600, () => {
+                    this.refreshPlayerHP();
+                    if (this.playerHP <= 0) this.lose();
+                    else this.nextQuestion();
+                });
             },
         });
     }
@@ -168,8 +192,8 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     getTimedDamage() {
-        const elapsed = (this.time.now - this._questionStart) / 1000;
-        return elapsed < 5 ? 25 : 15;
+        // Vždy vrátí 25 DMG, pokud hráč odpověděl správně
+        return 25;
     }
 
     onKey(e) {

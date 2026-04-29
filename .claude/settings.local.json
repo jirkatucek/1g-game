@@ -44,7 +44,10 @@
       "Bash(cp \"C:/Users/jirka/Downloads/PineTreeAssetPack/PineTreeAssetPack/Flower1_Tile.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/pine_trees/flower1.png\")",
       "Read(//c/Users/jirka/Downloads/Castle Walls/Castle Walls/**)",
       "Read(//c/Users/jirka/Downloads/Castle Walls/**)",
-      "Bash(node --input-type=module)"
+      "Bash(node --input-type=module)",
+      "Bash(unzip -o \"GrasslandAssests.zip\" -d \"GrasslandAssests_extracted\")",
+      "PowerShell(Expand-Archive -Path \"C:\\\\Users\\\\jirka\\\\Downloads\\\\pixel_art_top_down_rocks_pack.zip\" -DestinationPath \"C:\\\\Users\\\\jirka\\\\Downloads\\\\rocks_extracted\" -Force)",
+      "PowerShell(Expand-Archive -Path \"C:\\\\Users\\\\jirka\\\\Downloads\\\\Pixel Lands Village Demo.zip\" -DestinationPath \"C:\\\\Users\\\\jirka\\\\Downloads\\\\village_extracted\" -Force)"
     ]
   }
 }
