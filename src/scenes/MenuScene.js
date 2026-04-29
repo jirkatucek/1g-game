@@ -395,9 +395,11 @@ export default class MenuScene extends Phaser.Scene {
             }
             this.sound.mute = vol === 0;
             this.currentVolume = vol;
-            saveGameState({ volume: vol, muted: vol === 0 });
+            // Save master volume and keep SFX in sync with it
+            saveGameState({ volume: vol, sfxVolume: vol, muted: vol === 0 });
         };
         this.input.on('pointermove', this._menuVolumeMove);
+        
 
         // Mute button
         const muteY = H * 0.52;
@@ -544,5 +546,6 @@ Vytvořeno s ❤️ pro učení
             this.input.off('pointerup', this._menuVolumeUp);
             this._menuVolumeUp = null;
         }
+        
     }
 }

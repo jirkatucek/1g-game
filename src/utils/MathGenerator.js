@@ -110,7 +110,7 @@ export default class MathGenerator {
 
     // ======== LEVEL 4: Pevnost jmenovatele (Různý jmenovatel - lehké) ========
     static level4_add() {
-        const pairs = [[2,4], [2,3], [3,6], [2,6], [2,5], [1,5, 2,10]];
+        const pairs = [[2,4], [2,3], [3,6], [2,6], [2,5], [1,5], [2,10]];
         let d1, d2, a, b;
         const pair = pairs[Math.floor(Math.random() * pairs.length)];
         [d1, d2] = [pair[0], pair[1]];

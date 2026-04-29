@@ -1,5 +1,6 @@
 import MathGenerator from '../utils/MathGenerator.js';
 import { applyAudioPreferences, loadGameState, playThemeMusic } from '../utils/GameState.js';
+import { GAME_CONFIG } from '../utils/GameConfig.js';
 
 const STATS = {
     goblin: { maxHp: 50,  attack: 10, gold: 5, name: 'Zlomkový Duch' },
@@ -148,19 +149,10 @@ export default class BattleScene extends Phaser.Scene {
         this.timerBar.setDisplaySize(this._timerBarW, 14);
         this.timerBar.setFillStyle(0x22cc44);
         
-        // Čas podle levelu
+        // Čas podle levelu (konfigurovatelné)
         const level = this.enemyData.level || 1;
-        let duration;
-        switch(level) {
-            case 1: duration = 20000; break;
-            case 2: duration = 15000; break;
-            case 3: duration = 13000; break;
-            case 4: duration = 13000; break;
-            case 5: duration = 10000; break;
-            default: duration = 20000;
-        }
-        
-        const seconds = duration / 1000;
+        const duration = (GAME_CONFIG?.battle?.timeoutByLevel?.[level]) ?? 20000;
+        const seconds = Math.round(duration / 1000);
         this.timerLabel.setText(`⏱ ${seconds} sekund na odpověď`);
 
         this._timerTween = this.tweens.add({
@@ -174,11 +166,12 @@ export default class BattleScene extends Phaser.Scene {
                 this.timerBar.setFillStyle(color);
             },
             onComplete: () => {
-                // Čas vypršel - enemy útočí a dostane 25 DMG hráči, pak nový příklad
+                // Čas vypršel - enemy útočí a hráč utrží damage podle konfigurace, pak nový příklad
                 this.canAnswer = false;
                 this.timerLabel.setText('⏱ Čas vypršel!').setStyle({ fill: '#ff4444' });
                 this.fbTxt.setText('✗ Čas vypršel! Nepřítel útočí!').setStyle({ fill: '#ff4444' });
-                this.playerHP = Math.max(0, this.playerHP - 25);
+                const timeoutDmg = GAME_CONFIG?.battle?.timeoutDamage ?? 25;
+                this.playerHP = Math.max(0, this.playerHP - timeoutDmg);
                 this.cameras.main.shake(200, 0.012);
                 this.time.delayedCall(1600, () => {
                     this.refreshPlayerHP();
@@ -194,8 +187,8 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     getTimedDamage() {
-        // Vždy vrátí 25 DMG, pokud hráč odpověděl správně
-        return 25;
+        // Damage pro správnou odpověď (konfigurovatelné)
+        return GAME_CONFIG?.battle?.correctDamage ?? 25;
     }
 
     onKey(e) {
