@@ -37,6 +37,8 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.audio('theme_adventure', 'assets/sounds/theme_adventure.mp3');
         // Victory sound
         this.load.audio('victory_win', 'assets/sounds/victory_win.mp3');
+        // Lose/death sound
+        this.load.audio('lose_sfx', 'assets/sounds/lose_sfx.mp3');
         // Coin animation spritesheet
         this.load.spritesheet('coin_tiles', 'assets/coin_tiles.png', { frameWidth: 16, frameHeight: 16 });
         // Cabin building
@@ -143,6 +145,10 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('battle_question', 'assets/battle/06-question-panel.png');
         this.load.image('battle_question_empty', 'assets/battle/06b-question-panel-empty.png');
         this.load.image('battle_souboj', 'assets/battle/07-souboj-banner.png');
+        // Stone decorations (stone2_1 to stone2_40)
+        for (let i = 1; i <= 40; i++) {
+            this.load.image(`stone2_${i}`, `assets/stones/stone2_${i}.png`);
+        }
     }
 
     create() {

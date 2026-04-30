@@ -549,11 +549,14 @@ export default class GameScene extends Phaser.Scene {
             this.updateHUD();
             this.checkGate();
         } else if (data.result === 'lose') {
+            this.sound.play('lose_sfx', { volume: 0.6 });
             this.time.delayedCall(GAME_CONFIG.gameplay.battleLoseTransitionMs, () => this.scene.start('GameOverScene'));
         } else {
             this.updateHUD();
-            if (this.player.hp <= 0)
+            if (this.player.hp <= 0) {
+                this.sound.play('lose_sfx', { volume: 0.6 });
                 this.time.delayedCall(GAME_CONFIG.gameplay.battleLoseTransitionMs, () => this.scene.start('GameOverScene'));
+            }
         }
     }
 
@@ -800,8 +803,8 @@ export default class GameScene extends Phaser.Scene {
         if (this.currentLevel !== 4) {
             const kills = Math.min(this.killCount, KILLS_NEEDED);
             const objectives = [
-                { done: this.npcTalked,         text: 'Promluv s NPC' },
-                { done: kills >= KILLS_NEEDED,   text: `Poraž ${KILLS_NEEDED} příšer (${kills}/${KILLS_NEEDED})` },
+                { done: this.npcTalked,         text: 'Promluv si se mnou' },
+                { done: kills >= KILLS_NEEDED,   text: `Poraž ${KILLS_NEEDED} hlídek (${kills}/${KILLS_NEEDED})` },
             ];
             objectives.forEach((o, idx) => {
                 const yy = objY + idx * 38;
@@ -887,7 +890,7 @@ export default class GameScene extends Phaser.Scene {
             if (bossEnemies.length === 0) {
                 this.bossHidden = false;
                 // Princess reappears
-                const x = 25 * TILE + TILE/2;
+                const x = 23 * TILE + TILE/2;
                 const y = 3 * TILE + TILE/2;
                 this.princess = this.physics.add.staticSprite(x, y, 'princess_idle', 0);
                 this.princess.npcData = {
@@ -1048,12 +1051,14 @@ export default class GameScene extends Phaser.Scene {
         const pW = W * 0.50, pH = H * 0.55;
         const bg = this.add.rectangle(W / 2, H / 2, pW, pH, 0x0d0d2a)
             .setStrokeStyle(3, 0x3355aa)
-            .setInteractive();
+            .setInteractive()
+            .setScrollFactor(0)
+            .setDepth(90);
         container.add(bg);
 
         const title = this.add.text(W / 2, H * 0.24, 'PAUZA', {
             fontSize: '36px', fill: '#ffcc44', fontFamily: 'Arial Black',
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(91);
         container.add(title);
 
         // Close button
@@ -1061,10 +1066,12 @@ export default class GameScene extends Phaser.Scene {
         const closeY = H / 2 - pH / 2 + 32;
         const closeBg = this.add.rectangle(closeX, closeY, 48, 48, 0x881111)
             .setStrokeStyle(2, 0xff4444)
-            .setInteractive({ useHandCursor: true });
+            .setInteractive({ useHandCursor: true })
+            .setScrollFactor(0)
+            .setDepth(91);
         const closeTxt = this.add.text(closeX, closeY + 2, '✕', {
             fontSize: '30px', fill: '#ffffff', fontFamily: 'Arial Black',
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(91);
         closeBg.on('pointerover', () => closeBg.setFillStyle(0xcc2222));
         closeBg.on('pointerout', () => closeBg.setFillStyle(0x881111));
         closeBg.on('pointerup', (pointer, lx, ly, event) => {
@@ -1078,7 +1085,7 @@ export default class GameScene extends Phaser.Scene {
         const volLabelY = H * 0.38;
         const volLabel = this.add.text(W / 2 - pW / 2 + 30, volLabelY, '🔊 Hlasitost:', {
             fontSize: '24px', fill: '#aaaaff', fontFamily: 'Arial Black',
-        }).setOrigin(0, 0.5);
+        }).setOrigin(0, 0.5).setScrollFactor(0).setDepth(91);
         container.add(volLabel);
 
         // Volume slider background
@@ -1087,7 +1094,9 @@ export default class GameScene extends Phaser.Scene {
         const sliderLeft = sliderX - sliderW / 2;
         const sliderBg = this.add.rectangle(sliderX, sliderY, sliderW, sliderH, 0x1a1a2a)
             .setStrokeStyle(2, 0x3355aa)
-            .setOrigin(0.5, 0.5);
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0)
+            .setDepth(91);
         container.add(sliderBg);
 
         // Volume slider button
@@ -1095,7 +1104,9 @@ export default class GameScene extends Phaser.Scene {
         const volumeButton = this.add.rectangle(sliderLeft + currentVol * sliderW, sliderY, 20, 26, 0xffcc44)
             .setStrokeStyle(2, 0xff8800)
             .setInteractive({ useHandCursor: true })
-            .setOrigin(0.5, 0.5);
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0)
+            .setDepth(91);
         container.add(volumeButton);
 
         let isDragging = false;
@@ -1122,10 +1133,12 @@ export default class GameScene extends Phaser.Scene {
         const resumeBw = 420, resumeBh = 70;
         const resumeBg = this.add.rectangle(W / 2, resumeY, resumeBw, resumeBh, 0x1a3344)
             .setStrokeStyle(2, 0x6688aa)
-            .setInteractive({ useHandCursor: true });
+            .setInteractive({ useHandCursor: true })
+            .setScrollFactor(0)
+            .setDepth(91);
         const resumeTxt = this.add.text(W / 2, resumeY + 2, '▶  POKRAČOVAT', {
             fontSize: '28px', fill: '#ffffff', fontFamily: 'Arial Black',
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(91);
         resumeBg.on('pointerover', () => resumeBg.setFillStyle(0x2a4455));
         resumeBg.on('pointerout', () => resumeBg.setFillStyle(0x1a3344));
         resumeBg.on('pointerup', (pointer, lx, ly, event) => {
@@ -1140,10 +1153,12 @@ export default class GameScene extends Phaser.Scene {
         const menuBw = 420, menuBh = 70;
         const menuBg = this.add.rectangle(W / 2, menuY, menuBw, menuBh, 0x2d4411)
             .setStrokeStyle(2, 0x88cc44)
-            .setInteractive({ useHandCursor: true });
+            .setInteractive({ useHandCursor: true })
+            .setScrollFactor(0)
+            .setDepth(91);
         const menuTxt = this.add.text(W / 2, menuY + 2, '🏠 HLAVNÍ MENU', {
             fontSize: '28px', fill: '#ffffff', fontFamily: 'Arial Black',
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(91);
         menuBg.on('pointerover', () => menuBg.setFillStyle(0x3d5511));
         menuBg.on('pointerout', () => menuBg.setFillStyle(0x2d4411));
         menuBg.on('pointerup', (pointer, lx, ly, event) => {

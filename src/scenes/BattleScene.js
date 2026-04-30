@@ -33,7 +33,7 @@ export default class BattleScene extends Phaser.Scene {
         const st = STATS[data.enemyData.type] || STATS.goblin;
         this.enemyHP    = st.maxHp;
         this.enemyMaxHP = st.maxHp;
-        this.enemyAtk   = st.attack;
+        this.enemyAtk   = (data.enemyData.level >= 3) ? 30 : st.attack;
         this.enemyName  = data.enemyData.name || st.name;
         this.goldReward = st.gold;
 

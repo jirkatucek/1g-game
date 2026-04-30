@@ -54,10 +54,6 @@ export default class MenuScene extends Phaser.Scene {
         const wasd = this.add.image(W / 2, H * 0.91, 'menu_wasd').setDepth(2);
         wasd.setScale(Math.min((W * 0.50) / wasd.width, (H * 0.05) / wasd.height));
 
-        // Company logo — 678×657, bottom right
-        const clogo = this.add.image(W - 110, H - 80, 'menu_company').setDepth(2);
-        clogo.setScale(Math.min(160 / clogo.width, 160 / clogo.height));
-
         // Panels (hidden)
         const { overlay: levelOverlay, panel: levelPanel } = this.buildLevelPanel(W, H);
         this.levelOverlay = levelOverlay;

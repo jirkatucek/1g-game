@@ -219,7 +219,7 @@ export const LEVELS = [
         npcs: [{
             x: 9, y: 14,
             name: 'Čaroděj kalkulátor',
-            message: '„Tady stromy rostou do šířky! Musíš zlomek správně rozšířit – vynásob vršek i spodek stejným číslem!"',
+            message: '„Tady stromy rostou do šířky! Stejně tak jako se rozšiřují příklady, které tě budou čekat. Lovu zdar!"',
         }],
         reward: 60,
     },
@@ -266,7 +266,7 @@ export const LEVELS = [
         npcs: [{
             x: 0, y: 8,
             name: 'Čaroděj kalkulátor',
-            message: '„Pozor, tata monstra jsou zbytečně nafouklá! Musíš je zkrátit na základní tvar. Např. 4/8 = 1/2"',
+            message: '„Pozor! Tyto strážníci jsou silně obezřetní. Budeš muset být velmi opatrný!"',
         }],
         props: [
             // ── Horní sekce (řady 2-5): kytky, borovice a příroda ──
@@ -440,7 +440,7 @@ export const LEVELS = [
             {
                 x: 10, y: 11,
                 name: 'Čaroděj kalkulátor',
-                message: '„Pevnost se otevře, až vyřešíš příklady na krácení zlomků u monster v lese!"',
+                message: '„Portál do věži mysli se ti otevře až vyženeš hlídky ze svých domovu, zlom vaz kalkulátore!"',
             },
             {
                 x: 18, y: 12,
@@ -568,7 +568,7 @@ export const LEVELS = [
                 message: '„Jsi připraven? Ve věži by měla být princezna, ale ještě pro ni budeš muset bojovat. Tvoji poslední zkouškou bude tvůj největší nepřítel. Nejdřív poraz všechny střežící věž a pak pokračuj za princeznou. Držím ti palce!"',
             },
             {
-                x: 25, y: 3,
+                x: 23, y: 3,
                 name: 'Princezna',
                 type: 'princess',
                 sprite: 'princess_idle',
@@ -581,6 +581,38 @@ export const LEVELS = [
 
             // Věž nahoru na travu do rohu
             { x: 27, y: 2, key: 'tower', scale: 0.8, depth: 8, collide: true, bodyW: 100, bodyH: 120 },
+
+            // Kameny kolem boss fightu a po straně mapy - bez sněhu
+            // Boss area (26, 14)
+            { x: 22, y: 14, key: 'stone2_1', scale: 1.2, depth: 5 },
+            { x: 23, y: 13, key: 'stone2_2', scale: 1.3, depth: 5 },
+            { x: 25, y: 13, key: 'stone2_3', scale: 1.1, depth: 5 },
+            { x: 26, y: 14, key: 'stone2_1', scale: 1.2, depth: 5 },
+            { x: 24, y: 15, key: 'stone2_4', scale: 1.0, depth: 4 },
+            { x: 22, y: 16, key: 'stone2_2', scale: 1.1, depth: 4 },
+            { x: 23, y: 16, key: 'stone2_5', scale: 0.95, depth: 4 },
+            { x: 25, y: 16, key: 'stone2_1', scale: 1.1, depth: 4 },
+            { x: 26, y: 15, key: 'stone2_3', scale: 1.0, depth: 4 },
+            { x: 21, y: 15, key: 'stone2_2', scale: 1.15, depth: 5 },
+            { x: 27, y: 13, key: 'stone2_4', scale: 1.05, depth: 5 },
+            { x: 23, y: 14, key: 'stone2_5', scale: 0.9, depth: 4 },
+            { x: 25, y: 15, key: 'stone2_1', scale: 0.85, depth: 4 },
+            { x: 24, y: 14, key: 'stone2_3', scale: 0.8, depth: 3 },
+            // Rozptýlené kameny po straně mapy
+            { x: 23, y: 10, key: 'stone2_2', scale: 0.9, depth: 3 },
+            { x: 25, y: 11, key: 'stone2_1', scale: 0.85, depth: 3 },
+            { x: 26, y: 10, key: 'stone2_4', scale: 1.0, depth: 3 },
+            { x: 24, y: 8, key: 'stone2_5', scale: 0.8, depth: 3 },
+            { x: 22, y: 9, key: 'stone2_3', scale: 0.95, depth: 3 },
+            { x: 27, y: 9, key: 'stone2_2', scale: 0.75, depth: 3 },
+            { x: 23, y: 6, key: 'stone2_1', scale: 0.85, depth: 3 },
+            { x: 25, y: 7, key: 'stone2_4', scale: 0.9, depth: 3 },
+            { x: 26, y: 6, key: 'stone2_5', scale: 0.8, depth: 3 },
+            { x: 24, y: 5, key: 'stone2_3', scale: 0.85, depth: 3 },
+            { x: 22, y: 4, key: 'stone2_2', scale: 0.9, depth: 3 },
+            { x: 27, y: 5, key: 'stone2_1', scale: 0.8, depth: 3 },
+            { x: 23, y: 2, key: 'stone2_5', scale: 0.75, depth: 3 },
+            { x: 25, y: 3, key: 'stone2_4', scale: 0.85, depth: 3 },
         ],
     },
 
