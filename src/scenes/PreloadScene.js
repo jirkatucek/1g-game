@@ -50,6 +50,13 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('vb_1', 'assets/village/building_1.png');
         this.load.image('vb_2', 'assets/village/building_2.png');
         this.load.image('vb_3', 'assets/village/building_3.png');
+        this.load.image('tower', 'assets/tower.png');
+        this.load.spritesheet('boss_idle', 'assets/boss_idle.png', { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('boss_run', 'assets/boss_run.png', { frameWidth: 192, frameHeight: 192 });
+        this.load.spritesheet('boss_death', 'assets/boss_death.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.image('princess', 'assets/princess.png');
+        this.load.spritesheet('princess_idle', 'assets/princess_idle.png', { frameWidth: 64, frameHeight: 64 });
+        this.load.spritesheet('princess_run', 'assets/princess_run.png', { frameWidth: 192, frameHeight: 192 });
         // Menu PNG assets
         this.load.image('menu_bg',       'assets/menu/background.png');
         this.load.image('menu_logo',     'assets/menu/logo.png');
@@ -112,6 +119,19 @@ export default class PreloadScene extends Phaser.Scene {
         for (let i = 1; i <= 14; i++) {
             this.load.image(`gt_${i}`, `assets/grass_tufts/gt_${i}.png`);
         }
+        // Custom HUD health bars (1-6 segments)
+        for (let i = 1; i <= 6; i++) {
+            this.load.image(`hp_bar_${i}`, `assets/hud/bar ${i}.png`);
+        }
+        this.load.image('hp_bar_empty', `assets/hud/white bar empty 6.png`);
+        // Custom HUD stamina bars (1-5 segments)
+        for (let i = 1; i <= 5; i++) {
+            this.load.image(`stamina_bar_${i}`, `assets/hud/stamina_${i}.png`);
+        }
+        // Stamina empty placeholder (černý bar)
+        this.load.image('stamina_bar_empty', `assets/hud/white bar empty 6.png`);
+        // Animated gold coin (spritesheet)
+        this.load.spritesheet('gold_coin_anim', 'assets/hud/gold_coin_anim.png', { frameWidth: 16, frameHeight: 16 });
     }
 
     create() {
@@ -129,6 +149,11 @@ export default class PreloadScene extends Phaser.Scene {
         this.anims.create({ key: 'water_rock3_anim', frames: this.anims.generateFrameNumbers('water_rock3', { start: 0, end: 15 }), frameRate: 8, repeat: -1 });
         this.anims.create({ key: 'water_rock4_anim', frames: this.anims.generateFrameNumbers('water_rock4', { start: 0, end: 15 }), frameRate: 8, repeat: -1 });
         this.anims.create({ key: 'grill_sizzle', frames: this.anims.generateFrameNumbers('grill',           { start: 0, end: 3 }), frameRate: 5,  repeat: -1 });
+        this.anims.create({ key: 'boss_idle',  frames: this.anims.generateFrameNumbers('boss_idle',  { start: 0, end: 7 }), frameRate: 6, repeat: -1 });
+        this.anims.create({ key: 'boss_run',   frames: this.anims.generateFrameNumbers('boss_run',   { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'princess_idle', frames: this.anims.generateFrameNumbers('princess_idle', { start: 0, end: 2 }), frameRate: 6, repeat: -1 });
+        this.anims.create({ key: 'princess_run',  frames: this.anims.generateFrameNumbers('princess_run',  { start: 0, end: 3 }), frameRate: 10, repeat: -1 });
+        this.anims.create({ key: 'gold_coin_spin', frames: this.anims.generateFrameNumbers('gold_coin_anim', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
 
         Object.entries(RED_ENEMY_UNITS).forEach(([unit, cfg]) => {
             const idleAnim = `enemy_${unit}_idle_anim`;

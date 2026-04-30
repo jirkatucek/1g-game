@@ -52,7 +52,17 @@
       "Bash(cp \"C:/Users/jirka/Downloads/menu/background2.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/background.png\")",
       "Bash(cp \"C:/Users/jirka/Downloads/menu/math-quest.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/logo.png\")",
       "Bash(cp \"C:/Users/jirka/Downloads/menu/dobrodruzstvi.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/subtitle.png\")",
-      "Bash(cp \"C:/Users/jirka/Downloads/menu/hrat tlacitko.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/btn_hrat.png\")"
+      "Bash(cp \"C:/Users/jirka/Downloads/menu/hrat tlacitko.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/menu/btn_hrat.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/warrior/warrior/warrior wind.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/boss_idle.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/warrior/warrior/warrior run.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/boss_run.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/warrior/warrior/warrior death.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/boss_death.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Tiny Swords \\(Free Pack\\)/Tiny Swords \\(Free Pack\\)/Units/Purple Units/Warrior/Warrior_Idle.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/boss_idle.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Tiny Swords \\(Free Pack\\)/Tiny Swords \\(Free Pack\\)/Units/Purple Units/Warrior/Warrior_Run.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/boss_run.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Eilinv2/eilin_idle.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/princess_idle.png\")",
+      "Bash(cp \"C:/Users/jirka/Downloads/Eilinv2/eilin_run.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/princess_run.png\")",
+      "Bash(node -c \"c:/Users/jirka/Desktop/1.G Math game/src/maps/levels.js\")",
+      "PowerShell($rarPath = \"c:\\\\Users\\\\jirka\\\\Downloads\\\\Pixel Xp Bars.rar\"; $outPath = \"c:\\\\Users\\\\jirka\\\\Downloads\\\\xp_bars_extracted\"; New-Item -ItemType Directory -Path $outPath -Force | Out-Null; & \"C:\\\\Program Files\\\\WinRAR\\\\UnRAR.exe\" x \"$rarPath\" \"$outPath\\\\\" 2>&1 | Select-Object -First 20)",
+      "Bash(npm start *)"
     ]
   }
 }

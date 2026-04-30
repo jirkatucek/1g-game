@@ -139,57 +139,63 @@ export default class MathGenerator {
         };
     }
 
-    // ======== LEVEL 5: Zámecká věž (Mix všeho) ========
+    // ======== LEVEL 5: Věž Mysli (Těžké kombinované příklady) ========
     static level5_problem() {
         const types = [
-            this.level5_multiply_int,
-            this.level5_mixed_ops,
-            this.level5_simplify_complex,
-            this.level5_arithmetic
+            this.level5_hard_multiply,
+            this.level5_four_nums_add,
+            this.level5_four_nums_mixed,
+            this.level5_order_of_ops
         ];
         const fn = types[Math.floor(Math.random() * types.length)];
         return fn.call(this);
     }
-    static level5_multiply_int() {
-        const k = this.rnd(2, 5);
-        const bases = [[1,6], [1,4], [1,3], [2,3], [1,2]];
-        const [n, d] = bases[Math.floor(Math.random() * bases.length)];
-        return {
-            question: `${k} × ${n}/${d} = ?`,
-            answer: this.fstr(k * n, d),
-            hint: `Vynásob čitatel číslem ${k}: ${k} × ${n} = ${k * n}`
-        };
-    }
-    static level5_mixed_ops() {
-        const pairs = [[2,3], [2,4], [3,4], [2,6]];
-        const [d1, d2] = pairs[Math.floor(Math.random() * pairs.length)];
-        const a = this.rnd(1, d1 - 1);
-        const b = this.rnd(1, d2 - 1);
-        const lcd = this.lcm(d1, d2);
-        const num = a * (lcd / d1) + b * (lcd / d2);
-        return {
-            question: `${a}/${d1} + ${b}/${d2} = ?`,
-            answer: this.fstr(num, lcd),
-            hint: `Najdi společný jmenovatel a sečti`
-        };
-    }
-    static level5_simplify_complex() {
-        const bases = [[10,20], [6,18], [8,24], [12,30], [4,12]];
-        const [n, d] = bases[Math.floor(Math.random() * bases.length)];
-        const g = this.gcd(n, d);
-        return {
-            question: `Zkrať ${n}/${d} na základní tvar`,
-            answer: this.fstr(n, d),
-            hint: `NSD(${n}, ${d}) = ${g}`
-        };
-    }
-    static level5_arithmetic() {
-        const ops = [[14, 3], [20, 5], [25, 4]];
+    static level5_hard_multiply() {
+        const ops = [[72, 4], [85, 3], [94, 6], [68, 5], [76, 7], [58, 8], [81, 4], [92, 5]];
         const [a, b] = ops[Math.floor(Math.random() * ops.length)];
         return {
             question: `${a} × ${b} = ?`,
             answer: `${a * b}`,
             hint: `Vynásob: ${a} × ${b}`
+        };
+    }
+    static level5_four_nums_add() {
+        const a = this.rnd(10, 30);
+        const b = this.rnd(15, 35);
+        const c = this.rnd(20, 40);
+        const d = this.rnd(10, 25);
+        return {
+            question: `${a} + ${b} + ${c} + ${d} = ?`,
+            answer: `${a + b + c + d}`,
+            hint: `Sečti všechna čtyři čísla`
+        };
+    }
+    static level5_four_nums_mixed() {
+        const a = this.rnd(50, 100);
+        const b = this.rnd(10, 30);
+        const c = this.rnd(5, 15);
+        const d = this.rnd(20, 40);
+        const result = a - b + c - d;
+        return {
+            question: `${a} − ${b} + ${c} − ${d} = ?`,
+            answer: `${result}`,
+            hint: `Provádějte operace zleva doprava`
+        };
+    }
+    static level5_order_of_ops() {
+        const ops = [
+            { q: '8 × 7 + 15', a: 8 * 7 + 15 },
+            { q: '12 + 6 × 8', a: 12 + 6 * 8 },
+            { q: '100 − 5 × 8', a: 100 - 5 * 8 },
+            { q: '9 × 9 − 20', a: 9 * 9 - 20 },
+            { q: '60 ÷ 3 + 25', a: 60 / 3 + 25 },
+            { q: '48 ÷ 6 × 5', a: 48 / 6 * 5 }
+        ];
+        const op = ops[Math.floor(Math.random() * ops.length)];
+        return {
+            question: `${op.q} = ?`,
+            answer: `${op.a}`,
+            hint: `Pamatuj na pořadí operací: násobení a dělení před sčítáním a odčítáním`
         };
     }
 

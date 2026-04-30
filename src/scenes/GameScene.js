@@ -19,6 +19,7 @@ const ENEMY_UNIT_CONFIG = {
     archer:  { idleKey: 'enemy_archer_idle',  idleAnim: 'enemy_archer_idle_anim',  runAnim: 'enemy_archer_run_anim',  scale: 0.76, battleScale: 2.1 },
     lancer:  { idleKey: 'enemy_lancer_idle',  idleAnim: 'enemy_lancer_idle_anim',  runAnim: 'enemy_lancer_run_anim',  scale: 0.48, battleScale: 1.25 },
     monk:    { idleKey: 'enemy_monk_idle',    idleAnim: 'enemy_monk_idle_anim',    runAnim: 'enemy_monk_run_anim',    scale: 0.78, battleScale: 2.1 },
+    boss:    { idleKey: 'boss_idle',          idleAnim: 'boss_idle',               runAnim: 'boss_run',                scale: 1.5, battleScale: 3.0 },
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -48,6 +49,7 @@ export default class GameScene extends Phaser.Scene {
         this.battleCooldown  = false;
         this.stamina         = 100;
         this.maxStamina      = 100;
+        this.minStamina      = 25; // Minimum je 1 čárka
         this.isSprinting     = false;
         this.exhausted       = false;
         this.gateOpen       = false;
@@ -75,7 +77,6 @@ export default class GameScene extends Phaser.Scene {
         this.renderProps();
         this.buildWalls();
 
-
         const ps = this.levelData.playerStart;
         const safeStart = this.findSafeTile(ps.x, ps.y);
         this.player = this.physics.add.sprite(safeStart.col * TILE + TILE/2, safeStart.row * TILE + TILE/2, 'warrior_idle');
@@ -83,8 +84,8 @@ export default class GameScene extends Phaser.Scene {
         this.player.setScale(0.9);
         // Circular body slides around tree corners instead of catching on them
         this.player.setCircle(24, 74, 120);
-        this.player.hp    = this.playerHP;
-        this.player.maxHp = this.playerMaxHP;
+        this.player.hp    = 120;
+        this.player.maxHp = 120;
         this.player.setDepth(10);
         this.player.play('warrior_idle');
 
@@ -94,12 +95,26 @@ export default class GameScene extends Phaser.Scene {
         this.enemies = this.physics.add.group();
         this.spawnEnemies();
         this.physics.add.collider(this.enemies, this.walls);
+        this.physics.add.collider(this.enemies, this.propBodies);
         this.physics.add.overlap(this.player, this.enemies, this.triggerBattle, null, this);
 
         this.npcs = this.physics.add.staticGroup();
         this.spawnNPCs();
         this.physics.add.overlap(this.player, this.npcs, this.openDialog, null, this);
         this.physics.add.overlap(this.player, this.shopNPCs, this.openShopDialog, null, this);
+        this.physics.add.collider(this.shopNPCs, this.propBodies);
+
+        // Princess escape event on level 5
+        if (this.currentLevel === 4) {
+            this.bossHidden = true;
+            if (this.enemies && this.enemies.children) {
+                this.enemies.children.entries.forEach(e => {
+                    if (e.enemyData.type === 'boss') {
+                        e.setActive(false).setVisible(false);
+                    }
+                });
+            }
+        }
 
         this.spawnGate();
 
@@ -242,10 +257,11 @@ export default class GameScene extends Phaser.Scene {
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 const t = this.mapData[r][c];
-                if (t === 1 || t === 3) {
+                if (t === 1 || t === 3 || t === 4) {
                     // Trees shrunk by 10px so player can navigate flush against them
                     // without hitting an invisible wall inside the visually overhanging canopy.
                     // Water stays full-tile (no visual overhang issue).
+                    // Barriers (t=4) also full-tile to block passage.
                       const size = t === 1 ? TILE - 14 : TILE; // Adjusted size for tree collider
                     this.walls.create(c * TILE + TILE/2, r * TILE + TILE/2, 'ts_grass')
                         .setImmovable(true)
@@ -253,6 +269,29 @@ export default class GameScene extends Phaser.Scene {
                         .refreshBody()
                         .setAlpha(0);
                 }
+            }
+        }
+    }
+
+    princessEscape() {
+        if (!this.princess || !this.princess.active || this.bossHidden === false) return;
+        // Distance to princess (in pixels)
+        const dx = this.player.x - this.princess.x;
+        const dy = this.player.y - this.princess.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        // Trigger at 2 tiles distance (128 pixels)
+        if (dist < 2 * TILE) {
+            this.princess.destroy();
+            this.princess = null;
+            // Boss becomes visible and chases player
+            if (this.enemies && this.enemies.children) {
+                this.enemies.children.entries.forEach(e => {
+                    if (e.enemyData.type === 'boss') {
+                        e.setActive(true);
+                        e.setVisible(true);
+                        e.chasingPlayer = true;
+                    }
+                });
             }
         }
     }
@@ -280,9 +319,16 @@ export default class GameScene extends Phaser.Scene {
     spawnEnemies() {
         this.levelData.enemies.forEach((ed, i) => {
             const safe = this.findSafeTile(ed.x, ed.y);
-            const unitPool = ENEMY_UNIT_POOLS[ed.type] || ENEMY_UNIT_POOLS.goblin;
-            const unit = unitPool[(this.currentLevel + i) % unitPool.length];
-            const unitCfg = ENEMY_UNIT_CONFIG[unit] || ENEMY_UNIT_CONFIG.pawn;
+            let unit, unitCfg;
+
+            if (ed.type === 'boss') {
+                unit = 'boss';
+                unitCfg = ENEMY_UNIT_CONFIG.boss;
+            } else {
+                const unitPool = ENEMY_UNIT_POOLS[ed.type] || ENEMY_UNIT_POOLS.goblin;
+                unit = unitPool[(this.currentLevel + i) % unitPool.length];
+                unitCfg = ENEMY_UNIT_CONFIG[unit] || ENEMY_UNIT_CONFIG.pawn;
+            }
 
             const e = this.physics.add.sprite(safe.col * TILE + TILE/2, safe.row * TILE + TILE/2, unitCfg.idleKey, 0);
             e.setScale(unitCfg.scale);
@@ -296,7 +342,7 @@ export default class GameScene extends Phaser.Scene {
             e.walkAnimKey = unitCfg.runAnim;
             e.battleScale = unitCfg.battleScale;
             e.setDepth(10);
-            if (e.idleAnimKey) e.play(e.idleAnimKey);
+            if (e.idleAnimKey) { e.play(e.idleAnimKey); } else { e.setFrame(0); }
 
             this.time.addEvent({
                 delay: 1800 + Math.random() * 1200, loop: true,
@@ -313,13 +359,22 @@ export default class GameScene extends Phaser.Scene {
 
     spawnNPCs() {
         this.shopNPCs = this.physics.add.group();
+        this.princess = null;
 
         this.levelData.npcs.forEach(nd => {
             const safe = this.findSafeTile(nd.x, nd.y);
             const x = safe.col * TILE + TILE/2;
             const y = safe.row * TILE + TILE/2;
 
-            if (nd.type === 'shop') {
+            if (nd.type === 'princess') {
+                // Princess NPC — will run away when player approaches
+                this.princess = this.physics.add.sprite(x, y, nd.sprite || 'princess_idle', nd.frame ?? 0);
+                this.princess.npcData = nd;
+                this.princess.setScale(2.5).setDepth(10).setCollideWorldBounds(true);
+                this.princess.body.setSize(40, 40, 76, 76);
+                if (nd.anim) this.princess.play(nd.anim);
+                this.shopNPCs.add(this.princess);
+            } else if (nd.type === 'shop') {
                 // Wandering shop NPC (dynamic physics sprite)
                 const cook = this.physics.add.sprite(x, y, nd.sprite || 'cook_idle', nd.frame ?? 0);
                 cook.npcData = nd;
@@ -386,24 +441,26 @@ export default class GameScene extends Phaser.Scene {
 
     createHUD() {
         const W = this.scale.width, H = this.scale.height;
-        const hud = this.add.container(0, 0).setScrollFactor(0).setDepth(50);
 
-        const bg          = this.add.rectangle(6, 6, 260, 128, 0x000000, 0.75).setOrigin(0);
-        const hpBarBg     = this.add.rectangle(10, 12, 240, 20, 0x333333).setOrigin(0);
-        this.hpBar        = this.add.rectangle(10, 12, 240, 20, 0x22cc44).setOrigin(0);
-        this.hpLabel      = this.add.text(16, 14, '', { fontSize: '13px', fill: '#fff', fontFamily: 'Arial' });
+        // Health bar display - nahoře vlevo (1-6 čárek, každá = 20 HP)
+        this.healthBarContainer = this.add.container(20, 20).setScrollFactor(0).setDepth(50);
+        this.healthBarSprite = this.add.image(0, 0, 'hp_bar_6').setOrigin(0, 0).setScale(5);
+        this.healthBarContainer.add(this.healthBarSprite);
 
-        const stBarBg     = this.add.rectangle(10, 38, 240, 12, 0x333333).setOrigin(0);
-        this.stBar        = this.add.rectangle(10, 38, 240, 12, 0xffcc00).setOrigin(0);
-        this.stLabel      = this.add.text(16, 38, 'SPRINT', { fontSize: '9px', fill: '#000', fontFamily: 'Arial Black' });
+        // Stamina bar display - pod health barem (1-5 čárek)
+        this.staminaBarContainer = this.add.container(20, 75).setScrollFactor(0).setDepth(50);
+        this.staminaBarSprite = this.add.image(0, 0, 'stamina_bar_5').setOrigin(0, 0).setScale(5);
+        this.staminaBarContainer.add(this.staminaBarSprite);
 
-        this.areaText     = this.add.text(10, 58, '', { fontSize: '13px', fill: '#aaaaff', fontFamily: 'Arial' });
-        this.killText     = this.add.text(10, 76, '', { fontSize: '13px', fill: '#ffaa44', fontFamily: 'Arial' });
-        this.npcText      = this.add.text(10, 94, '', { fontSize: '13px', fill: '#aaffaa', fontFamily: 'Arial' });
-        this.goldText     = this.add.text(140, 94, '', { fontSize: '13px', fill: '#ffee44', fontFamily: 'Arial' });
-
-        hud.add([bg, hpBarBg, this.hpBar, this.hpLabel, stBarBg, this.stBar, this.stLabel,
-                 this.areaText, this.killText, this.npcText, this.goldText]);
+        // Gold display - pod stamina barem (animovaná ikona + číslo)
+        this.goldContainer = this.add.container(20, 130).setScrollFactor(0).setDepth(50);
+        this.goldCoinSprite = this.add.sprite(0, 0, 'gold_coin_anim').setOrigin(0, 0).setScale(3);
+        this.goldCoinSprite.play('gold_coin_spin');
+        this.goldContainer.add(this.goldCoinSprite);
+        this.goldText = this.add.text(35, 5, `${this.gold}`, {
+            fontSize: '20px', fill: '#FFD700', fontFamily: 'Arial Black', fontStyle: 'bold'
+        }).setOrigin(0, 0);
+        this.goldContainer.add(this.goldText);
 
         // Menu button v rohu
         const menuBtn = this.add.rectangle(W - 40, 20, 60, 50, 0x1a3344, 0.9)
@@ -432,19 +489,29 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updateHUD() {
-        const ratio = this.player.hp / this.player.maxHp;
-        this.hpBar.setDisplaySize(240 * ratio, 20);
-        this.hpBar.setFillStyle(ratio > 0.5 ? 0x22cc44 : ratio > 0.25 ? 0xffaa00 : 0xff2222);
-        this.hpLabel.setText(`HP: ${this.player.hp} / ${this.player.maxHp}`);
+        // Aktualizuj health bar - každá čárka = 20 HP (max 6 čárek = 120 HP)
+        const hpSegments = Math.ceil(this.player.hp / 20);
+        const maxHpSegments = 6;
+        const clampedHpSegments = Math.max(0, Math.min(maxHpSegments, hpSegments));
 
-        const sr = this.stamina / this.maxStamina;
-        this.stBar.setDisplaySize(240 * sr, 12);
-        this.stBar.setFillStyle(this.isSprinting ? 0xff8800 : sr < 0.3 ? 0xff4444 : 0xffcc00);
+        if (clampedHpSegments === 0) {
+            this.healthBarSprite.setTexture('hp_bar_empty');
+        } else {
+            this.healthBarSprite.setTexture(`hp_bar_${clampedHpSegments}`);
+        }
 
-        this.areaText.setText(`${this.levelData.name}`);
-        this.killText.setText(`Zabito: ${Math.min(this.killCount, KILLS_NEEDED)} / ${KILLS_NEEDED}`);
-        this.npcText.setText(`NPC: ${this.npcTalked ? '✓' : '✗'}`);
-        this.goldText.setText(`Zlato: ${this.gold}`);
+        // Aktualizuj stamina bar - každá čárka = 20 staminy (min 1 čárka, max 5 čárek = 100 staminy)
+        let staminaSegments;
+        if (this.stamina > 80) staminaSegments = 5;
+        else if (this.stamina > 60) staminaSegments = 4;
+        else if (this.stamina > 40) staminaSegments = 3;
+        else if (this.stamina > 20) staminaSegments = 2;
+        else staminaSegments = 1;
+
+        this.staminaBarSprite.setTexture(`stamina_bar_${staminaSegments}`);
+
+        // Update gold display
+        this.goldText.setText(`${this.gold}`);
     }
 
     triggerBattle(player, enemy) {
@@ -553,6 +620,23 @@ export default class GameScene extends Phaser.Scene {
         this.time.delayedCall(GAME_CONFIG.gameplay.portalEnterDelayMs, () => this.nextLevel());
     }
 
+    openVictoryPortal() {
+        // Portal na mapě kde byl boss (26, 14)
+        const portalX = 26 * TILE + TILE / 2;
+        const portalY = 14 * TILE + TILE / 2;
+
+        const portal = this.physics.add.staticSprite(portalX, portalY, 'portal')
+            .setScale(3).setDepth(100);
+        portal.refreshBody();
+        portal.play('portal_spin');
+
+        // Overlap s hráčem
+        this.physics.add.overlap(this.player, portal, () => {
+            this.sound.play('portal_whoosh', { volume: 1.2 });
+            this.time.delayedCall(600, () => this.scene.start('MenuScene'));
+        }, null, this);
+    }
+
     showFloatingText(msg, color) {
         const px = this.player.x;
         const py = this.player.y - 30;
@@ -569,9 +653,13 @@ export default class GameScene extends Phaser.Scene {
         this.dialogType = 'quest';
         this.npcTalked = true;
         if (npc.exclamation) { npc.exclamation.destroy(); npc.exclamation = null; }
+        // Only show portal after talking to princess on level 5
+        this._level5Victory = this.currentLevel === 4 && npc.npcData.name === 'Princezna';
         this.showDialog(npc.npcData.message);
-        this.updateHUD();
-        this.checkGate();
+        if (this.currentLevel !== 4) {
+            this.updateHUD();
+            this.checkGate();
+        }
     }
 
     openShopDialog(player, cook) {
@@ -703,37 +791,44 @@ export default class GameScene extends Phaser.Scene {
         });
 
         const objY = 290;
-        const kills = Math.min(this.killCount, KILLS_NEEDED);
-        const objectives = [
-            { done: this.npcTalked,         text: 'Promluv s NPC' },
-            { done: kills >= KILLS_NEEDED,   text: `Poraž ${KILLS_NEEDED} příšer (${kills}/${KILLS_NEEDED})` },
-        ];
         const objItems = [];
-        objectives.forEach((o, idx) => {
-            const yy = objY + idx * 38;
-            objItems.push(
-                this.add.text(60, yy, o.done ? '✓' : '□', {
-                    fontSize: '16px', fill: o.done ? '#1F7A3F' : '#3A2A12',
-                    fontFamily: '"Press Start 2P", monospace',
-                }),
-                this.add.text(95, yy, o.text, {
-                    fontSize: '24px', fill: o.done ? 'rgba(58,42,18,0.5)' : '#2E1F0A',
-                    fontFamily: '"VT323", monospace',
-                })
-            );
-        });
+        const rewardItems = [];
 
-        const rewardY = objY + objectives.length * 38 + 20;
-        const line2 = this.add.graphics();
-        line2.lineStyle(2, 0x8C6B36, 1);
-        line2.beginPath(); line2.moveTo(60, rewardY); line2.lineTo(pW - 60, rewardY); line2.strokePath();
+        // Level 5 (boss level) has no objectives or reward shown
+        if (this.currentLevel !== 4) {
+            const kills = Math.min(this.killCount, KILLS_NEEDED);
+            const objectives = [
+                { done: this.npcTalked,         text: 'Promluv s NPC' },
+                { done: kills >= KILLS_NEEDED,   text: `Poraž ${KILLS_NEEDED} příšer (${kills}/${KILLS_NEEDED})` },
+            ];
+            objectives.forEach((o, idx) => {
+                const yy = objY + idx * 38;
+                objItems.push(
+                    this.add.text(60, yy, o.done ? '✓' : '□', {
+                        fontSize: '16px', fill: o.done ? '#1F7A3F' : '#3A2A12',
+                        fontFamily: '"Press Start 2P", monospace',
+                    }),
+                    this.add.text(95, yy, o.text, {
+                        fontSize: '24px', fill: o.done ? 'rgba(58,42,18,0.5)' : '#2E1F0A',
+                        fontFamily: '"VT323", monospace',
+                    })
+                );
+            });
 
-        const rewardLabel = this.add.text(60, rewardY + 20, 'Odměna:', {
-            fontSize: '26px', fill: '#3A2A12', fontFamily: '"VT323", monospace',
-        });
-        const rewardVal = this.add.text(210, rewardY + 20, `★ ${this.levelData.reward ?? 50} zlaťáků`, {
-            fontSize: '26px', fill: '#B8870D', fontFamily: '"VT323", monospace',
-        });
+            const rewardY = objY + objectives.length * 38 + 20;
+            const line2 = this.add.graphics();
+            line2.lineStyle(2, 0x8C6B36, 1);
+            line2.beginPath(); line2.moveTo(60, rewardY); line2.lineTo(pW - 60, rewardY); line2.strokePath();
+
+            const rewardLabel = this.add.text(60, rewardY + 20, 'Odměna:', {
+                fontSize: '26px', fill: '#3A2A12', fontFamily: '"VT323", monospace',
+            });
+            const rewardVal = this.add.text(210, rewardY + 20, `★ ${this.levelData.reward ?? 50} zlaťáků`, {
+                fontSize: '26px', fill: '#B8870D', fontFamily: '"VT323", monospace',
+            });
+            rewardItems.push(line2, rewardLabel, rewardVal);
+        }
+
         const hint = this.add.text(pW / 2, pH - 28, 'ESC — zavřít', {
             fontSize: '13px', fill: '#8C6B36', fontFamily: '"Press Start 2P", monospace',
         }).setOrigin(0.5);
@@ -741,7 +836,7 @@ export default class GameScene extends Phaser.Scene {
         // Container fixed to screen — setScrollFactor(0) ignores camera movement
         this.dialogBox = this.add.container(px, py,
             [bg, seal, sealBrd, sealTxt, questLabel, title, line1, bodyTxt,
-             ...objItems, line2, rewardLabel, rewardVal, hint]
+             ...objItems, ...rewardItems, hint]
         ).setDepth(99).setScrollFactor(0);
     }
 
@@ -765,6 +860,44 @@ export default class GameScene extends Phaser.Scene {
 
     update() {
         if (this.inBattle || this.isPaused) return;
+
+        // Princess escape check (level 5)
+        if (this.currentLevel === 4 && this.princess) {
+            this.princessEscape();
+        }
+
+        // Boss chasing player
+        if (this.enemies && this.enemies.children) {
+            this.enemies.children.entries.forEach(e => {
+                if (e.chasingPlayer && e.active) {
+                    const dx = this.player.x - e.x;
+                    const dy = this.player.y - e.y;
+                    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+                    e.setVelocity(dx/len * 60, dy/len * 60);
+                    if (dx < 0) e.setFlipX(true); else e.setFlipX(false);
+                }
+            });
+        }
+
+        // Princess returns when boss is defeated (level 5)
+        if (this.currentLevel === 4 && this.bossHidden && !this.princess) {
+            const bossEnemies = this.enemies.children.entries.filter(e => e.enemyData.type === 'boss' && e.active);
+            if (bossEnemies.length === 0) {
+                this.bossHidden = false;
+                // Princess reappears
+                const x = 25 * TILE + TILE/2;
+                const y = 3 * TILE + TILE/2;
+                this.princess = this.physics.add.staticSprite(x, y, 'princess_idle', 0);
+                this.princess.npcData = {
+                    name: 'Princezna',
+                    message: '„Co jsi to udělal?! Já se jen zavřela ve věži, abych měla čas se učit... Ty strážci tady byli aby mě nikdo nerušil!"'
+                };
+                this.princess.setScale(2.5).setDepth(10);
+                this.princess.refreshBody();
+                this.princess.play('princess_idle');
+                this.npcs.add(this.princess);
+            }
+        }
 
         // Y-sort props (e.g. cabin) vs player
         if (this.depthSortedProps) {
@@ -805,6 +938,11 @@ export default class GameScene extends Phaser.Scene {
                     this.inDialog = false;
                     this.dialogCooldown = true;
                     this.time.delayedCall(GAME_CONFIG.gameplay.dialogCooldownMs, () => { this.dialogCooldown = false; });
+                    // Level 5: Create victory portal after dialog closes
+                    if (this._level5Victory) {
+                        this._level5Victory = false;
+                        this.openVictoryPortal();
+                    }
                 }
             }
             this.player.setVelocity(0, 0);

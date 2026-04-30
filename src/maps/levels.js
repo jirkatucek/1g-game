@@ -406,8 +406,8 @@ export const LEVELS = [
         bgColor: 0x0d1a0d,
         map: [
         //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
-            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 0
-            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 1
+            [T, T, T, T, T, T, T, T, T, T, T, B, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 0
+            [T, T, T, T, T, T, T, T, T, T, T, B, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 1
             [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 2
             [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 3
             [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 4
@@ -424,21 +424,21 @@ export const LEVELS = [
             [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 15
             [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, P, G, G, G, G, G, G, P, G, G, G, G, G, G, T], // 16
             [T, G, G, G, G, G, G, G, G, G, G, B, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T], // 17
-            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 18
-            [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 19
+            [T, T, T, T, T, T, T, T, T, T, T, B, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 18
+            [T, T, T, T, T, T, T, T, T, T, T, B, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T], // 19
         ],
         playerStart: { x: 1, y: 9 },
         gate: { x: 25, y: 9 },
         enemies: [
-            { x:  3, y:  3, type: 'goblin', level: 4, name: 'Lesní Goblin' },
-            { x:  8, y:  5, type: 'goblin', level: 4, name: 'Lesní Goblin' },
-            { x:  5, y:  7, type: 'orc',   level: 4, name: 'Lesní Troll' },
-            { x:  2, y: 12, type: 'orc',   level: 4, name: 'Lesní Troll' },
-            { x:  7, y: 14, type: 'orc',   level: 4, name: 'Výsadkový Strážce' },
+            { x: 14, y:  9, type: 'goblin', level: 4, name: 'Lesní Goblin' },
+            { x: 20, y:  7, type: 'goblin', level: 4, name: 'Lesní Goblin' },
+            { x: 16, y:  4, type: 'orc',   level: 4, name: 'Lesní Troll' },
+            { x: 20, y: 14, type: 'orc',   level: 4, name: 'Lesní Troll' },
+            { x: 24, y: 11, type: 'orc',   level: 4, name: 'Výsadkový Strážce' },
         ],
         npcs: [
             {
-                x: 10, y: 9,
+                x: 10, y: 11,
                 name: 'Čaroděj kalkulátor',
                 message: '„Pevnost se otevře, až vyřešíš příklady na krácení zlomků u monster v lese!"',
             },
@@ -457,7 +457,9 @@ export const LEVELS = [
             },
         ],
         props: [
-            // ── Vnější hradba (sloupec 11, řady 2-17) ────────────────────────
+            // ── Vnější hradba (sloupec 11, řady 0-19) ────────────────────────
+            { x: 11, y:  0, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y:  1, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y:  2, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y:  3, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y:  4, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
@@ -473,14 +475,16 @@ export const LEVELS = [
             { x: 11, y: 14, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y: 15, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
             { x: 11, y: 16, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
-            { x: 11, y: 17, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 17, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 18, key: 'cw_wall1',  scale: 1, depth: 15, collide: true, angle: 90 },
+            { x: 11, y: 19, key: 'cw_wall2',  scale: 1, depth: 15, collide: true, angle: 90 },
 
             // ── Budovy vesnice ────────────────────────────────────────────────
-            { x: 13, y:  7, key: 'vb_1', scale: 1.5, depth: 8, collide: true, bodyW: 120, bodyH: 42, bodyOffY: 92 },
-            { x: 19, y:  5, key: 'vb_2', scale: 1.4, depth: 8, collide: true, bodyW: 175, bodyH: 40, bodyOffY: 70 },
-            { x: 19, y: 13, key: 'vb_3', scale: 1.4, depth: 8, collide: true, bodyW: 220, bodyH: 38, bodyOffY: 48 },
-            { x: 26, y:  7, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 42, bodyOffY: 85 },
-            { x: 26, y: 13, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 42, bodyOffY: 85 },
+            { x: 13, y:  7, key: 'vb_1', scale: 1.5, depth: 8, collide: true, bodyW: 120, bodyH: 120, bodyOffY: -20 },
+            { x: 19, y:  5, key: 'vb_2', scale: 1.4, depth: 8, collide: true, bodyW: 175, bodyH: 140, bodyOffY: -30 },
+            { x: 19, y: 13, key: 'vb_3', scale: 1.4, depth: 8, collide: true, bodyW: 220, bodyH: 140, bodyOffY: -30 },
+            { x: 26, y:  7, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 120, bodyOffY: -20 },
+            { x: 26, y: 13, key: 'vb_1', scale: 1.4, depth: 8, collide: true, bodyW: 112, bodyH: 120, bodyOffY: -20 },
 
             // ── Campfire (křižovatka sever) ───────────────────────────────────
             { x: 21, y:  7, key: 'campfire', scale: 1.8, depth: 6, anim: 'campfire_burn' },
@@ -523,25 +527,61 @@ export const LEVELS = [
         reward: 80,
     },
 
-    // ── Level 5: Bažina Sčítání ──────────────────────────────────────────
+    // ── Level 5: Věž Mysli (Cesta k věži) ──────────────────────────────────
     {
-        name: 'Bažina Sčítání',
-        bgColor: 0x0a1a0a,
-        map: makeMap('forest'),
-        playerStart: { x: 2, y: 2 },
-        gate: { x: 22, y: 12 },
-        enemies: [
-            { x: 5,  y: 3, type: 'orc',    level: 5, name: 'Bahenní Duch' },
-            { x: 10, y: 4, type: 'orc',    level: 5, name: 'Bahenní Duch' },
-            { x: 7,  y: 7, type: 'dragon', level: 5, name: 'Mlžný Golem' },
-            { x: 14, y: 7, type: 'dragon', level: 5, name: 'Mlžný Golem' },
-            { x: 17, y: 9, type: 'dragon', level: 5, name: 'Bahenní Stvůra' },
+        name: 'Věž Mysli',
+        map: [
+            [T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,P,P,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,P,P,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,P,P,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,P,P,P,G,G,G,G,G,T],
+            [T,G,G,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,G,G,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,G,G,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,G,G,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,G,G,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,P,P,P,P,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,G,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,G,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,G,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,G,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,G,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,G,G,G,G,G,G,T],
+            [T,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,T,T,G,G,G,G,G,G,G,G,G,T],
+            [T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T],
+            [T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T],
         ],
-        npcs: [{
-            x: 3, y: 3,
-            name: 'Čaroděj kalkulátor',
-            message: '„Kvák! Sjednoť spodky a pak sečti vršky. Nenech se utopit v bahně! Např. 1/2 + 1/4 = 2/4 + 1/4 = 3/4"',
-        }],
+        playerStart: { x: 2, y: 2 },
+        gate: { x: 27, y: 5 },
+        enemies: [
+            { x: 5, y: 8, type: 'goblin', level: 5, name: 'Lesní Strážce' },
+            { x: 10, y: 6, type: 'goblin', level: 5, name: 'Lesní Strážce' },
+            { x: 7, y: 12, type: 'orc', level: 5, name: 'Lesní Vůdce' },
+            { x: 12, y: 14, type: 'orc', level: 5, name: 'Lesní Vůdce' },
+            { x: 26, y: 14, type: 'boss', level: 5, name: 'Válečník Věže' },
+        ],
+        npcs: [
+            {
+                x: 3, y: 6,
+                name: 'Čaroděj kalkulátor',
+                message: '„Jsi připraven? Ve věži by měla být princezna, ale ještě pro ni budeš muset bojovat. Tvoji poslední zkouškou bude tvůj největší nepřítel. Nejdřív poraz všechny střežící věž a pak pokračuj za princeznou. Držím ti palce!"',
+            },
+            {
+                x: 25, y: 3,
+                name: 'Princezna',
+                type: 'princess',
+                sprite: 'princess_idle',
+                anim: 'princess_idle',
+            },
+        ],
+        props: [
+            // Campfire u spawn
+            { x: 2, y: 3, key: 'campfire', anim: 'campfire_burn', scale: 1.6, depth: 6 },
+
+            // Věž nahoru na travu do rohu
+            { x: 27, y: 2, key: 'tower', scale: 0.8, depth: 8, collide: true, bodyW: 100, bodyH: 120 },
+        ],
     },
 
 ];
