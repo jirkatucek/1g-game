@@ -264,9 +264,9 @@ export const LEVELS = [
             { x: 19, y:  8, type: 'orc',   level: 3, name: 'Přerostlý Goblin' },
         ],
         npcs: [{
-            x: 11, y: 10,
+            x: 0, y: 8,
             name: 'Čaroděj kalkulátor',
-            message: '„Pozor, tato monstra jsou zbytečně nafouklá! Musíš je zkrátit na základní tvar. Např. 4/8 = 1/2"',
+            message: '„Pozor, tata monstra jsou zbytečně nafouklá! Musíš je zkrátit na základní tvar. Např. 4/8 = 1/2"',
         }],
         props: [
             // ── Horní sekce (řady 2-5): kytky, borovice a příroda ──
