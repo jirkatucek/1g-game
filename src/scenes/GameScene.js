@@ -490,15 +490,10 @@ export default class GameScene extends Phaser.Scene {
         }
 
         // Aktualizuj stamina bar - každá čárka = 20 staminy (max 5 čárek = 100 staminy)
-        const staminaSegments = Math.ceil(this.stamina / 20);
+        const staminaSegments = Math.floor(this.stamina / 20);
         const maxStaminaSegments = 5;
-        const clampedStaminaSegments = Math.max(0, Math.min(maxStaminaSegments, staminaSegments));
-
-        if (clampedStaminaSegments === 0) {
-            this.staminaBarSprite.setTexture('stamina_bar_empty');
-        } else {
-            this.staminaBarSprite.setTexture(`stamina_bar_${clampedStaminaSegments}`);
-        }
+        const clampedStaminaSegments = Math.max(1, Math.min(maxStaminaSegments, staminaSegments));
+        this.staminaBarSprite.setTexture(`stamina_bar_${clampedStaminaSegments}`);
     }
 
     triggerBattle(player, enemy) {
