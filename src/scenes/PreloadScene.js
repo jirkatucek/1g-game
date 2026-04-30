@@ -39,6 +39,8 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.audio('victory_win', 'assets/sounds/victory_win.mp3');
         // Lose/death sound
         this.load.audio('lose_sfx', 'assets/sounds/lose_sfx.mp3');
+        // Boss fight music
+        this.load.audio('boss_fight_music', 'assets/sounds/boss_fight_music.mp3');
         // Coin animation spritesheet
         this.load.spritesheet('coin_tiles', 'assets/coin_tiles.png', { frameWidth: 16, frameHeight: 16 });
         // Cabin building

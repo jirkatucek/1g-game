@@ -108,34 +108,28 @@ export default class MathGenerator {
         };
     }
 
-    // ======== LEVEL 4: Pevnost jmenovatele (Různý jmenovatel - lehké) ========
+    // ======== LEVEL 4: Pevnost jmenovatele (Stejný jmenovatel - 3 zlomky) ========
     static level4_add() {
-        const pairs = [[2,4], [2,3], [3,6], [2,6], [2,5], [1,5], [2,10]];
-        let d1, d2, a, b;
-        const pair = pairs[Math.floor(Math.random() * pairs.length)];
-        [d1, d2] = [pair[0], pair[1]];
-        a = this.rnd(1, d1 - 1);
-        b = this.rnd(1, d2 - 1);
-        const lcd = this.lcm(d1, d2);
-        const num = a * (lcd / d1) + b * (lcd / d2);
+        const d = this.rnd(4, 8);
+        const a = this.rnd(1, d - 3);
+        const b = this.rnd(1, d - a - 2);
+        const c = this.rnd(1, d - a - b - 1);
         return {
-            question: `${a}/${d1} + ${b}/${d2} = ?`,
-            answer: this.fstr(num, lcd),
-            hint: `Společný jmenovatel: ${lcd}. Převeď obě zlomky a sečti`
+            question: `${a}/${d} + ${b}/${d} + ${c}/${d} = ?`,
+            answer: this.fstr(a + b + c, d),
+            hint: `Stejný jmenovatel: sečti čitatele ${a} + ${b} + ${c} = ${a + b + c}`
         };
     }
     static level4_sub() {
-        const pairs = [[2,4], [3,6], [4,8], [2,6], [3,4], [2,5]];
-        const [d1, d2] = pairs[Math.floor(Math.random() * pairs.length)];
-        const lcd = this.lcm(d1, d2);
-        const a = this.rnd(2, d1 - 1);
-        const b = this.rnd(1, Math.min(d2 - 1, a * (lcd / d1) / (lcd / d2) - 1));
-        const num = a * (lcd / d1) - b * (lcd / d2);
-        if (num <= 0) return this.level4_add();
+        const d = this.rnd(4, 8);
+        const sum = this.rnd(3, d - 1);
+        const a = this.rnd(2, sum - 2);
+        const b = this.rnd(1, sum - a - 1);
+        const c = sum - a - b;
         return {
-            question: `${a}/${d1} − ${b}/${d2} = ?`,
-            answer: this.fstr(num, lcd),
-            hint: `Společný jmenovatel: ${lcd}`
+            question: `${sum}/${d} − ${a}/${d} − ${b}/${d} = ?`,
+            answer: this.fstr(c, d),
+            hint: `Stejný jmenovatel: odečti čitatele ${sum} − ${a} − ${b} = ${c}`
         };
     }
 

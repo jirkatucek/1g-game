@@ -57,6 +57,11 @@ export default class BattleScene extends Phaser.Scene {
         applyAudioPreferences(this, prefs);
         playThemeMusic(this, prefs);
 
+        if (this.isBoss) {
+            this.sound.stopByKey('theme_adventure');
+            this.sound.play('boss_fight_music', { loop: true, volume: 0.7 });
+        }
+
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdownScene, this);
 
         const W = this.scale.width, H = this.scale.height;
@@ -278,6 +283,7 @@ export default class BattleScene extends Phaser.Scene {
     end(result, extra = {}) {
         this.canAnswer = false;
         this.input.keyboard.off('keydown', this.onKey, this);
+        if (this.isBoss) this.sound.stopByKey('boss_fight_music');
         this.game.registry.set('battleResult', {
             result,
             enemyIndex: this.enemyIndex,
@@ -293,12 +299,17 @@ export default class BattleScene extends Phaser.Scene {
     win() {
         this.sound.play('victory_win');
         this.cameras.main.flash(600, 255, 220, 0);
+        if (this.isBoss) {
+            this.sound.stopByKey('boss_fight_music');
+            this.sound.play('theme_adventure', { loop: true, volume: 0.5 });
+        }
         this.end('win', { delay: 1500 });
     }
 
     lose() {
         this.canAnswer = false;
         this.input.keyboard.off('keydown', this.onKey, this);
+        if (this.isBoss) this.sound.stopByKey('boss_fight_music');
         this.add.text(this.scale.width / 2, this.scale.height / 2, 'PROHRÁL JSI...', {
             fontSize: '40px', fill: '#ff2222', fontFamily: 'Arial Black',
             stroke: '#660000', strokeThickness: 6,
