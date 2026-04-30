@@ -31,8 +31,8 @@ export default class GameScene extends Phaser.Scene {
         this.playerHP       = data.playerHP ?? saved.playerHP ?? 100;
         this.playerMaxHP    = 100;
         this.gold           = data.gold ?? saved.gold ?? 0;
-        this.killCount      = data.killCount ?? saved.killCount ?? 0;
-        this.npcTalked      = data.npcTalked ?? saved.npcTalked ?? false;
+        this.killCount      = data.killCount ?? 0;
+        this.npcTalked      = data.npcTalked ?? false;
         this.registry.set('lastLevel', this.currentLevel);
         saveProgress(this, {
             currentLevel: this.currentLevel,
@@ -451,6 +451,16 @@ export default class GameScene extends Phaser.Scene {
         this.staminaBarSprite = this.add.image(0, 0, 'stamina_bar_5').setOrigin(0, 0).setScale(5);
         this.staminaBarContainer.add(this.staminaBarSprite);
 
+        // Gold counter - vedle staminy
+        const goldContainer = this.add.container(60, 170).setScrollFactor(0).setDepth(50);
+        const goldIcon = this.add.sprite(0, 0, 'coin_tiles', 0).setOrigin(0.5, 0.5).setScale(3);
+        if (this.anims.exists('coin_spin')) goldIcon.play('coin_spin');
+        this.goldText = this.add.text(50, 0, `${this.gold}`, {
+            fontSize: '32px', fill: '#ffdd00', fontFamily: 'Arial Black'
+        }).setOrigin(0, 0.5);
+        goldContainer.add(goldIcon);
+        goldContainer.add(this.goldText);
+
         // Menu button v rohu
         const menuBtn = this.add.rectangle(W - 40, 20, 60, 50, 0x1a3344, 0.9)
             .setStrokeStyle(2, 0x6688aa)
@@ -525,6 +535,7 @@ export default class GameScene extends Phaser.Scene {
                 if (e.enemyIndex === data.enemyIndex) e.destroy();
             });
             this.gold += data.goldEarned ?? 10;
+            if (this.goldText) this.goldText.setText(`${this.gold}`);
             this.killCount++;
             saveProgress(this, {
                 currentLevel: this.currentLevel,
@@ -557,6 +568,14 @@ export default class GameScene extends Phaser.Scene {
         this.gateOpen = true;
         this.gate.body.enable = true;
         this.gate.play('portal_spin');
+
+        // Quest reward - zlato za splnený quest na levelech 1-4
+        if (this.currentLevel >= 0 && this.currentLevel <= 3) {
+            const questReward = 50;
+            this.gold += questReward;
+            if (this.goldText) this.goldText.setText(`${this.gold}`);
+            this.showFloatingText(`+${questReward} zlata! 💰`, 0xffdd00);
+        }
 
         // Fade portal in, then pulse scale
         this.tweens.add({
@@ -723,6 +742,7 @@ export default class GameScene extends Phaser.Scene {
         this.player.hp = Math.min(this.player.maxHp, this.player.hp + GAME_CONFIG.gameplay.shopHealthGain);
         this._shopHpTxt.setText(`HP:    ${this.player.hp} / ${this.player.maxHp}`);
         this._shopGoldTxt.setText(`Zlato: ${this.gold}`);
+        if (this.goldText) this.goldText.setText(`${this.gold}`);
         this._shopFeedback.setText(`+${GAME_CONFIG.gameplay.shopHealthGain} HP!`).setStyle({ fill: '#44ff44' });
         this.updateHUD();
     }

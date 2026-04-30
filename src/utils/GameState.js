@@ -124,10 +124,8 @@ export function saveProgress(scene, extra = {}) {
         gold: Number.isFinite(Number(extra.gold))
             ? Number(extra.gold)
             : Number.isFinite(Number(scene?.gold)) ? Number(scene.gold) : 0,
-        killCount: Number.isFinite(Number(extra.killCount))
-            ? Number(extra.killCount)
-            : Number.isFinite(Number(scene?.killCount)) ? Number(scene.killCount) : 0,
-        npcTalked: typeof extra.npcTalked === 'boolean' ? extra.npcTalked : !!scene?.npcTalked,
+        killCount: 0,
+        npcTalked: false,
         volume: Number.isFinite(Number(extra.volume)) ? Number(extra.volume) : existing.volume,
         sfxVolume: Number.isFinite(Number(extra.sfxVolume)) ? Number(extra.sfxVolume) : existing.sfxVolume,
         muted: typeof extra.muted === 'boolean' ? extra.muted : existing.muted,

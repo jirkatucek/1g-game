@@ -37,6 +37,8 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.audio('theme_adventure', 'assets/sounds/theme_adventure.mp3');
         // Victory sound
         this.load.audio('victory_win', 'assets/sounds/victory_win.mp3');
+        // Coin animation spritesheet
+        this.load.spritesheet('coin_tiles', 'assets/coin_tiles.png', { frameWidth: 16, frameHeight: 16 });
         // Cabin building
         this.load.image('cabin', 'assets/cabin.png');
         // Cabin woodland decorations
@@ -163,6 +165,7 @@ export default class PreloadScene extends Phaser.Scene {
         this.anims.create({ key: 'princess_idle', frames: this.anims.generateFrameNumbers('princess_idle', { start: 0, end: 2 }), frameRate: 6, repeat: -1 });
         this.anims.create({ key: 'princess_run',  frames: this.anims.generateFrameNumbers('princess_run',  { start: 0, end: 3 }), frameRate: 10, repeat: -1 });
         this.anims.create({ key: 'gold_coin_spin', frames: this.anims.generateFrameNumbers('gold_coin_anim', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
+        this.anims.create({ key: 'coin_spin', frames: this.anims.generateFrameNumbers('coin_tiles', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
 
         Object.entries(RED_ENEMY_UNITS).forEach(([unit, cfg]) => {
             const idleAnim = `enemy_${unit}_idle_anim`;
