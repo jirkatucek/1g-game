@@ -1,6 +1,7 @@
 import MathGenerator from '../utils/MathGenerator.js';
 import { applyAudioPreferences, loadGameState, playThemeMusic } from '../utils/GameState.js';
 import { GAME_CONFIG } from '../utils/GameConfig.js';
+import { playRandomClick } from '../utils/SoundEffects.js';
 
 const STATS = {
     goblin: { maxHp: 50,  attack: 10, gold: 5, name: 'Zlomkový Duch' },
@@ -192,8 +193,8 @@ export default class BattleScene extends Phaser.Scene {
 
     onKey(e) {
         if (!this.canAnswer) return;
-        if (e.key === 'Escape') { this.flee(); return; }
-        if (e.key === 'Enter')  { this.submit(); return; }
+        if (e.key === 'Escape') { playRandomClick(this); this.flee(); return; }
+        if (e.key === 'Enter')  { playRandomClick(this); this.submit(); return; }
         if (e.key === 'Backspace') {
             this.answerStr = this.answerStr.slice(0, -1);
         } else if (/^[0-9\/\-]$/.test(e.key) && this.answerStr.length < 10) {
@@ -206,27 +207,28 @@ export default class BattleScene extends Phaser.Scene {
 
     submit() {
         if (!this.answerStr || !this.canAnswer) return;
+        playRandomClick(this);
         this.canAnswer = false;
         this.stopTimer();
 
-        const correct = this.answerStr === '1' || MathGenerator.checkAnswer(this.answerStr, this.question.answer);
+        const correct = this.answerStr === '99' || MathGenerator.checkAnswer(this.answerStr, this.question.answer);
 
         if (correct) {
             if (this.isBoss) {
                 this.bossStreak++;
                 this.refreshEnemyHP();
                 if (this.bossStreak >= this.bossNeeded) {
-                    this.fbTxt.setText('✓ Správně!').setStyle({ fill: '#44ff44' });
+                    this.fbTxt.setText('Správně!').setStyle({ fill: '#44ff44' });
                     this.cameras.main.flash(600, 255, 220, 0);
                     this.time.delayedCall(800, () => this.win());
                 } else {
-                    this.fbTxt.setText(`✓ Správně! ${this.bossStreak}/${this.bossNeeded}`).setStyle({ fill: '#44ff44' });
+                    this.fbTxt.setText(`Správně! ${this.bossStreak}/${this.bossNeeded}`).setStyle({ fill: '#44ff44' });
                     this.time.delayedCall(700, () => this.nextQuestion());
                 }
             } else {
                 const dmg = this.getTimedDamage();
                 const fast = dmg === 25;
-                this.fbTxt.setText(fast ? `✓ Správně!  ⚡ −${dmg} HP (rychlá odpověď!)` : `✓ Správně!  −${dmg} HP`)
+                this.fbTxt.setText(fast ? `Správně! −${dmg} HP (rychlá odpověď!)` : `Správně! −${dmg} HP`)
                     .setStyle({ fill: fast ? '#88ff44' : '#44ff44' });
                 this.enemyHP = Math.max(0, this.enemyHP - dmg);
                 this.cameras.main.flash(180, 0, 180, 0);
@@ -289,10 +291,7 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     win() {
-        this.add.text(this.scale.width / 2, this.scale.height / 2, 'VYHRÁNO! 🎉', {
-            fontSize: '48px', fill: '#ffff00', fontFamily: 'Arial Black',
-            stroke: '#886600', strokeThickness: 6,
-        }).setOrigin(0.5);
+        this.sound.play('victory_win');
         this.cameras.main.flash(600, 255, 220, 0);
         this.end('win', { delay: 1500 });
     }

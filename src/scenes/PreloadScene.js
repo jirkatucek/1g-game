@@ -35,6 +35,8 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.audio('portal_whoosh', 'assets/sounds/portal_whoosh.mp3');
         // Main theme
         this.load.audio('theme_adventure', 'assets/sounds/theme_adventure.mp3');
+        // Victory sound
+        this.load.audio('victory_win', 'assets/sounds/victory_win.mp3');
         // Cabin building
         this.load.image('cabin', 'assets/cabin.png');
         // Cabin woodland decorations
