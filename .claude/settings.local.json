@@ -62,7 +62,8 @@
       "Bash(cp \"C:/Users/jirka/Downloads/Eilinv2/eilin_run.png\" \"c:/Users/jirka/Desktop/1.G Math game/assets/princess_run.png\")",
       "Bash(node -c \"c:/Users/jirka/Desktop/1.G Math game/src/maps/levels.js\")",
       "PowerShell($rarPath = \"c:\\\\Users\\\\jirka\\\\Downloads\\\\Pixel Xp Bars.rar\"; $outPath = \"c:\\\\Users\\\\jirka\\\\Downloads\\\\xp_bars_extracted\"; New-Item -ItemType Directory -Path $outPath -Force | Out-Null; & \"C:\\\\Program Files\\\\WinRAR\\\\UnRAR.exe\" x \"$rarPath\" \"$outPath\\\\\" 2>&1 | Select-Object -First 20)",
-      "Bash(npm start *)"
+      "Bash(npm start *)",
+      "Bash(git checkout *)"
     ]
   }
 }

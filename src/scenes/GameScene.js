@@ -49,7 +49,6 @@ export default class GameScene extends Phaser.Scene {
         this.battleCooldown  = false;
         this.stamina         = 100;
         this.maxStamina      = 100;
-        this.minStamina      = 25; // Minimum je 1 čárka
         this.isSprinting     = false;
         this.exhausted       = false;
         this.gateOpen       = false;
@@ -452,16 +451,6 @@ export default class GameScene extends Phaser.Scene {
         this.staminaBarSprite = this.add.image(0, 0, 'stamina_bar_5').setOrigin(0, 0).setScale(5);
         this.staminaBarContainer.add(this.staminaBarSprite);
 
-        // Gold display - pod stamina barem (animovaná ikona + číslo)
-        this.goldContainer = this.add.container(20, 130).setScrollFactor(0).setDepth(50);
-        this.goldCoinSprite = this.add.sprite(0, 0, 'gold_coin_anim').setOrigin(0, 0).setScale(3);
-        this.goldCoinSprite.play('gold_coin_spin');
-        this.goldContainer.add(this.goldCoinSprite);
-        this.goldText = this.add.text(35, 5, `${this.gold}`, {
-            fontSize: '20px', fill: '#FFD700', fontFamily: 'Arial Black', fontStyle: 'bold'
-        }).setOrigin(0, 0);
-        this.goldContainer.add(this.goldText);
-
         // Menu button v rohu
         const menuBtn = this.add.rectangle(W - 40, 20, 60, 50, 0x1a3344, 0.9)
             .setStrokeStyle(2, 0x6688aa)
@@ -500,18 +489,16 @@ export default class GameScene extends Phaser.Scene {
             this.healthBarSprite.setTexture(`hp_bar_${clampedHpSegments}`);
         }
 
-        // Aktualizuj stamina bar - každá čárka = 20 staminy (min 1 čárka, max 5 čárek = 100 staminy)
-        let staminaSegments;
-        if (this.stamina > 80) staminaSegments = 5;
-        else if (this.stamina > 60) staminaSegments = 4;
-        else if (this.stamina > 40) staminaSegments = 3;
-        else if (this.stamina > 20) staminaSegments = 2;
-        else staminaSegments = 1;
+        // Aktualizuj stamina bar - každá čárka = 20 staminy (max 5 čárek = 100 staminy)
+        const staminaSegments = Math.ceil(this.stamina / 20);
+        const maxStaminaSegments = 5;
+        const clampedStaminaSegments = Math.max(0, Math.min(maxStaminaSegments, staminaSegments));
 
-        this.staminaBarSprite.setTexture(`stamina_bar_${staminaSegments}`);
-
-        // Update gold display
-        this.goldText.setText(`${this.gold}`);
+        if (clampedStaminaSegments === 0) {
+            this.staminaBarSprite.setTexture('stamina_bar_empty');
+        } else {
+            this.staminaBarSprite.setTexture(`stamina_bar_${clampedStaminaSegments}`);
+        }
     }
 
     triggerBattle(player, enemy) {

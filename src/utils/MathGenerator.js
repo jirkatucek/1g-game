@@ -212,16 +212,16 @@ export default class MathGenerator {
                 this.level2_whole, this.level2_add
             ],
             3: [
-                this.level3_simplify, this.level3_simplify, 
-                this.level3_expand, this.level3_simplify, this.level3_expand
+                this.level2_add, this.level2_sub,
+                this.level2_whole, this.level2_add, this.level2_sub
             ],
             4: [
                 this.level4_add, this.level4_add, this.level4_sub,
                 this.level4_add, this.level4_sub
             ],
             5: [
-                this.level5_multiply_int, this.level5_mixed_ops,
-                this.level5_simplify_complex, this.level5_arithmetic, this.level5_problem
+                this.level5_hard_multiply, this.level5_four_nums_add,
+                this.level5_four_nums_mixed, this.level5_order_of_ops, this.level5_problem
             ]
         };
         

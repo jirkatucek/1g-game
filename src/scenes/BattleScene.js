@@ -9,6 +9,15 @@ const STATS = {
     boss:   { maxHp: 1,   attack: 25, gold: 5, name: 'Kalkulační Golem' },
 };
 
+const ENEMY_UNIT_CONFIG = {
+    pawn:    { idleKey: 'enemy_pawn_idle',    idleAnim: 'enemy_pawn_idle_anim',    battleScale: 4.0 },
+    warrior: { idleKey: 'enemy_warrior_idle', idleAnim: 'enemy_warrior_idle_anim', battleScale: 4.5 },
+    archer:  { idleKey: 'enemy_archer_idle',  idleAnim: 'enemy_archer_idle_anim',  battleScale: 4.2 },
+    lancer:  { idleKey: 'enemy_lancer_idle',  idleAnim: 'enemy_lancer_idle_anim',  battleScale: 3.0 },
+    monk:    { idleKey: 'enemy_monk_idle',    idleAnim: 'enemy_monk_idle_anim',    battleScale: 4.2 },
+    boss:    { idleKey: 'boss_idle',          idleAnim: 'boss_idle',               battleScale: 6.0 },
+};
+
 export default class BattleScene extends Phaser.Scene {
     constructor() { super({ key: 'BattleScene' }); }
 
@@ -35,6 +44,11 @@ export default class BattleScene extends Phaser.Scene {
         this.canAnswer  = true;
         this.wrongCount = 0;
         this.question   = null;
+
+        this._timerActive = false;
+        this._timerStartTime = 0;
+        this._timerDuration = 0;
+        this._timerTotalSeconds = 0;
     }
 
     create() {
@@ -52,80 +66,65 @@ export default class BattleScene extends Phaser.Scene {
             boss: 'lancer',
         };
         const unit = this.enemyUnit || unitByType[this.enemyData.type] || 'pawn';
-        const idleKey = `enemy_${unit}_idle`;
-        const idleAnimKey = `enemy_${unit}_idle_anim`;
-        const enemyScale = this.enemyScale ?? (this.isBoss ? 1.4 : 2.1);
+        const unitConfig = ENEMY_UNIT_CONFIG[unit] || ENEMY_UNIT_CONFIG.pawn;
+        const enemyScale = unitConfig.battleScale;
 
         const cx = W / 2, cy = H / 2;
-        const bw = W * 0.32; // HP bar width
 
-        this.add.rectangle(cx, cy, W, H, 0x000000, 0.88);
-        this.add.rectangle(cx, cy, W * 0.75, H * 0.82, 0x0e0e2a).setStrokeStyle(4, this.isBoss ? 0xcc4400 : 0x3366cc);
+        // Background - full screen (tiles properly)
+        this.add.image(cx, cy, 'battle_bg').setOrigin(0.5).setDisplaySize(W, H);
 
-        this.add.text(cx, H * 0.1, this.isBoss ? '🔥 BOSS SOUBOJ! 🔥' : '⚔  SOUBOJ!  ⚔', {
-            fontSize: '52px', fill: this.isBoss ? '#ff8800' : '#ff4444',
-            fontFamily: 'Arial Black', stroke: '#330000', strokeThickness: 8,
+        // SOUBOJ banner - top left corner
+        this.add.image(W * 0.15, H * 0.06, 'battle_souboj').setOrigin(0.5).setScale(1.5);
+
+        // Player (hero) - left side
+        const playerX = W * 0.25, playerY = H * 0.75;
+        const playerSprite = this.add.sprite(playerX, playerY, 'warrior_idle', 0).setScale(enemyScale * 0.85);
+        if (this.anims.exists('warrior_idle')) playerSprite.play('warrior_idle');
+
+        // Enemy - right side, facing left
+        const monsterX = W * 0.75, monsterY = H * 0.75;
+        const enemySprite = this.add.sprite(monsterX, monsterY, unitConfig.idleKey, 0).setScale(enemyScale).setFlipX(true);
+        if (this.anims.exists(unitConfig.idleAnim)) enemySprite.play(unitConfig.idleAnim);
+
+        // Question panel - center bottom at edge
+        this.add.image(cx, H * 0.91, 'battle_question_empty').setOrigin(0.5).setScale(1.0);
+
+        // Question text - inside panel, left aligned, bigger
+        this.qText = this.add.text(cx - 200, H * 0.895, '', {
+            fontSize: '32px', fill: '#000', fontFamily: 'Arial Black', align: 'left', wordWrap: { width: 400 }
+        }).setOrigin(0, 0.5);
+
+        // Answer input - inside panel bottom, centered
+        this.aTxt = this.add.text(cx - 100, H * 0.946, '_', {
+            fontSize: '24px', fill: '#333', fontFamily: 'Arial Black'
         }).setOrigin(0.5);
 
-        this.add.text(cx, H * 0.18, this.enemyName, {
-            fontSize: '36px', fill: '#ffaa44', fontFamily: 'Arial Black',
+        // Player HP - above player (left side)
+        this.pHPBar = this.add.rectangle(W * 0.25, H * 0.55, 180, 24, 0x22cc44).setOrigin(0.5);
+        this.pHPTxt = this.add.text(W * 0.25, H * 0.55, '', {
+            fontSize: '16px', fill: '#fff', fontFamily: 'Arial Black'
         }).setOrigin(0.5);
-
-        if (this.isBoss) {
-            this.streakText = this.add.text(cx, H * 0.24, `Správně v řadě: 0 / ${this.bossNeeded}`, {
-                fontSize: '26px', fill: '#ffff88', fontFamily: 'Arial',
-            }).setOrigin(0.5);
-        }
-
-        const ex = W * 0.22, ey = H * 0.4;
-        const enemySprite = this.add.sprite(ex, ey, idleKey, 0).setScale(enemyScale);
-        if (this.anims.exists(idleAnimKey)) enemySprite.play(idleAnimKey);
-
-        const eBarX = W * 0.08, barY = H * 0.56;
-        this.add.text(eBarX, H * 0.52, 'HP příšery:', { fontSize: '22px', fill: '#ccc', fontFamily: 'Arial' });
-        this.add.rectangle(eBarX, barY, bw, 28, 0x331111).setOrigin(0);
-        this.eHPBar = this.add.rectangle(eBarX, barY, bw, 28, 0xdd2222).setOrigin(0);
-        this.eHPTxt = this.add.text(eBarX + bw / 2, barY, '', { fontSize: '20px', fill: '#fff', fontFamily: 'Arial' }).setOrigin(0.5, 0);
-        this.refreshEnemyHP();
-
-        const px = W * 0.78, py = H * 0.4;
-        this.add.sprite(px, py, 'warrior_idle').setScale(2.5).play('warrior_idle');
-
-        const pBarX = W * 0.6;
-        this.add.text(pBarX, H * 0.52, 'Tvůj HP:', { fontSize: '22px', fill: '#ccc', fontFamily: 'Arial' });
-        this.add.rectangle(pBarX, barY, bw, 28, 0x113311).setOrigin(0);
-        this.pHPBar = this.add.rectangle(pBarX, barY, bw, 28, 0x22cc44).setOrigin(0);
-        this.pHPTxt = this.add.text(pBarX + bw / 2, barY, '', { fontSize: '20px', fill: '#fff', fontFamily: 'Arial' }).setOrigin(0.5, 0);
         this.refreshPlayerHP();
 
-        this.add.rectangle(cx, H * 0.66, W * 0.6, H * 0.12, 0x08082a).setStrokeStyle(3, 0x2255aa);
-        this.qText = this.add.text(cx, H * 0.66, '', {
-            fontSize: '38px', fill: '#fff', fontFamily: 'Arial', align: 'center',
+        // Enemy HP - above monster head (right side)
+        this.eHPBar = this.add.rectangle(W * 0.75, H * 0.55, 180, 24, 0xdd2222).setOrigin(0.5);
+        this.eHPTxt = this.add.text(W * 0.75, H * 0.55, '', {
+            fontSize: '16px', fill: '#fff', fontFamily: 'Arial Black'
         }).setOrigin(0.5);
+        this.refreshEnemyHP();
 
-        // Timer bar
-        const barW = W * 0.52;
-        this.add.rectangle(cx, H * 0.745, barW + 4, 18, 0x0a0a1a).setOrigin(0.5);
-        this.timerBarBg = this.add.rectangle(cx - barW / 2, H * 0.745, barW, 14, 0x1a1a2a).setOrigin(0, 0.5);
-        this.timerBar   = this.add.rectangle(cx - barW / 2, H * 0.745, barW, 14, 0x22cc44).setOrigin(0, 0.5);
-        this.timerLabel = this.add.text(cx, H * 0.745, '', {
-            fontSize: '11px', fill: '#888888', fontFamily: 'Arial',
-        }).setOrigin(0.5);
-        this._timerBarW = barW;
+        // Timer bar - full width bottom of screen
+        this.add.rectangle(cx, H * 0.992, W + 4, 24, 0x333333).setOrigin(0.5);
+        this.timerBarBg = this.add.rectangle(0, H * 0.992, W, 20, 0x1a1a1a).setOrigin(0, 0.5);
+        this.timerBar = this.add.rectangle(0, H * 0.992, W, 20, 0x22cc44).setOrigin(0, 0.5);
+        this.timerLabel = this.add.text(20, H * 0.992, '', {
+            fontSize: '14px', fill: '#fff', fontFamily: 'Arial'
+        }).setOrigin(0, 0.5);
+        this._timerBarW = W;
 
-        this.add.text(cx, H * 0.795, 'Tvoje odpověď (formát: 3/4):', { fontSize: '22px', fill: '#888', fontFamily: 'Arial' }).setOrigin(0.5);
-        this.add.rectangle(cx, H * 0.865, W * 0.18, 60, 0x101030).setStrokeStyle(3, 0x44aaff);
-        this.aTxt = this.add.text(cx, H * 0.865, '_', {
-            fontSize: '44px', fill: '#44ddff', fontFamily: 'Courier New',
-        }).setOrigin(0.5);
-
-        this.fbTxt = this.add.text(cx, H * 0.93, '', {
-            fontSize: '26px', fill: '#fff', fontFamily: 'Arial', align: 'center',
-        }).setOrigin(0.5);
-
-        this.add.text(cx, H * 0.97, 'ENTER = potvrdit   •   ESC = utéct (−20 HP)', {
-            fontSize: '20px', fill: '#444466', fontFamily: 'Arial',
-        }).setOrigin(0.5);
+        // Dummy objects to prevent crashes
+        this.fbTxt = this.add.text(cx, H * 0.7, '', { fontSize: '1px', fill: '#000' }).setVisible(false);
 
         this.input.keyboard.on('keydown', this.onKey, this);
         this.nextQuestion();

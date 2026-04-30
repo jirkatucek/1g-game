@@ -132,6 +132,13 @@ export default class PreloadScene extends Phaser.Scene {
         this.load.image('stamina_bar_empty', `assets/hud/white bar empty 6.png`);
         // Animated gold coin (spritesheet)
         this.load.spritesheet('gold_coin_anim', 'assets/hud/gold_coin_anim.png', { frameWidth: 16, frameHeight: 16 });
+        // Battle scene assets
+        this.load.image('battle_bg', 'assets/battle/02-background.png');
+        this.load.image('battle_hp_enemy', 'assets/battle/04-hp-enemy.png');
+        this.load.image('battle_hp_player', 'assets/battle/05-hp-player.png');
+        this.load.image('battle_question', 'assets/battle/06-question-panel.png');
+        this.load.image('battle_question_empty', 'assets/battle/06b-question-panel-empty.png');
+        this.load.image('battle_souboj', 'assets/battle/07-souboj-banner.png');
     }
 
     create() {
